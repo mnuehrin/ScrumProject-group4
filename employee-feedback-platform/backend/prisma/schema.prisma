@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum FeedbackCategory {
+  CULTURE
+  TOOLS
+  WORKLOAD
+  MANAGEMENT
+  OTHER
+}
+
+enum FeedbackStatus {
+  PENDING
+  REVIEWED
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum ActivityAction {
+  CREATED
+  UPVOTED
+  STATUS_CHANGED
+}
+
+model Feedback {
+  id              String           @id @default(uuid()) @db.VarChar(36)
+  content         String           @db.Text
+  category        FeedbackCategory
+  createdAt       DateTime         @default(now()) @map("created_at")
+  upvotes         Int              @default(0)
+  status          FeedbackStatus   @default(PENDING)
+  adminNote       String?          @db.Text @map("admin_note")
+  statusUpdatedAt DateTime?        @map("status_updated_at")
+  statusUpdatedBy String?          @map("status_updated_by")
+
+  upvoteEvents Upvote[]
+  activityLogs ActivityLog[]
+
+  @@map("feedback")
+}
+
+model Upvote {
+  id         String   @id @default(uuid()) @db.VarChar(36)
+  feedbackId String   @map("feedback_id")
+  sessionId  String   @db.VarChar(191) @map("session_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  feedback Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+
+  @@unique([feedbackId, sessionId])
+  @@index([feedbackId])
+  @@map("upvotes")
+}
+
+model ActivityLog {
+  id         String         @id @default(uuid()) @db.VarChar(36)
+  feedbackId String         @map("feedback_id")
+  action     ActivityAction
+  details    Json?
+  createdAt  DateTime       @default(now()) @map("created_at")
+
+  feedback Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+
+  @@index([feedbackId])
+  @@map("activity_log")
+}
