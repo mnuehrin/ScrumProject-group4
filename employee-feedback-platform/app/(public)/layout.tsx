@@ -18,6 +18,9 @@ export default function PublicLayout({
           <Link href="/feedback" className="hover:text-slate-900">
             Feedback
           </Link>
+          <Link href="/rewards" className="hover:text-slate-900">
+            My rewards
+          </Link>
         </nav>
       </header>
       {children}

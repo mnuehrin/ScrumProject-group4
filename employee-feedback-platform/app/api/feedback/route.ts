@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
   const feedbackList = await prisma.feedback.findMany({
     where,
     orderBy: sort === "top" ? { upvotes: "desc" } : { createdAt: "desc" },
+    include: { _count: { select: { comments: true } } },
   });
 
   let upvotedIds = new Set<string>();
@@ -34,9 +35,10 @@ export async function GET(req: NextRequest) {
     upvotedIds = new Set(upvotes.map((u) => u.feedbackId));
   }
 
-  const result = feedbackList.map((f) => ({
-    ...f,
-    hasUpvoted: upvotedIds.has(f.id),
+  const result = feedbackList.map(({ _count, ...feedback }) => ({
+    ...feedback,
+    hasUpvoted: upvotedIds.has(feedback.id),
+    commentsCount: _count.comments,
   }));
 
   return NextResponse.json(result);
@@ -55,9 +57,14 @@ export async function POST(req: NextRequest) {
   }
 
   const { content, category } = parsed.data;
+  const sessionId = getOrCreateSessionId(req);
 
   const feedback = await prisma.feedback.create({
-    data: { content, category },
+    data: {
+      content,
+      category,
+      submitterSessionId: sessionId || null,
+    },
   });
 
   await prisma.activityLog.create({

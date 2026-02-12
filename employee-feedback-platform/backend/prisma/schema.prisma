@@ -26,6 +26,19 @@ enum ActivityAction {
   CREATED
   UPVOTED
   STATUS_CHANGED
+  REWARDED
+  REDEEMED
+  COMMENTED
+}
+
+enum RewardType {
+  PROMO_CODE
+  HOLIDAY_DAY
+}
+
+enum RewardStatus {
+  AWARDED
+  REDEEMED
 }
 
 model Feedback {
@@ -38,11 +51,49 @@ model Feedback {
   adminNote       String?          @db.Text @map("admin_note")
   statusUpdatedAt DateTime?        @map("status_updated_at")
   statusUpdatedBy String?          @map("status_updated_by")
+  submitterSessionId String?        @db.VarChar(191) @map("submitter_session_id")
 
   upvoteEvents Upvote[]
   activityLogs ActivityLog[]
+  reward       Reward?
+  comments     FeedbackComment[]
 
+  @@index([submitterSessionId])
   @@map("feedback")
+}
+
+model FeedbackComment {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  feedbackId String   @map("feedback_id")
+  parentId  String?  @map("parent_id")
+  sessionId String   @db.VarChar(191) @map("session_id")
+  content   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  feedback Feedback          @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  parent   FeedbackComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: SetNull)
+  replies  FeedbackComment[] @relation("CommentReplies")
+
+  @@index([feedbackId])
+  @@index([parentId])
+  @@map("feedback_comments")
+}
+
+model Reward {
+  id         String       @id @default(uuid()) @db.VarChar(36)
+  feedbackId String       @unique @map("feedback_id")
+  rewardType RewardType
+  status     RewardStatus @default(AWARDED)
+  claimCode  String       @unique @db.VarChar(32) @map("claim_code")
+  promoCode  String?      @db.VarChar(191) @map("promo_code")
+  awardedAt  DateTime     @default(now()) @map("awarded_at")
+  redeemedAt DateTime?    @map("redeemed_at")
+  awardedBy  String?      @db.VarChar(191) @map("awarded_by")
+
+  feedback Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+
+  @@index([feedbackId])
+  @@map("rewards")
 }
 
 model Upvote {

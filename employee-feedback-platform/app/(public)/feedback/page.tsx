@@ -5,8 +5,13 @@ import type { FeedbackWithMeta } from "@/types";
 async function getFeedback(): Promise<FeedbackWithMeta[]> {
   const rows = await prisma.feedback.findMany({
     orderBy: { createdAt: "desc" },
+    include: { _count: { select: { comments: true } } },
   });
-  return rows.map((f) => ({ ...f, hasUpvoted: false }));
+  return rows.map((f) => ({
+    ...f,
+    hasUpvoted: false,
+    commentsCount: f._count.comments,
+  }));
 }
 
 export default async function FeedbackPage() {

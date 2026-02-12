@@ -2,19 +2,9 @@
 
 import { useState, useCallback } from "react";
 import { FeedbackCard } from "@/components/feedback/FeedbackCard";
+import { FeedbackThread } from "@/components/feedback/FeedbackThread";
+import { getSessionId } from "@/components/feedback/session";
 import type { FeedbackWithMeta, CategoryFilter, SortOption } from "@/types";
-
-const SESSION_KEY = "efp_session_id";
-
-function getSessionId(): string {
-  if (typeof window === "undefined") return "";
-  let id = localStorage.getItem(SESSION_KEY);
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem(SESSION_KEY, id);
-  }
-  return id;
-}
 
 const CATEGORY_TABS: { value: CategoryFilter; label: string }[] = [
   { value: "ALL", label: "All" },
@@ -113,6 +103,12 @@ export function FeedbackFeed({ initialFeedback }: FeedbackFeedProps) {
                     count={item.upvotes}
                     hasUpvoted={item.hasUpvoted}
                     onUpvote={() => handleUpvote(item.id)}
+                  />
+                }
+                threadSlot={
+                  <FeedbackThread
+                    feedbackId={item.id}
+                    initialCount={item.commentsCount}
                   />
                 }
               />

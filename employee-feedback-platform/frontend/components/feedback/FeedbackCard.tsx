@@ -35,9 +35,10 @@ const STATUS_VARIANTS: Record<FeedbackStatus, "pending" | "reviewed" | "in_progr
 interface FeedbackCardProps {
   feedback: FeedbackWithMeta;
   upvoteSlot?: React.ReactNode;
+  threadSlot?: React.ReactNode;
 }
 
-export function FeedbackCard({ feedback, upvoteSlot }: FeedbackCardProps) {
+export function FeedbackCard({ feedback, upvoteSlot, threadSlot }: FeedbackCardProps) {
   const formattedDate = new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
@@ -73,6 +74,7 @@ export function FeedbackCard({ feedback, upvoteSlot }: FeedbackCardProps) {
       <CardFooter className="justify-between">
         {upvoteSlot}
       </CardFooter>
+      {threadSlot && <CardContent>{threadSlot}</CardContent>}
     </Card>
   );
 }

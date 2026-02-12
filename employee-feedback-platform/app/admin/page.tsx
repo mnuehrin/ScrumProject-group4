@@ -8,8 +8,14 @@ import type { FeedbackWithMeta } from "@/types";
 async function getAllFeedback(): Promise<FeedbackWithMeta[]> {
   const rows = await prisma.feedback.findMany({
     orderBy: { createdAt: "desc" },
+    include: { reward: true, _count: { select: { comments: true } } },
   });
-  return rows.map((f) => ({ ...f, hasUpvoted: false }));
+  return rows.map((f) => ({
+    ...f,
+    hasUpvoted: false,
+    reward: f.reward ?? null,
+    commentsCount: f._count.comments,
+  }));
 }
 
 export default async function AdminPage() {

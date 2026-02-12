@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { createFeedbackSchema, type CreateFeedbackInput } from "@/lib/validations";
+import { getSessionId } from "@/components/feedback/session";
 
 const CATEGORY_OPTIONS = [
   { value: "CULTURE", label: "Culture" },
@@ -47,7 +48,10 @@ export function FeedbackForm() {
     try {
       const res = await fetch("/api/feedback", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-session-id": getSessionId(),
+        },
         body: JSON.stringify(data),
       });
 
@@ -138,7 +142,8 @@ export function FeedbackForm() {
       </Button>
 
       <p className="text-center text-xs text-slate-400">
-        Your submission is completely anonymous — no names, no IPs logged.
+        Your submission is completely anonymous — no names, no IPs logged. If your feedback is
+        awarded, claim codes appear in My rewards.
       </p>
     </form>
   );
