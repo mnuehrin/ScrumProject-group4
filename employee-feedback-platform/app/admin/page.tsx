@@ -25,8 +25,8 @@ export default async function AdminPage() {
   const feedback = await getAllFeedback();
 
   return (
-    <section className="space-y-6">
-      <div className="flex items-center justify-between">
+    <section className="space-y-7">
+      <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-5 py-4">
         <p className="text-sm text-slate-600">
           {feedback.length} total submissions
         </p>

@@ -2,7 +2,7 @@ import { FeedbackForm } from "@/components/feedback/FeedbackForm";
 
 export default function SubmitPage() {
   return (
-    <section className="space-y-6 max-w-xl">
+    <section className="max-w-2xl space-y-7 rounded-xl border border-slate-200 bg-white px-5 py-6 sm:px-6 sm:py-7">
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold text-slate-900">
           Submit anonymous feedback
