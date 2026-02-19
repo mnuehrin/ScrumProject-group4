@@ -55,3 +55,42 @@ export const createCommentSchema = z.object({
 });
 
 export type CreateCommentInput = z.infer<typeof createCommentSchema>;
+
+export const createCampaignSchema = z.object({
+  title: z.string().trim().min(3, "Title must be at least 3 characters."),
+  description: z.string().trim().max(2000).optional(),
+  startsAt: z.string().datetime().optional(),
+  endsAt: z.string().datetime().optional(),
+  status: z.enum(["DRAFT", "LIVE", "ARCHIVED"]).optional(),
+});
+
+export type CreateCampaignInput = z.infer<typeof createCampaignSchema>;
+
+export const updateCampaignSchema = z.object({
+  title: z.string().trim().min(3).optional(),
+  description: z.string().trim().max(2000).optional(),
+  startsAt: z.string().datetime().nullable().optional(),
+  endsAt: z.string().datetime().nullable().optional(),
+  status: z.enum(["DRAFT", "LIVE", "ARCHIVED"]).optional(),
+});
+
+export type UpdateCampaignInput = z.infer<typeof updateCampaignSchema>;
+
+export const createQuestionSchema = z.object({
+  prompt: z.string().trim().min(3, "Question prompt is required."),
+  type: z.enum(["TEXT"]).optional(),
+  order: z.number().int().min(0).optional(),
+});
+
+export type CreateQuestionInput = z.infer<typeof createQuestionSchema>;
+
+export const submitResponseSchema = z.object({
+  sessionId: z.string().min(1, "Session ID is required."),
+  content: z
+    .string()
+    .trim()
+    .min(2, "Response must be at least 2 characters.")
+    .max(2000, "Response must be 2000 characters or fewer."),
+});
+
+export type SubmitResponseInput = z.infer<typeof submitResponseSchema>;

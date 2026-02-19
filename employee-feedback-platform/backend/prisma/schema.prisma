@@ -41,6 +41,16 @@ enum RewardStatus {
   REDEEMED
 }
 
+enum CampaignStatus {
+  DRAFT
+  LIVE
+  ARCHIVED
+}
+
+enum QuestionType {
+  TEXT
+}
+
 model Feedback {
   id              String           @id @default(uuid()) @db.VarChar(36)
   content         String           @db.Text
@@ -120,4 +130,50 @@ model ActivityLog {
 
   @@index([feedbackId])
   @@map("activity_log")
+}
+
+model Campaign {
+  id          String         @id @default(uuid()) @db.VarChar(36)
+  title       String         @db.VarChar(191)
+  description String?        @db.Text
+  status      CampaignStatus @default(DRAFT)
+  startsAt    DateTime?      @map("starts_at")
+  endsAt      DateTime?      @map("ends_at")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  questions   Question[]
+
+  @@index([status])
+  @@map("campaigns")
+}
+
+model Question {
+  id         String       @id @default(uuid()) @db.VarChar(36)
+  campaignId String       @map("campaign_id")
+  prompt     String       @db.Text
+  type       QuestionType @default(TEXT)
+  order      Int          @default(0)
+  createdAt  DateTime     @default(now()) @map("created_at")
+
+  campaign   Campaign     @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  responses  QuestionResponse[]
+
+  @@index([campaignId])
+  @@map("questions")
+}
+
+model QuestionResponse {
+  id         String   @id @default(uuid()) @db.VarChar(36)
+  questionId String   @map("question_id")
+  sessionId  String   @db.VarChar(191) @map("session_id")
+  content    String   @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, sessionId])
+  @@index([questionId])
+  @@index([sessionId])
+  @@map("question_responses")
 }

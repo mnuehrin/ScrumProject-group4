@@ -7,6 +7,11 @@ import type {
   RewardType,
   RewardStatus,
   FeedbackComment,
+  Campaign,
+  CampaignStatus,
+  Question,
+  QuestionType,
+  QuestionResponse,
 } from "@prisma/client";
 
 export type {
@@ -18,6 +23,11 @@ export type {
   RewardType,
   RewardStatus,
   FeedbackComment,
+  Campaign,
+  CampaignStatus,
+  Question,
+  QuestionType,
+  QuestionResponse,
 };
 
 export type FeedbackWithMeta = Feedback & {
@@ -36,4 +46,13 @@ export type ThreadComment = Pick<
 > & {
   authorLabel: string;
   isOriginalPoster: boolean;
+};
+
+export type CampaignWithQuestions = Campaign & {
+  questions: Question[];
+};
+
+export type QuestionWithMeta = Question & {
+  hasResponded?: boolean;
+  responsesCount?: number;
 };
