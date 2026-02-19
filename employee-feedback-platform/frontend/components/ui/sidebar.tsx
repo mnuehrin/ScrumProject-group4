@@ -115,7 +115,10 @@ export const SidebarHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("border-b border-slate-200 px-4 py-4", className)}
+    className={cn(
+      "flex h-16 items-center border-b border-slate-200 px-4",
+      className
+    )}
     {...props}
   />
 ));

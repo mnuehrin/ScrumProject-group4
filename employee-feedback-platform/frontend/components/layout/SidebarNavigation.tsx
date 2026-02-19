@@ -162,8 +162,13 @@ export function SidebarNavigation() {
 
   return (
     <Sidebar className="border-slate-200/80 bg-gradient-to-b from-white via-white to-slate-50">
-      <SidebarHeader className="border-slate-200/70">
-        <div className={cn("flex items-center gap-3 px-1", !showLabels && "md:justify-center")}>
+      <SidebarHeader className="border-slate-200/70 h-16">
+        <div
+          className={cn(
+            "flex h-full items-center gap-3 px-1",
+            !showLabels && "md:justify-center"
+          )}
+        >
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-xs font-semibold uppercase tracking-wide text-white shadow-sm">
             EF
           </div>
