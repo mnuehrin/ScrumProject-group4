@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Button as GlassButton } from "@/components/ui/glass/button";
+import { Button } from "@/components/ui/button";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -32,9 +32,9 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <section className="mx-auto w-full max-w-md rounded-xl border border-slate-200 bg-white px-6 py-7 shadow-sm">
+    <section className="mx-auto w-full max-w-md rounded-xl border border-border bg-card px-6 py-7 shadow-sm">
       <div className="space-y-1 text-center">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Admin
         </p>
         <h1 className="sr-only">Sign in</h1>
@@ -42,27 +42,27 @@ export default function AdminLoginPage() {
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-700">Email</label>
+          <label className="text-sm font-medium text-foreground">Email</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="email"
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
             placeholder="admin@company.com"
           />
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-700">Password</label>
+          <label className="text-sm font-medium text-foreground">Password</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="current-password"
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
           />
         </div>
 
@@ -72,9 +72,9 @@ export default function AdminLoginPage() {
           </p>
         )}
 
-        <GlassButton type="submit" disabled={loading} className="w-full" size="lg">
+        <Button type="submit" disabled={loading} className="w-full" size="lg">
           {loading ? "Signing in…" : "Sign in"}
-        </GlassButton>
+        </Button>
       </form>
     </section>
   );

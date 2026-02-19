@@ -87,7 +87,7 @@ export const Sidebar = React.forwardRef<
     <>
       <div
         className={cn(
-          "fixed inset-0 z-40 bg-slate-900/20 transition-opacity md:hidden",
+          "fixed inset-0 z-40 bg-background/65 transition-opacity md:hidden",
           openMobile ? "opacity-100" : "pointer-events-none opacity-0"
         )}
         onClick={() => setOpenMobile(false)}
@@ -163,7 +163,7 @@ export const SidebarGroupLabel = React.forwardRef<
   <p
     ref={ref}
     className={cn(
-      "px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400",
+      "px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground",
       className
     )}
     {...props}

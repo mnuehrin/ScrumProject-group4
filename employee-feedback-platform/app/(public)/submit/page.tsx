@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { getSessionId } from "@/components/feedback/session";
 import { Badge } from "@/components/ui/badge";
-import { Button as GlassButton } from "@/components/ui/glass/button";
+import { Button } from "@/components/ui/button";
 import { CategoryPills, type CategoryValue } from "@/components/ui/category-pills";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -138,11 +138,11 @@ export default function SubmitPage() {
       )}
 
       {loading ? (
-        <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">
+        <div className="rounded-xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
           Loading campaigns…
         </div>
       ) : filteredCampaigns.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">
+        <div className="rounded-xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
           No campaigns in this category right now.
         </div>
       ) : (
@@ -173,9 +173,9 @@ export default function SubmitPage() {
                     ) : (
                       <div className="mt-3 space-y-2">
                         {!openQuestions.has(q.id) ? (
-                          <GlassButton size="sm" variant="secondary" onClick={() => toggleQuestion(q.id)}>
+                          <Button size="sm" variant="secondary" onClick={() => toggleQuestion(q.id)}>
                             Answer this question
-                          </GlassButton>
+                          </Button>
                         ) : (
                           <>
                             <Textarea
@@ -187,14 +187,14 @@ export default function SubmitPage() {
                               }
                             />
                             <div className="flex items-center justify-end gap-2">
-                              <GlassButton
+                              <Button
                                 size="sm"
                                 variant="secondary"
                                 onClick={() => toggleQuestion(q.id)}
                               >
                                 Cancel
-                              </GlassButton>
-                              <GlassButton
+                              </Button>
+                              <Button
                                 size="sm"
                                 onClick={() => submitResponse(q.id)}
                                 disabled={
@@ -203,7 +203,7 @@ export default function SubmitPage() {
                                 }
                               >
                                 {submittingId === q.id ? "Submitting..." : "Submit"}
-                              </GlassButton>
+                              </Button>
                             </div>
                           </>
                         )}

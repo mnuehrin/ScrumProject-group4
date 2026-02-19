@@ -247,8 +247,8 @@ function UpvoteButton({ count, hasUpvoted, onUpvote }: UpvoteButtonProps) {
       onClick={onUpvote}
       className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${
         hasUpvoted
-          ? "border-slate-900 bg-slate-900 text-white shadow-sm"
-          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 active:bg-slate-100"
+          ? "border-primary bg-primary text-primary-foreground shadow-sm"
+          : "border-border bg-card text-muted-foreground hover:border-border hover:bg-accent/70 hover:text-foreground active:bg-accent"
       }`}
     >
       <svg

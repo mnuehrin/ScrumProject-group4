@@ -57,7 +57,7 @@ export function FeedbackCard({ feedback, upvoteSlot, threadSlot }: FeedbackCardP
               {STATUS_LABELS[feedback.status]}
             </Badge>
           </div>
-          <span className="shrink-0 text-xs text-slate-400">{formattedDate}</span>
+          <span className="shrink-0 text-xs text-muted-foreground">{formattedDate}</span>
         </div>
       </CardHeader>
       <CardContent>

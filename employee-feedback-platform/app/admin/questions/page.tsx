@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Button as GlassButton } from "@/components/ui/glass/button";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 type Question = {
@@ -187,7 +187,7 @@ export default function AdminQuestionsPage() {
 
       <div className="rounded-xl border border-border bg-card p-5 space-y-4">
         <div className="space-y-2">
-          <label className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             New campaign
           </label>
           <input
@@ -215,14 +215,14 @@ export default function AdminQuestionsPage() {
             className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
           />
         </div>
-        <GlassButton size="sm" onClick={createCampaign} disabled={creating || newTitle.trim().length < 3}>
+        <Button size="sm" onClick={createCampaign} disabled={creating || newTitle.trim().length < 3}>
           {creating ? "Creating..." : "Create campaign"}
-        </GlassButton>
+        </Button>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
         <div className="rounded-xl border border-border bg-card p-4 space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Campaigns
           </p>
           {campaigns.length === 0 ? (
@@ -269,20 +269,20 @@ export default function AdminQuestionsPage() {
                 </div>
                 <div className="flex gap-2">
                   {(["DRAFT", "LIVE", "ARCHIVED"] as Campaign["status"][]).map((status) => (
-                    <GlassButton
+                    <Button
                       key={status}
                       size="sm"
-                      variant={selectedCampaign.status === status ? "glass" : "secondary"}
+                      variant={selectedCampaign.status === status ? "default" : "secondary"}
                       onClick={() => updateStatus(selectedCampaign.id, status)}
                     >
                       {STATUS_LABELS[status]}
-                    </GlassButton>
+                    </Button>
                   ))}
                 </div>
               </div>
 
               <div className="rounded-lg border border-border bg-accent/40 p-4 space-y-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Add question
                 </p>
                 <textarea
@@ -292,13 +292,13 @@ export default function AdminQuestionsPage() {
                   rows={3}
                   className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
                 />
-                <GlassButton
+                <Button
                   size="sm"
                   onClick={addQuestion}
                   disabled={savingQuestion || questionDraft.trim().length < 3}
                 >
                   {savingQuestion ? "Saving..." : "Add question"}
-                </GlassButton>
+                </Button>
               </div>
 
               <div className="space-y-3">

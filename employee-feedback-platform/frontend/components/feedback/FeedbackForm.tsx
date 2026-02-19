@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button as GlassButton } from "@/components/ui/glass/button";
+import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { createFeedbackSchema, type CreateFeedbackInput } from "@/lib/validations";
 import { getSessionId } from "@/components/feedback/session";
@@ -137,9 +137,9 @@ export function FeedbackForm() {
         </p>
       )}
 
-      <GlassButton type="submit" disabled={status === "loading"} size="lg" className="w-full">
+      <Button type="submit" disabled={status === "loading"} size="lg" className="w-full">
         {status === "loading" ? "Submitting…" : "Submit anonymously"}
-      </GlassButton>
+      </Button>
 
       <p className="text-center text-xs text-muted-foreground">
         Your submission is completely anonymous — no names, no IPs logged. If your feedback is

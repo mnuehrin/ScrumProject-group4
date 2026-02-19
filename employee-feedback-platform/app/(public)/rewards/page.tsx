@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getSessionId } from "@/components/feedback/session";
-import { Button as GlassButton } from "@/components/ui/glass/button";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 type RewardItem = {
@@ -133,13 +133,13 @@ export default function RewardsPage() {
                   </p>
                 </div>
                 {reward.status === "AWARDED" ? (
-                  <GlassButton
+                  <Button
                     size="sm"
                     onClick={() => handleRedeem(reward.claimCode)}
                     disabled={redeeming === reward.claimCode}
                   >
                     {redeeming === reward.claimCode ? "Redeeming…" : "Redeem"}
-                  </GlassButton>
+                  </Button>
                 ) : (
                   <span className="text-xs text-emerald-500">Redeemed</span>
                 )}

@@ -4,7 +4,7 @@ export default function HomePage() {
   return (
     <section className="space-y-6 pb-6">
       <div className="space-y-3 rounded-2xl border border-border bg-card px-6 py-6 shadow-[0_12px_32px_-24px_rgba(15,23,42,0.3)]">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Employee Feedback Platform
         </p>
         <h1 className="sr-only">Overview</h1>
