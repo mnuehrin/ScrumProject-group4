@@ -213,18 +213,18 @@ export function FeedbackThread({ feedbackId, initialCount }: FeedbackThreadProps
       <button
         type="button"
         onClick={toggleOpen}
-        className="text-xs font-medium text-slate-600 hover:text-slate-900"
+        className="cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
       >
         {isOpen ? "Hide discussion" : `Join discussion (${discussionCount})`}
       </button>
 
       {isOpen && (
-        <div className="space-y-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
+        <div className="space-y-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
           <div className="flex items-center justify-between">
             <button
               type="button"
               onClick={() => setComposerOpen((prev) => !prev)}
-              className="text-xs font-medium text-slate-600 hover:text-slate-900"
+              className="cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900"
             >
               {composerOpen ? "Close comment box" : "Write a comment"}
             </button>
@@ -233,7 +233,7 @@ export function FeedbackThread({ feedbackId, initialCount }: FeedbackThreadProps
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value as CommentSort)}
-                className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700"
+                className="cursor-pointer rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700"
               >
                 <option value="best">Best</option>
                 <option value="new">New</option>
@@ -242,12 +242,12 @@ export function FeedbackThread({ feedbackId, initialCount }: FeedbackThreadProps
             </div>
           </div>
 
-          <div className="text-[11px] text-slate-500">
+          <div className="text-xs text-slate-500">
             {directReplyCount} direct replies · {comments.length} total comments · {participantsCount} participants
           </div>
 
           {composerOpen && (
-            <div className="space-y-2 rounded-md border border-slate-200 bg-white p-2.5">
+            <div className="space-y-3 rounded-lg border border-slate-200 bg-white p-3">
               <Textarea
                 rows={3}
                 placeholder="What are your thoughts?"
@@ -299,9 +299,9 @@ export function FeedbackThread({ feedbackId, initialCount }: FeedbackThreadProps
                         Math.min(thread.length, prev + INITIAL_VISIBLE_ROOT_COMMENTS)
                       )
                     }
-                    className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-slate-900"
+                    className="inline-flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-900"
                   >
-                    <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-slate-400 text-[13px] leading-none">
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-slate-400 text-sm leading-none">
                       +
                     </span>
                     Show more comments ({hiddenRootComments})
@@ -358,53 +358,53 @@ function ThreadItem({
       {level > 0 && (
         <span className="absolute -left-7 top-1 h-5 w-7 rounded-bl-xl border-b border-l border-slate-300/80" />
       )}
-      <div className="flex gap-3 py-1">
-        <div className="relative w-8 shrink-0">
-          <div className="grid h-8 w-8 place-items-center rounded-full bg-slate-200 text-[11px] font-semibold text-slate-700">
+      <div className="flex gap-3 py-1.5">
+        <div className="relative w-9 shrink-0">
+          <div className="grid h-9 w-9 place-items-center rounded-full bg-slate-200 text-xs font-semibold text-slate-700">
             {authorInitial(comment.authorLabel)}
           </div>
           {hasReplies && repliesExpanded && (
-            <span className="absolute left-4 top-[2.2rem] -bottom-1 w-px bg-slate-300/80" />
+            <span className="absolute left-[18px] top-[2.5rem] -bottom-1 w-px bg-slate-300/80" />
           )}
         </div>
 
-        <div className="min-w-0 flex-1 space-y-1">
-          <div className="flex items-center gap-2 text-[11px] text-slate-500">
+        <div className="min-w-0 flex-1 space-y-1.5">
+          <div className="flex items-center gap-2 text-xs text-slate-500">
             <span className="font-medium text-slate-700">{comment.authorLabel}</span>
             {comment.isOriginalPoster && (
-              <span className="rounded bg-slate-200 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700">
+              <span className="rounded bg-slate-900 px-1.5 py-0.5 text-[11px] font-semibold text-white">
                 OP
               </span>
             )}
             <span>{formatDate(comment.createdAt)}</span>
           </div>
 
-          <p className="whitespace-pre-wrap text-sm text-slate-800">{comment.content}</p>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-800">{comment.content}</p>
 
-          <div className="flex items-center gap-3 text-xs text-slate-500">
-            <button type="button" className="font-semibold hover:text-slate-900">
-              ↑
+          <div className="flex items-center gap-1 text-sm text-slate-500">
+            <button type="button" className="cursor-pointer rounded px-2 py-1 font-semibold transition-colors hover:bg-slate-200 hover:text-slate-900">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5"><path d="M8 2.5a.75.75 0 0 1 .53.22l4 4a.75.75 0 0 1-1.06 1.06L8 4.31 4.53 7.78a.75.75 0 0 1-1.06-1.06l4-4A.75.75 0 0 1 8 2.5Z" /></svg>
             </button>
-            <button type="button" className="font-semibold hover:text-slate-900">
-              ↓
+            <button type="button" className="cursor-pointer rounded px-2 py-1 font-semibold transition-colors hover:bg-slate-200 hover:text-slate-900">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5"><path d="M8 13.5a.75.75 0 0 1-.53-.22l-4-4a.75.75 0 0 1 1.06-1.06L8 11.69l3.47-3.47a.75.75 0 0 1 1.06 1.06l-4 4a.75.75 0 0 1-.53.22Z" /></svg>
             </button>
             {canReply && (
               <button
                 type="button"
                 onClick={() => setReplyingTo(showReply ? null : comment.id)}
-                className="font-semibold hover:text-slate-900"
+                className="cursor-pointer rounded px-2 py-1 font-semibold transition-colors hover:bg-slate-200 hover:text-slate-900"
               >
                 {showReply ? "Cancel" : "Reply"}
               </button>
             )}
             {!canReply && (
-              <span className="text-[11px] text-slate-400">Reply depth limit reached</span>
+              <span className="px-2 text-xs text-slate-400">Max depth</span>
             )}
             {hasReplies && repliesExpanded && (
               <button
                 type="button"
                 onClick={() => toggleReplies(comment.id)}
-                className="font-semibold hover:text-slate-900"
+                className="cursor-pointer rounded px-2 py-1 font-semibold transition-colors hover:bg-slate-200 hover:text-slate-900"
               >
                 Hide replies
               </button>
@@ -437,13 +437,13 @@ function ThreadItem({
       </div>
 
       {hasReplies && !repliesExpanded && (
-        <div className="ml-11 mt-1">
+        <div className="ml-12 mt-1">
           <button
             type="button"
             onClick={() => toggleReplies(comment.id)}
-            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-slate-900"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-900"
           >
-            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-slate-400 text-[13px] leading-none">
+            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-slate-400 text-sm leading-none">
               +
             </span>
             {`${comment.replies.length} more repl${comment.replies.length === 1 ? "y" : "ies"}`}
@@ -476,9 +476,9 @@ function ThreadItem({
               <button
                 type="button"
                 onClick={() => showMoreReplies(comment.id, comment.replies.length)}
-                className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-slate-900"
+                className="inline-flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-900"
               >
-                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-slate-400 text-[13px] leading-none">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-slate-400 text-sm leading-none">
                   +
                 </span>
                 Show more replies ({remainingReplies})

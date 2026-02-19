@@ -93,13 +93,19 @@ export default function RewardsPage() {
   }
 
   return (
-    <section className="max-w-4xl space-y-7">
-      <div className="space-y-2 rounded-xl border border-slate-200 bg-white px-5 py-6 sm:px-6">
+    <section className="space-y-6">
+      <div className="space-y-2 rounded-xl border border-slate-200 bg-white px-6 py-5">
         <h1 className="text-2xl font-semibold text-slate-900">My rewards</h1>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm leading-relaxed text-slate-600">
           Rewards appear here after an admin awards your feedback. Use your claim code to redeem.
         </p>
       </div>
+
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
       {loading ? (
         <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">
@@ -154,7 +160,6 @@ export default function RewardsPage() {
         </div>
       )}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
     </section>
   );
 }

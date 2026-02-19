@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getSessionId } from "@/components/feedback/session";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CategoryPills, type CategoryValue } from "@/components/ui/category-pills";
 import { Textarea } from "@/components/ui/textarea";
 
 type Category = "CULTURE" | "TOOLS" | "WORKLOAD" | "MANAGEMENT" | "OTHER";
@@ -26,15 +27,6 @@ type CampaignResponse = {
   campaigns: CampaignItem[];
 };
 
-const CATEGORY_TABS: { value: Category | "ALL"; label: string }[] = [
-  { value: "ALL", label: "All" },
-  { value: "CULTURE", label: "Culture" },
-  { value: "TOOLS", label: "Tools" },
-  { value: "WORKLOAD", label: "Workload" },
-  { value: "MANAGEMENT", label: "Management" },
-  { value: "OTHER", label: "Other" },
-];
-
 const CATEGORY_LABELS: Record<Category, string> = {
   CULTURE: "Culture",
   TOOLS: "Tools",
@@ -49,7 +41,7 @@ export default function SubmitPage() {
   const [submittingId, setSubmittingId] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
-  const [activeCategory, setActiveCategory] = useState<Category | "ALL">("ALL");
+  const [activeCategory, setActiveCategory] = useState<CategoryValue>("ALL");
   const [openQuestions, setOpenQuestions] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -129,29 +121,21 @@ export default function SubmitPage() {
   }, [data.campaigns, activeCategory]);
 
   return (
-    <section className="space-y-7">
-      <div className="space-y-2 rounded-xl border border-slate-200 bg-white px-5 py-6 sm:px-6">
+    <section className="space-y-6">
+      <div className="space-y-2 rounded-xl border border-slate-200 bg-white px-6 py-5">
         <h1 className="text-2xl font-semibold text-slate-900">Answer admin questions</h1>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm leading-relaxed text-slate-600">
           Browse campaigns by category and respond to the questions that matter to you.
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-1.5">
-        {CATEGORY_TABS.map((tab) => (
-          <button
-            key={tab.value}
-            onClick={() => setActiveCategory(tab.value)}
-            className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-              activeCategory === tab.value
-                ? "bg-slate-900 text-white"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <CategoryPills active={activeCategory} onChange={setActiveCategory} />
+
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
       {loading ? (
         <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">
@@ -227,7 +211,6 @@ export default function SubmitPage() {
         </div>
       )}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
     </section>
   );
 }

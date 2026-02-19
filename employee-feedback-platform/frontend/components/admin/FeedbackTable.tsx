@@ -3,11 +3,11 @@
 import { useState, Fragment } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CategoryPills, type CategoryValue } from "@/components/ui/category-pills";
 import type {
   FeedbackWithMeta,
   FeedbackCategory,
   FeedbackStatus,
-  CategoryFilter,
   RewardType,
   RewardStatus,
 } from "@/types";
@@ -52,22 +52,13 @@ const REWARD_STATUS_LABELS: Record<RewardStatus, string> = {
   REDEEMED: "Redeemed",
 };
 
-const CATEGORY_TABS: { value: CategoryFilter; label: string }[] = [
-  { value: "ALL", label: "All" },
-  { value: "CULTURE", label: "Culture" },
-  { value: "TOOLS", label: "Tools" },
-  { value: "WORKLOAD", label: "Workload" },
-  { value: "MANAGEMENT", label: "Management" },
-  { value: "OTHER", label: "Other" },
-];
-
 interface FeedbackTableProps {
   feedback: FeedbackWithMeta[];
 }
 
 export function FeedbackTable({ feedback }: FeedbackTableProps) {
   const [rows, setRows] = useState(feedback);
-  const [activeCategory, setActiveCategory] = useState<CategoryFilter>("ALL");
+  const [activeCategory, setActiveCategory] = useState<CategoryValue>("ALL");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const filtered = rows.filter((f) => activeCategory === "ALL" || f.category === activeCategory);
@@ -92,35 +83,26 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
         {(["PENDING", "REVIEWED", "IN_PROGRESS", "RESOLVED"] as FeedbackStatus[]).map((s) => {
           const count = rows.filter((f) => f.status === s).length;
           return (
-            <div key={s} className="rounded-xl border border-slate-200 bg-white p-4">
-              <p className="text-xs text-slate-500 mb-1">{STATUS_LABELS[s]}</p>
-              <p className="text-2xl font-semibold text-slate-900">{count}</p>
+            <div key={s} className="rounded-xl border border-slate-200 bg-white px-5 py-4">
+              <p className="text-sm text-slate-500 mb-1">{STATUS_LABELS[s]}</p>
+              <p className="text-3xl font-semibold tabular-nums text-slate-900">{count}</p>
             </div>
           );
         })}
       </div>
 
-      {/* Category tabs */}
-      <div className="flex flex-wrap gap-1.5">
-        {CATEGORY_TABS.map((tab) => (
-          <button
-            key={tab.value}
-            onClick={() => setActiveCategory(tab.value)}
-            className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-              activeCategory === tab.value
-                ? "bg-slate-900 text-white"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
-          >
-            {tab.label}
-            <span className="ml-1.5 text-xs opacity-70">
-              {tab.value === "ALL"
-                ? rows.length
-                : rows.filter((f) => f.category === tab.value).length}
-            </span>
-          </button>
-        ))}
-      </div>
+      <CategoryPills
+        active={activeCategory}
+        onChange={setActiveCategory}
+        counts={{
+          ALL: rows.length,
+          CULTURE: rows.filter((f) => f.category === "CULTURE").length,
+          TOOLS: rows.filter((f) => f.category === "TOOLS").length,
+          WORKLOAD: rows.filter((f) => f.category === "WORKLOAD").length,
+          MANAGEMENT: rows.filter((f) => f.category === "MANAGEMENT").length,
+          OTHER: rows.filter((f) => f.category === "OTHER").length,
+        }}
+      />
 
       {/* Table */}
       {filtered.length === 0 ? (
@@ -128,26 +110,27 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
           No feedback in this category.
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+        <div className="-mx-5 overflow-x-auto px-5 sm:mx-0 sm:px-0">
+          <div className="min-w-[700px] overflow-hidden rounded-xl border border-slate-200 bg-white">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50">
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 w-[45%]">
+                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 w-[40%]">
                   Feedback
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500">
+                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                   Category
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500">
+                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                   Status
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500">
+                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                   Upvotes
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500">
+                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                   Reward
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500">
+                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                   Date
                 </th>
               </tr>
@@ -157,36 +140,36 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
                 <Fragment key={item.id}>
                   <tr
                     onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
-                    className="cursor-pointer transition-colors hover:bg-slate-50"
+                    className="cursor-pointer transition-colors hover:bg-slate-50 active:bg-slate-100"
                   >
-                    <td className="px-4 py-3 text-slate-700">
-                      <p className="line-clamp-2">{item.content}</p>
+                    <td className="px-5 py-4 text-sm text-slate-700">
+                      <p className="line-clamp-2 leading-relaxed">{item.content}</p>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-4">
                       <Badge variant={CATEGORY_VARIANTS[item.category]}>
                         {CATEGORY_LABELS[item.category]}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-4">
                       <Badge variant={STATUS_VARIANTS[item.status]}>
                         {STATUS_LABELS[item.status]}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 text-slate-600">{item.upvotes}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-4 text-sm tabular-nums text-slate-600">{item.upvotes}</td>
+                    <td className="px-5 py-4">
                       {item.reward ? (
                         <Badge>{REWARD_STATUS_LABELS[item.reward.status]}</Badge>
                       ) : (
-                        <span className="text-xs text-slate-400">None</span>
+                        <span className="text-sm text-slate-400">None</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-xs text-slate-400">
+                    <td className="px-5 py-4 text-sm text-slate-400 whitespace-nowrap">
                       {formattedDate(item.createdAt)}
                     </td>
                   </tr>
                   {expandedId === item.id && (
                     <tr className="bg-slate-50">
-                      <td colSpan={6} className="px-4 py-4">
+                      <td colSpan={6} className="px-5 py-5">
                         <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
                           {item.content}
                         </p>
@@ -204,6 +187,7 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>
@@ -271,29 +255,29 @@ function AwardPanel({
   }
 
   return (
-    <div className="mt-4 rounded-lg border border-slate-200 bg-white px-4 py-3">
-      <p className="text-xs font-semibold text-slate-600">Award a reward</p>
+    <div className="mt-4 rounded-lg border border-slate-200 bg-white px-5 py-4">
+      <p className="text-sm font-semibold text-slate-600">Award a reward</p>
       <div className="mt-3 grid gap-3 sm:grid-cols-3 sm:items-end">
-        <div className="space-y-1 sm:col-span-1">
-          <label className="text-xs font-medium text-slate-600">Reward type</label>
+        <div className="space-y-1.5 sm:col-span-1">
+          <label className="text-sm font-medium text-slate-600">Reward type</label>
           <select
             value={rewardType}
             onChange={(e) => setRewardType(e.target.value as RewardType)}
-            className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-xs text-slate-700 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+            className="w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
           >
             <option value="PROMO_CODE">Promo code</option>
             <option value="HOLIDAY_DAY">Holiday day</option>
           </select>
         </div>
 
-        <div className="space-y-1 sm:col-span-1">
-          <label className="text-xs font-medium text-slate-600">Promo code</label>
+        <div className="space-y-1.5 sm:col-span-1">
+          <label className="text-sm font-medium text-slate-600">Promo code</label>
           <input
             value={promoCode}
             onChange={(e) => setPromoCode(e.target.value)}
             disabled={!isPromo}
             placeholder={isPromo ? "Enter promo code" : "Not required"}
-            className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-xs text-slate-700 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 disabled:bg-slate-50 disabled:text-slate-400"
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 disabled:bg-slate-50 disabled:text-slate-400"
           />
         </div>
 

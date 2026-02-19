@@ -178,8 +178,8 @@ export function SidebarNavigation() {
         <NavLinks />
       </SidebarContent>
       <SidebarFooter className="border-slate-200">
-        <p className={cn("px-2 text-xs text-slate-500", !showLabels && "md:hidden")}>
-          Simple collapsible sidebar
+        <p className={cn("px-2 text-xs text-slate-400", !showLabels && "md:hidden")}>
+          v1.0 &middot; Feedback Platform
         </p>
       </SidebarFooter>
     </Sidebar>

@@ -20,7 +20,7 @@ export default function AdminLayout({
             Back to home
           </Link>
         </header>
-        <main className="mr-auto w-full max-w-[1280px] px-5 py-6 sm:px-7 lg:px-9">
+        <main className="mx-auto w-full max-w-6xl px-5 py-6 sm:px-7 lg:px-9">
           {children}
         </main>
       </SidebarInset>

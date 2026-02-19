@@ -7,16 +7,8 @@ import { QuestionThread } from "@/components/feedback/QuestionThread";
 import { getSessionId } from "@/components/feedback/session";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { CategoryPills, type CategoryValue } from "@/components/ui/category-pills";
 import type { FeedbackWithMeta, CategoryFilter, SortOption, FeedbackCategory } from "@/types";
-
-const CATEGORY_TABS: { value: CategoryFilter; label: string }[] = [
-  { value: "ALL", label: "All" },
-  { value: "CULTURE", label: "Culture" },
-  { value: "TOOLS", label: "Tools" },
-  { value: "WORKLOAD", label: "Workload" },
-  { value: "MANAGEMENT", label: "Management" },
-  { value: "OTHER", label: "Other" },
-];
 
 interface FeedbackFeedProps {
   initialFeedback: FeedbackWithMeta[];
@@ -28,7 +20,7 @@ export function FeedbackFeed({ initialFeedback, initialCampaignQuestions }: Feed
   const [campaignQuestions, setCampaignQuestions] = useState<CampaignQuestionItem[]>(
     initialCampaignQuestions
   );
-  const [activeCategory, setActiveCategory] = useState<CategoryFilter>("ALL");
+  const [activeCategory, setActiveCategory] = useState<CategoryValue>("ALL");
   const [sort, setSort] = useState<SortOption>("newest");
 
   const handleUpvote = useCallback(async (id: string) => {
@@ -50,8 +42,8 @@ export function FeedbackFeed({ initialFeedback, initialCampaignQuestions }: Feed
   }, []);
 
   const items: FeedItem[] = [
-    ...campaignQuestions.map((item) => ({ kind: "question", data: item })),
-    ...feedback.map((item) => ({ kind: "feedback", data: item })),
+    ...campaignQuestions.map((item) => ({ kind: "question" as const, data: item })),
+    ...feedback.map((item) => ({ kind: "feedback" as const, data: item })),
   ];
 
   const filtered = items
@@ -77,31 +69,18 @@ export function FeedbackFeed({ initialFeedback, initialCampaignQuestions }: Feed
     <div className="space-y-5">
       {/* Filters row */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        {/* Category tabs */}
-        <div className="flex flex-wrap gap-1.5">
-          {CATEGORY_TABS.map((tab) => (
-            <button
-              key={tab.value}
-              onClick={() => setActiveCategory(tab.value)}
-              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                activeCategory === tab.value
-                  ? "bg-slate-900 text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <CategoryPills active={activeCategory} onChange={setActiveCategory} />
 
         {/* Sort toggle */}
-        <div className="flex rounded-lg border border-slate-200 bg-white p-0.5 self-start sm:self-auto">
+        <div className="flex rounded-lg border border-slate-200 bg-white p-1 self-start sm:self-auto">
           {(["newest", "top"] as SortOption[]).map((s) => (
             <button
               key={s}
               onClick={() => setSort(s)}
-              className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
-                sort === s ? "bg-slate-900 text-white" : "text-slate-600 hover:text-slate-900"
+              className={`cursor-pointer rounded-md px-4 py-1.5 text-sm font-medium transition-all ${
+                sort === s
+                  ? "bg-slate-900 text-white shadow-sm"
+                  : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
               }`}
             >
               {s === "newest" ? "Newest" : "Most upvoted"}
@@ -220,16 +199,16 @@ function CampaignQuestionCard({
         </p>
       </CardContent>
       <CardFooter>
-        <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600">
+        <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
-            className="h-3.5 w-3.5"
+            className="h-4 w-4"
           >
             <path d="M10 3c-3.866 0-7 2.686-7 6 0 1.576.706 3.01 1.86 4.086-.144.94-.5 2.054-1.17 3.214a.75.75 0 00.905 1.08c1.64-.498 3.03-1.114 4.106-1.778.84.248 1.737.398 2.649.398 3.866 0 7-2.686 7-6s-3.134-6-7-6z" />
           </svg>
-          {question.responsesCount}
+          <span className="tabular-nums">{question.responsesCount}</span>
         </div>
       </CardFooter>
       <CardContent>{threadSlot}</CardContent>
@@ -266,17 +245,17 @@ function UpvoteButton({ count, hasUpvoted, onUpvote }: UpvoteButtonProps) {
   return (
     <button
       onClick={onUpvote}
-      className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+      className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${
         hasUpvoted
-          ? "border-slate-900 bg-slate-900 text-white"
-          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900"
+          ? "border-slate-900 bg-slate-900 text-white shadow-sm"
+          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 active:bg-slate-100"
       }`}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 20 20"
         fill="currentColor"
-        className="h-3.5 w-3.5"
+        className="h-4 w-4"
       >
         <path
           fillRule="evenodd"
@@ -284,7 +263,7 @@ function UpvoteButton({ count, hasUpvoted, onUpvote }: UpvoteButtonProps) {
           clipRule="evenodd"
         />
       </svg>
-      {count}
+      <span className="tabular-nums">{count}</span>
     </button>
   );
 }

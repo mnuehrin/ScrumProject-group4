@@ -14,7 +14,7 @@ export default function PublicLayout({
           <SidebarTrigger className="border-slate-300 bg-white" />
           <p className="text-sm font-medium text-slate-700">Public workspace</p>
         </header>
-        <main className="mr-auto w-full max-w-[1200px] px-5 py-6 sm:px-7 lg:px-9">
+        <main className="mx-auto w-full max-w-6xl px-5 py-6 sm:px-7 lg:px-9">
           {children}
         </main>
       </SidebarInset>

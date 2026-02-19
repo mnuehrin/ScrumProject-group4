@@ -172,12 +172,18 @@ export default function AdminQuestionsPage() {
 
   return (
     <section className="space-y-6">
-      <div className="rounded-xl border border-slate-200 bg-white p-5">
-        <h1 className="text-xl font-semibold text-slate-900">Question campaigns</h1>
-        <p className="mt-1 text-sm text-slate-600">
+      <div className="space-y-2 rounded-xl border border-slate-200 bg-white px-6 py-5">
+        <h1 className="text-2xl font-semibold text-slate-900">Question campaigns</h1>
+        <p className="text-sm leading-relaxed text-slate-600">
           Create and publish live questions for employees.
         </p>
       </div>
+
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
       <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
         <div className="space-y-2">
@@ -188,12 +194,12 @@ export default function AdminQuestionsPage() {
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
             placeholder="Campaign title"
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+            className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
           />
           <select
             value={newCategory}
             onChange={(e) => setNewCategory(e.target.value as Campaign["category"])}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+            className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
           >
             {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
               <option key={value} value={value}>
@@ -206,7 +212,7 @@ export default function AdminQuestionsPage() {
             onChange={(e) => setNewDescription(e.target.value)}
             placeholder="Optional description"
             rows={2}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+            className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
           />
         </div>
         <Button size="sm" onClick={createCampaign} disabled={creating || newTitle.trim().length < 3}>
@@ -228,10 +234,10 @@ export default function AdminQuestionsPage() {
                   <button
                     type="button"
                     onClick={() => setSelectedCampaignId(c.id)}
-                    className={`w-full rounded-lg border px-3 py-2 text-left text-sm transition ${
+                    className={`w-full cursor-pointer rounded-lg border px-4 py-3 text-left text-sm transition-all ${
                       selectedCampaignId === c.id
-                        ? "border-slate-300 bg-slate-50 text-slate-900"
-                        : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                        ? "border-slate-300 bg-slate-100 text-slate-900 shadow-sm"
+                        : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 active:bg-slate-100"
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -284,7 +290,7 @@ export default function AdminQuestionsPage() {
                   onChange={(e) => setQuestionDraft(e.target.value)}
                   placeholder="Write a question prompt..."
                   rows={3}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                  className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
                 />
                 <Button
                   size="sm"
@@ -316,7 +322,6 @@ export default function AdminQuestionsPage() {
         </div>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
     </section>
   );
 }
