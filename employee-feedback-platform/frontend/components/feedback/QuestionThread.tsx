@@ -540,7 +540,7 @@ function CommentVoteButtons() {
         <button
           type="button"
           aria-label="Downvote comment"
-          className="grid h-6 w-6 cursor-pointer place-items-center rounded-full text-muted-foreground transition-colors hover:bg-sky-500/15 hover:text-sky-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          className="grid h-6 w-6 cursor-pointer place-items-center rounded-full text-muted-foreground transition-colors hover:bg-primary/15 hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-3.5 w-3.5">
             <path d="M8 4v8" strokeLinecap="round" />

@@ -68,19 +68,19 @@ export function FeedbackFeed({ initialFeedback, initialCampaignQuestions }: Feed
   return (
     <div className="space-y-5">
       {/* Filters row */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <CategoryPills active={activeCategory} onChange={setActiveCategory} />
 
         {/* Sort toggle */}
-        <div className="flex rounded-full border border-border bg-card/80 p-1 self-start sm:mr-4 sm:self-auto">
+        <div className="flex flex-nowrap items-center gap-2.5 self-start sm:mr-4 sm:self-auto">
           {(["newest", "top"] as SortOption[]).map((s) => (
             <button
               key={s}
               onClick={() => setSort(s)}
-              className={`cursor-pointer rounded-full px-4 py-1.5 text-[13px] font-semibold transition-all ${
+              className={`cursor-pointer whitespace-nowrap rounded-full border px-4 py-1.5 text-[13px] font-semibold transition-all ${
                 sort === s
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
+                  ? "border-transparent bg-primary text-primary-foreground shadow-sm"
+                  : "border-border bg-card/80 text-muted-foreground hover:bg-accent/60 hover:text-foreground"
               }`}
             >
               {s === "newest" ? "Newest" : "Most upvoted"}

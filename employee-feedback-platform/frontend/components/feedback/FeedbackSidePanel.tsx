@@ -56,10 +56,7 @@ export function FeedbackSidePanel({
               />
             </div>
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                Workspace
-              </p>
-              <h2 className="mt-1 font-display text-xl font-semibold leading-tight text-foreground">
+              <h2 className="font-display text-xl font-semibold leading-tight text-foreground">
                 {companyName}
               </h2>
             </div>

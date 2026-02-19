@@ -169,7 +169,7 @@ export function SidebarNavigation() {
             !showLabels && "md:justify-center"
           )}
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 via-slate-900 to-sky-500 text-xs font-semibold uppercase tracking-wide text-white shadow-sm">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-700 via-teal-800 to-emerald-500 text-xs font-semibold uppercase tracking-wide text-white shadow-sm">
             EF
           </div>
           <div className={cn("space-y-1", !showLabels && "md:hidden")}>
