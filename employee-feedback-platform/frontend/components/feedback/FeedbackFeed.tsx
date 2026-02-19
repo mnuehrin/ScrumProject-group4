@@ -3,8 +3,11 @@
 import { useState, useCallback } from "react";
 import { FeedbackCard } from "@/components/feedback/FeedbackCard";
 import { FeedbackThread } from "@/components/feedback/FeedbackThread";
+import { QuestionThread } from "@/components/feedback/QuestionThread";
 import { getSessionId } from "@/components/feedback/session";
-import type { FeedbackWithMeta, CategoryFilter, SortOption } from "@/types";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import type { FeedbackWithMeta, CategoryFilter, SortOption, FeedbackCategory } from "@/types";
 
 const CATEGORY_TABS: { value: CategoryFilter; label: string }[] = [
   { value: "ALL", label: "All" },
@@ -17,10 +20,14 @@ const CATEGORY_TABS: { value: CategoryFilter; label: string }[] = [
 
 interface FeedbackFeedProps {
   initialFeedback: FeedbackWithMeta[];
+  initialCampaignQuestions: CampaignQuestionItem[];
 }
 
-export function FeedbackFeed({ initialFeedback }: FeedbackFeedProps) {
+export function FeedbackFeed({ initialFeedback, initialCampaignQuestions }: FeedbackFeedProps) {
   const [feedback, setFeedback] = useState<FeedbackWithMeta[]>(initialFeedback);
+  const [campaignQuestions, setCampaignQuestions] = useState<CampaignQuestionItem[]>(
+    initialCampaignQuestions
+  );
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>("ALL");
   const [sort, setSort] = useState<SortOption>("newest");
 
@@ -42,13 +49,29 @@ export function FeedbackFeed({ initialFeedback }: FeedbackFeedProps) {
     }
   }, []);
 
-  const filtered = feedback
-    .filter((f) => activeCategory === "ALL" || f.category === activeCategory)
-    .sort((a, b) =>
-      sort === "newest"
-        ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        : b.upvotes - a.upvotes
-    );
+  const items: FeedItem[] = [
+    ...campaignQuestions.map((item) => ({ kind: "question", data: item })),
+    ...feedback.map((item) => ({ kind: "feedback", data: item })),
+  ];
+
+  const filtered = items
+    .filter((item) =>
+      activeCategory === "ALL"
+        ? true
+        : item.kind === "feedback"
+          ? item.data.category === activeCategory
+          : item.data.category === activeCategory
+    )
+    .sort((a, b) => {
+      if (sort === "newest") {
+        return (
+          new Date(b.data.createdAt).getTime() - new Date(a.data.createdAt).getTime()
+        );
+      }
+      const aScore = a.kind === "feedback" ? a.data.upvotes : a.data.responsesCount;
+      const bScore = b.kind === "feedback" ? b.data.upvotes : b.data.responsesCount;
+      return bScore - aScore;
+    });
 
   return (
     <div className="space-y-5">
@@ -94,31 +117,144 @@ export function FeedbackFeed({ initialFeedback }: FeedbackFeedProps) {
         </div>
       ) : (
         <ul className="space-y-3">
-          {filtered.map((item) => (
-            <li key={item.id}>
-              <FeedbackCard
-                feedback={item}
-                upvoteSlot={
-                  <UpvoteButton
-                    count={item.upvotes}
-                    hasUpvoted={item.hasUpvoted}
-                    onUpvote={() => handleUpvote(item.id)}
+          {filtered.map((item) => {
+            if (item.kind === "feedback") {
+              return (
+                <li key={item.data.id}>
+                  <FeedbackCard
+                    feedback={item.data}
+                    upvoteSlot={
+                      <UpvoteButton
+                        count={item.data.upvotes}
+                        hasUpvoted={item.data.hasUpvoted}
+                        onUpvote={() => handleUpvote(item.data.id)}
+                      />
+                    }
+                    threadSlot={
+                      <FeedbackThread
+                        feedbackId={item.data.id}
+                        initialCount={item.data.commentsCount}
+                      />
+                    }
                   />
-                }
-                threadSlot={
-                  <FeedbackThread
-                    feedbackId={item.id}
-                    initialCount={item.commentsCount}
-                  />
-                }
-              />
-            </li>
-          ))}
+                </li>
+              );
+            }
+
+            return (
+              <li key={item.data.id}>
+                <CampaignQuestionCard
+                  question={item.data}
+                  threadSlot={
+                    <QuestionThread
+                      questionId={item.data.id}
+                      initialCount={item.data.responsesCount}
+                      onResponded={() =>
+                        setCampaignQuestions((prev) =>
+                          prev.map((q) =>
+                            q.id === item.data.id
+                              ? { ...q, responsesCount: q.responsesCount + 1 }
+                              : q
+                          )
+                        )
+                      }
+                    />
+                  }
+                />
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
   );
 }
+
+type CampaignQuestionItem = {
+  id: string;
+  campaignTitle: string;
+  campaignDescription: string | null;
+  category: FeedbackCategory;
+  prompt: string;
+  createdAt: Date;
+  responsesCount: number;
+};
+
+type FeedItem =
+  | { kind: "feedback"; data: FeedbackWithMeta }
+  | { kind: "question"; data: CampaignQuestionItem };
+
+function CampaignQuestionCard({
+  question,
+  threadSlot,
+}: {
+  question: CampaignQuestionItem;
+  threadSlot: React.ReactNode;
+}) {
+  const formattedDate = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(question.createdAt));
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant={CATEGORY_VARIANTS[question.category]}>
+              {CATEGORY_LABELS[question.category]}
+            </Badge>
+            <Badge variant="pending">Campaign</Badge>
+          </div>
+          <span className="shrink-0 text-xs text-slate-400">{formattedDate}</span>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        <p className="text-sm font-semibold text-slate-900">{question.campaignTitle}</p>
+        {question.campaignDescription && (
+          <p className="text-xs text-slate-500">{question.campaignDescription}</p>
+        )}
+        <p className="text-sm leading-relaxed text-slate-700 whitespace-pre-wrap">
+          {question.prompt}
+        </p>
+      </CardContent>
+      <CardFooter>
+        <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className="h-3.5 w-3.5"
+          >
+            <path d="M10 3c-3.866 0-7 2.686-7 6 0 1.576.706 3.01 1.86 4.086-.144.94-.5 2.054-1.17 3.214a.75.75 0 00.905 1.08c1.64-.498 3.03-1.114 4.106-1.778.84.248 1.737.398 2.649.398 3.866 0 7-2.686 7-6s-3.134-6-7-6z" />
+          </svg>
+          {question.responsesCount}
+        </div>
+      </CardFooter>
+      <CardContent>{threadSlot}</CardContent>
+    </Card>
+  );
+}
+
+const CATEGORY_LABELS: Record<FeedbackCategory, string> = {
+  CULTURE: "Culture",
+  TOOLS: "Tools",
+  WORKLOAD: "Workload",
+  MANAGEMENT: "Management",
+  OTHER: "Other",
+};
+
+const CATEGORY_VARIANTS: Record<
+  FeedbackCategory,
+  "culture" | "tools" | "workload" | "management" | "other"
+> = {
+  CULTURE: "culture",
+  TOOLS: "tools",
+  WORKLOAD: "workload",
+  MANAGEMENT: "management",
+  OTHER: "other",
+};
 
 interface UpvoteButtonProps {
   count: number;

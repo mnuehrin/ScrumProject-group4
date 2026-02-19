@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/db";
 import { FeedbackFeed } from "@/components/feedback/FeedbackFeed";
-import { CampaignFeed } from "@/components/feedback/CampaignFeed";
 import type { FeedbackWithMeta } from "@/types";
 
 async function getFeedback(): Promise<FeedbackWithMeta[]> {
@@ -15,32 +14,18 @@ async function getFeedback(): Promise<FeedbackWithMeta[]> {
   }));
 }
 
-type CampaignResponseView = {
+type CampaignQuestionFeedView = {
   id: string;
-  content: string;
+  campaignId: string;
+  campaignTitle: string;
+  campaignDescription: string | null;
+  campaignCategory: "CULTURE" | "TOOLS" | "WORKLOAD" | "MANAGEMENT" | "OTHER";
+  questionPrompt: string;
   createdAt: Date;
-  authorLabel: string;
+  responsesCount: number;
 };
 
-type CampaignQuestionView = {
-  id: string;
-  prompt: string;
-  responses: CampaignResponseView[];
-};
-
-type CampaignFeedView = {
-  id: string;
-  title: string;
-  description: string | null;
-  category: "CULTURE" | "TOOLS" | "WORKLOAD" | "MANAGEMENT" | "OTHER";
-  questions: CampaignQuestionView[];
-};
-
-function toAuthorLabel(sessionId: string) {
-  return `Anon-${sessionId.slice(-4).toUpperCase()}`;
-}
-
-async function getCampaignFeed(): Promise<CampaignFeedView[]> {
+async function getCampaignFeed(): Promise<CampaignQuestionFeedView[]> {
   const now = new Date();
   const campaigns = await prisma.campaign.findMany({
     where: {
@@ -62,43 +47,42 @@ async function getCampaignFeed(): Promise<CampaignFeedView[]> {
     campaign.questions.map((question) => question.id)
   );
 
-  const responses = await prisma.questionResponse.findMany({
+  const responseCounts = await prisma.questionResponse.groupBy({
+    by: ["questionId"],
     where: { questionId: { in: questionIds } },
-    orderBy: { createdAt: "asc" },
+    _count: { _all: true },
   });
 
-  const responsesByQuestion = new Map<string, CampaignResponseView[]>();
-  responses.forEach((response) => {
-    const entry = responsesByQuestion.get(response.questionId) ?? [];
-    entry.push({
-      id: response.id,
-      content: response.content,
-      createdAt: response.createdAt,
-      authorLabel: toAuthorLabel(response.sessionId),
+  const responseCountMap = new Map<string, number>();
+  responseCounts.forEach((row) => {
+    responseCountMap.set(row.questionId, row._count._all);
+  });
+
+  const items: CampaignQuestionFeedView[] = [];
+  campaigns.forEach((campaign) => {
+    campaign.questions.forEach((question) => {
+      items.push({
+        id: question.id,
+        campaignId: campaign.id,
+        campaignTitle: campaign.title,
+        campaignDescription: campaign.description,
+        campaignCategory: campaign.category,
+        questionPrompt: question.prompt,
+        createdAt: question.createdAt,
+        responsesCount: responseCountMap.get(question.id) ?? 0,
+      });
     });
-    responsesByQuestion.set(response.questionId, entry);
   });
 
-  return campaigns.map((campaign) => ({
-    id: campaign.id,
-    title: campaign.title,
-    description: campaign.description,
-    category: campaign.category,
-    questions: campaign.questions.map((question) => ({
-      id: question.id,
-      prompt: question.prompt,
-      responses: responsesByQuestion.get(question.id) ?? [],
-    })),
-  }));
+  return items;
 }
 
 export default async function FeedbackPage() {
   const feedback = await getFeedback();
-  const campaigns = await getCampaignFeed();
+  const campaignQuestions = await getCampaignFeed();
 
   return (
     <section className="max-w-5xl space-y-7">
-      <CampaignFeed campaigns={campaigns} />
       <div className="space-y-2 rounded-xl border border-slate-200 bg-white px-5 py-6 sm:px-6">
         <h1 className="text-2xl font-semibold text-slate-900">Feedback feed</h1>
         <p className="text-sm text-slate-600">
@@ -106,7 +90,18 @@ export default async function FeedbackPage() {
           resonate with you to help surface the most important issues.
         </p>
       </div>
-      <FeedbackFeed initialFeedback={feedback} />
+      <FeedbackFeed
+        initialFeedback={feedback}
+        initialCampaignQuestions={campaignQuestions.map((item) => ({
+          id: item.id,
+          campaignTitle: item.campaignTitle,
+          campaignDescription: item.campaignDescription,
+          category: item.campaignCategory,
+          prompt: item.questionPrompt,
+          createdAt: item.createdAt,
+          responsesCount: item.responsesCount,
+        }))}
+      />
     </section>
   );
 }
