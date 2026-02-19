@@ -179,7 +179,9 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
                             <p className="text-xs text-muted-foreground">{item.adminNote}</p>
                           </div>
                         )}
-                        <AwardPanel item={item} onRewarded={handleRewarded} />
+                        {!item.id.startsWith("campaign-question-") && (
+                          <AwardPanel item={item} onRewarded={handleRewarded} />
+                        )}
                       </td>
                     </tr>
                   )}

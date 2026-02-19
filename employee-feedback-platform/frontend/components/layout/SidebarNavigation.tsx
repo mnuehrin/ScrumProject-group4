@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -159,6 +160,8 @@ function NavLinks() {
 export function SidebarNavigation() {
   const { open, isMobile } = useSidebar();
   const showLabels = open || isMobile;
+  const companyLogoSrc =
+    process.env.NEXT_PUBLIC_COMPANY_LOGO || "/Employee-Discussion-Board-Logo (2).svg";
 
   return (
     <Sidebar className="border-border bg-sidebar">
@@ -169,8 +172,14 @@ export function SidebarNavigation() {
             !showLabels && "md:justify-center"
           )}
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-700 via-teal-800 to-emerald-500 text-xs font-semibold uppercase tracking-wide text-white shadow-sm">
-            EF
+          <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-border bg-card/70 shadow-sm">
+            <Image
+              src={companyLogoSrc}
+              alt="Company logo"
+              width={48}
+              height={48}
+              className="h-10 w-10 scale-150 object-contain"
+            />
           </div>
           <div className={cn("space-y-1", !showLabels && "md:hidden")}>
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
