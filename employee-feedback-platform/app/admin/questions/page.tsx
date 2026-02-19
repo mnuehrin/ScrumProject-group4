@@ -82,7 +82,13 @@ export default function AdminQuestionsPage() {
         setError(data?.error ?? "Unable to create campaign.");
         return;
       }
-      setCampaigns((prev) => [data, ...prev]);
+      setCampaigns((prev) => [
+        {
+          ...data,
+          questions: Array.isArray(data?.questions) ? data.questions : [],
+        },
+        ...prev,
+      ]);
       setSelectedCampaignId(data.id);
       setNewTitle("");
       setNewDescription("");
@@ -210,7 +216,7 @@ export default function AdminQuestionsPage() {
                       <Badge>{STATUS_LABELS[c.status]}</Badge>
                     </div>
                     <p className="mt-1 text-xs text-slate-400">
-                      {c.questions.length} questions
+                      {c.questions?.length ?? 0} questions
                     </p>
                   </button>
                 </li>
