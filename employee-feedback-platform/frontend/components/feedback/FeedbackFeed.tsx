@@ -72,7 +72,7 @@ export function FeedbackFeed({ initialFeedback, initialCampaignQuestions }: Feed
         <CategoryPills active={activeCategory} onChange={setActiveCategory} />
 
         {/* Sort toggle */}
-        <div className="flex rounded-full border border-border bg-card/80 p-1 self-start sm:self-auto">
+        <div className="flex rounded-full border border-border bg-card/80 p-1 self-start sm:mr-4 sm:self-auto">
           {(["newest", "top"] as SortOption[]).map((s) => (
             <button
               key={s}

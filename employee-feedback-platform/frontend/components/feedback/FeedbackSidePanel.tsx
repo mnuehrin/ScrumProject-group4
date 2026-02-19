@@ -38,8 +38,8 @@ export function FeedbackSidePanel({
   weeklyActivity,
 }: FeedbackSidePanelProps) {
   return (
-    <aside className="xl:sticky xl:top-4">
-      <section className="overflow-hidden rounded-xl border border-sidebar-border bg-sidebar text-sidebar-foreground">
+    <aside className="xl:h-full">
+      <section className="overflow-hidden rounded-xl border border-sidebar-border bg-sidebar text-sidebar-foreground xl:flex xl:h-full xl:flex-col">
         <div className="border-b border-sidebar-border px-5 py-4">
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
             Workspace
@@ -66,21 +66,31 @@ export function FeedbackSidePanel({
             Community Rules
           </h3>
         </div>
-        <ol className="px-5 py-1">
+        <div className="px-5 py-1 xl:min-h-0 xl:flex-1 xl:overflow-y-auto xl:pb-2">
           {COMMUNITY_RULES.map((rule, index) => (
-            <li key={rule.title} className="border-b border-sidebar-border/80 py-3 last:border-0">
-              <div className="flex items-start gap-2">
+            <details key={rule.title} className="group border-b border-sidebar-border/80 last:border-0">
+              <summary className="flex cursor-pointer list-none items-start gap-2 py-3 [&::-webkit-details-marker]:hidden">
                 <span className="mt-0.5 text-sm font-semibold tabular-nums text-muted-foreground">
                   {index + 1}
                 </span>
-                <div className="space-y-0.5">
-                  <p className="text-sm font-semibold text-foreground">{rule.title}</p>
-                  <p className="text-sm leading-relaxed text-muted-foreground">{rule.description}</p>
-                </div>
-              </div>
-            </li>
+                <span className="text-sm font-semibold text-foreground">{rule.title}</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  className="ml-auto mt-0.5 h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180"
+                >
+                  <path d="m5 8 5 5 5-5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </summary>
+              <p className="pb-3 pl-7 text-sm leading-relaxed text-muted-foreground">
+                {rule.description}
+              </p>
+            </details>
           ))}
-        </ol>
+        </div>
       </section>
     </aside>
   );

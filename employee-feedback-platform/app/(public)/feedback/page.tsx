@@ -93,32 +93,36 @@ export default async function FeedbackPage() {
   const weeklyActivity = weeklyFeedbackCount + weeklyQuestionCount;
 
   return (
-    <section className="w-full space-y-7">
-      <div className="space-y-2">
+    <section className="flex h-full min-h-0 w-full flex-col gap-6">
+      <div className="shrink-0 space-y-2">
         <h1 className="sr-only">Feedback feed</h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
           Browse all feedback submitted by your colleagues. Upvote items that
           resonate with you to help surface the most important issues.
         </p>
       </div>
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <FeedbackFeed
-          initialFeedback={feedback}
-          initialCampaignQuestions={campaignQuestions.map((item) => ({
-            id: item.id,
-            campaignTitle: item.campaignTitle,
-            campaignDescription: item.campaignDescription,
-            category: item.campaignCategory,
-            prompt: item.questionPrompt,
-            createdAt: item.createdAt,
-            responsesCount: item.responsesCount,
-          }))}
-        />
-        <FeedbackSidePanel
-          companyName={companyName}
-          liveCampaigns={liveCampaigns}
-          weeklyActivity={weeklyActivity}
-        />
+      <div className="grid min-h-0 flex-1 gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="min-h-0 xl:overflow-y-auto xl:pr-1">
+          <FeedbackFeed
+            initialFeedback={feedback}
+            initialCampaignQuestions={campaignQuestions.map((item) => ({
+              id: item.id,
+              campaignTitle: item.campaignTitle,
+              campaignDescription: item.campaignDescription,
+              category: item.campaignCategory,
+              prompt: item.questionPrompt,
+              createdAt: item.createdAt,
+              responsesCount: item.responsesCount,
+            }))}
+          />
+        </div>
+        <div className="xl:-mt-2 xl:h-full xl:overflow-hidden">
+          <FeedbackSidePanel
+            companyName={companyName}
+            liveCampaigns={liveCampaigns}
+            weeklyActivity={weeklyActivity}
+          />
+        </div>
       </div>
     </section>
   );
