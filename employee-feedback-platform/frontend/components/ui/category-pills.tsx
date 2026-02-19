@@ -19,15 +19,15 @@ interface CategoryPillsProps {
 
 export function CategoryPills({ active, onChange, counts }: CategoryPillsProps) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2.5">
       {TABS.map((tab) => (
         <button
           key={tab.value}
           onClick={() => onChange(tab.value)}
-          className={`cursor-pointer rounded-full px-4 py-2 text-sm font-medium transition-all ${
+          className={`cursor-pointer rounded-full border px-4 py-1.5 text-[13px] font-semibold transition-all ${
             active === tab.value
-              ? "bg-slate-900 text-white shadow-sm"
-              : "bg-slate-100 text-slate-600 hover:bg-slate-200 active:bg-slate-300"
+              ? "border-transparent bg-slate-900 text-white shadow-sm"
+              : "border-slate-200/80 bg-white/80 text-slate-600 hover:border-slate-300 hover:bg-slate-50 active:bg-slate-100"
           }`}
         >
           {tab.label}

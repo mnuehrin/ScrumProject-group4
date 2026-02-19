@@ -122,9 +122,9 @@ export default function SubmitPage() {
 
   return (
     <section className="space-y-6">
-      <div className="space-y-2 rounded-xl border border-slate-200 bg-white px-6 py-5">
+      <div className="space-y-1">
         <h1 className="sr-only">Answer admin questions</h1>
-        <p className="text-sm leading-relaxed text-slate-600">
+        <p className="max-w-2xl text-base leading-relaxed text-slate-600">
           Browse campaigns by category and respond to the questions that matter to you.
         </p>
       </div>
@@ -148,7 +148,10 @@ export default function SubmitPage() {
       ) : (
         <div className="space-y-4">
           {filteredCampaigns.map((campaign) => (
-            <div key={campaign.id} className="rounded-xl border border-slate-200 bg-white p-5">
+            <div
+              key={campaign.id}
+              className="rounded-2xl border border-slate-200/60 bg-white/90 p-5 shadow-[0_12px_32px_-24px_rgba(15,23,42,0.3)]"
+            >
               <div className="flex flex-wrap items-center gap-2">
                 <Badge>{CATEGORY_LABELS[campaign.category]}</Badge>
                 <p className="text-xs text-slate-400">Campaign</p>
@@ -160,7 +163,10 @@ export default function SubmitPage() {
 
               <div className="mt-4 space-y-3">
                 {campaign.questions.map((q) => (
-                  <div key={q.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                  <div
+                    key={q.id}
+                    className="rounded-xl border border-slate-200/60 bg-slate-50/80 p-4"
+                  >
                     <p className="text-sm font-medium text-slate-900">{q.prompt}</p>
                     {q.hasResponded ? (
                       <p className="mt-2 text-xs text-emerald-600">Response submitted.</p>

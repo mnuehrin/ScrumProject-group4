@@ -94,7 +94,7 @@ export default function RewardsPage() {
 
   return (
     <section className="space-y-6">
-      <div className="space-y-2 rounded-xl border border-slate-200 bg-white px-6 py-5">
+      <div className="space-y-2">
         <h1 className="sr-only">My rewards</h1>
         <p className="text-sm leading-relaxed text-slate-600">
           Rewards appear here after an admin awards your feedback. Use your claim code to redeem.

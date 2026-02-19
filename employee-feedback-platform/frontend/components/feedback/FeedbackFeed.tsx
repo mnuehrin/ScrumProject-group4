@@ -72,12 +72,12 @@ export function FeedbackFeed({ initialFeedback, initialCampaignQuestions }: Feed
         <CategoryPills active={activeCategory} onChange={setActiveCategory} />
 
         {/* Sort toggle */}
-        <div className="flex rounded-lg border border-slate-200 bg-white p-1 self-start sm:self-auto">
+        <div className="flex rounded-full border border-slate-200/70 bg-white/80 p-1 self-start sm:self-auto">
           {(["newest", "top"] as SortOption[]).map((s) => (
             <button
               key={s}
               onClick={() => setSort(s)}
-              className={`cursor-pointer rounded-md px-4 py-1.5 text-sm font-medium transition-all ${
+              className={`cursor-pointer rounded-full px-4 py-1.5 text-[13px] font-semibold transition-all ${
                 sort === s
                   ? "bg-slate-900 text-white shadow-sm"
                   : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
