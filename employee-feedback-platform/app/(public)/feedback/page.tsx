@@ -85,7 +85,7 @@ export default async function FeedbackPage() {
     <section className="max-w-5xl space-y-7">
       <div className="space-y-2">
         <h1 className="sr-only">Feedback feed</h1>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-muted-foreground">
           Browse all feedback submitted by your colleagues. Upvote items that
           resonate with you to help surface the most important issues.
         </p>

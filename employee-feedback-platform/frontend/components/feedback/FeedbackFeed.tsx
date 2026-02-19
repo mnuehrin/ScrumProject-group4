@@ -91,7 +91,7 @@ export function FeedbackFeed({ initialFeedback, initialCampaignQuestions }: Feed
 
       {/* Feed */}
       {filtered.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">
+        <div className="rounded-xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
           No feedback in this category yet.
         </div>
       ) : (
@@ -186,20 +186,20 @@ function CampaignQuestionCard({
             </Badge>
             <Badge variant="pending">Campaign</Badge>
           </div>
-          <span className="shrink-0 text-xs text-slate-400">{formattedDate}</span>
+          <span className="shrink-0 text-xs text-muted-foreground">{formattedDate}</span>
         </div>
       </CardHeader>
       <CardContent className="space-y-2">
-        <p className="text-sm font-semibold text-slate-900">{question.campaignTitle}</p>
+        <p className="text-sm font-semibold text-foreground">{question.campaignTitle}</p>
         {question.campaignDescription && (
-          <p className="text-xs text-slate-500">{question.campaignDescription}</p>
+          <p className="text-xs text-muted-foreground">{question.campaignDescription}</p>
         )}
-        <p className="text-sm leading-relaxed text-slate-700 whitespace-pre-wrap">
+        <p className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">
           {question.prompt}
         </p>
       </CardContent>
       <CardFooter>
-        <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600">
+        <div className="flex items-center gap-2 rounded-full border border-border bg-card/80 px-4 py-2 text-sm font-medium text-muted-foreground">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"

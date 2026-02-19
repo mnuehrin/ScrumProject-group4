@@ -28,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${bodyFont.variable} ${displayFont.variable} min-h-screen bg-slate-50 text-slate-900`}
+        className={`${bodyFont.variable} ${displayFont.variable} min-h-screen bg-background text-foreground`}
       >
         <Providers>{children}</Providers>
       </body>

@@ -96,7 +96,7 @@ export default function RewardsPage() {
     <section className="space-y-6">
       <div className="space-y-2">
         <h1 className="sr-only">My rewards</h1>
-        <p className="text-sm leading-relaxed text-slate-600">
+        <p className="text-sm leading-relaxed text-muted-foreground">
           Rewards appear here after an admin awards your feedback. Use your claim code to redeem.
         </p>
       </div>
@@ -108,11 +108,11 @@ export default function RewardsPage() {
       )}
 
       {loading ? (
-        <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">
+        <div className="rounded-xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
           Loading rewards…
         </div>
       ) : rewards.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">
+        <div className="rounded-xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
           No rewards yet.
         </div>
       ) : (
@@ -120,7 +120,7 @@ export default function RewardsPage() {
           {rewards.map((reward) => (
             <div
               key={reward.id}
-              className="rounded-xl border border-slate-200 bg-white p-5"
+              className="rounded-xl border border-border bg-card p-5"
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="space-y-1">
@@ -128,7 +128,7 @@ export default function RewardsPage() {
                     <Badge>{REWARD_LABELS[reward.rewardType]}</Badge>
                     <Badge>{STATUS_LABELS[reward.status]}</Badge>
                   </div>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-muted-foreground">
                     Claim code: <span className="font-medium">{reward.claimCode}</span>
                   </p>
                 </div>
@@ -141,19 +141,19 @@ export default function RewardsPage() {
                     {redeeming === reward.claimCode ? "Redeeming…" : "Redeem"}
                   </GlassButton>
                 ) : (
-                  <span className="text-xs text-emerald-600">Redeemed</span>
+                  <span className="text-xs text-emerald-500">Redeemed</span>
                 )}
               </div>
 
               {reward.status === "REDEEMED" && reward.rewardType === "PROMO_CODE" && (
-                <p className="mt-3 text-sm text-emerald-700">
+                <p className="mt-3 text-sm text-emerald-500">
                   Promo code: <span className="font-semibold">{reward.promoCode ?? "Unavailable"}</span>
                 </p>
               )}
 
-              <div className="mt-4 rounded-lg border border-slate-100 bg-slate-50 p-3">
-                <p className="text-xs text-slate-500 mb-1">Feedback</p>
-                <p className="text-sm text-slate-700 line-clamp-2">{reward.feedback.content}</p>
+              <div className="mt-4 rounded-lg border border-border bg-accent/40 p-3">
+                <p className="text-xs text-muted-foreground mb-1">Feedback</p>
+                <p className="text-sm text-foreground line-clamp-2">{reward.feedback.content}</p>
               </div>
             </div>
           ))}

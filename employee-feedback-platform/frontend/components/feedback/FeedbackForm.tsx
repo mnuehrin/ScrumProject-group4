@@ -86,10 +86,10 @@ export function FeedbackForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {/* Category */}
       <div className="space-y-1.5">
-        <label className="text-sm font-medium text-slate-700">Category</label>
+        <label className="text-sm font-medium text-foreground">Category</label>
         <select
           {...register("category")}
-          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
           defaultValue=""
         >
           <option value="" disabled>
@@ -108,16 +108,16 @@ export function FeedbackForm() {
 
       {/* Guided prompt */}
       {prompt && (
-        <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
-          <p className="text-sm text-slate-600 italic">{prompt}</p>
+        <div className="rounded-lg border border-border bg-accent/40 px-4 py-3">
+          <p className="text-sm text-muted-foreground italic">{prompt}</p>
         </div>
       )}
 
       {/* Content */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-slate-700">Your feedback</label>
-          <span className="text-xs text-slate-400">{charCount} / 2000</span>
+          <label className="text-sm font-medium text-foreground">Your feedback</label>
+          <span className="text-xs text-muted-foreground">{charCount} / 2000</span>
         </div>
         <Textarea
           {...register("content", {
@@ -141,7 +141,7 @@ export function FeedbackForm() {
         {status === "loading" ? "Submitting…" : "Submit anonymously"}
       </GlassButton>
 
-      <p className="text-center text-xs text-slate-400">
+      <p className="text-center text-xs text-muted-foreground">
         Your submission is completely anonymous — no names, no IPs logged. If your feedback is
         awarded, claim codes appear in My rewards.
       </p>

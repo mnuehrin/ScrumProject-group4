@@ -26,14 +26,14 @@ export default async function AdminPage() {
 
   return (
     <section className="space-y-7">
-      <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-5 py-4">
-        <p className="text-sm text-slate-600">
+      <div className="flex items-center justify-between rounded-xl border border-border bg-card px-5 py-4">
+        <p className="text-sm text-muted-foreground">
           {feedback.length} total submissions
         </p>
         <form action="/api/auth/signout" method="POST">
           <button
             type="submit"
-            className="text-xs text-slate-500 hover:text-slate-900 transition-colors"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
             Sign out
           </button>

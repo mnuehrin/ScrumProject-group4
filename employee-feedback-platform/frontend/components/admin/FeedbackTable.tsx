@@ -83,9 +83,9 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
         {(["PENDING", "REVIEWED", "IN_PROGRESS", "RESOLVED"] as FeedbackStatus[]).map((s) => {
           const count = rows.filter((f) => f.status === s).length;
           return (
-            <div key={s} className="rounded-xl border border-slate-200 bg-white px-5 py-4">
-              <p className="text-sm text-slate-500 mb-1">{STATUS_LABELS[s]}</p>
-              <p className="text-3xl font-semibold tabular-nums text-slate-900">{count}</p>
+            <div key={s} className="rounded-xl border border-border bg-card px-5 py-4">
+              <p className="text-sm text-muted-foreground mb-1">{STATUS_LABELS[s]}</p>
+              <p className="text-3xl font-semibold tabular-nums text-foreground">{count}</p>
             </div>
           );
         })}
@@ -106,43 +106,43 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
 
       {/* Table */}
       {filtered.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">
+        <div className="rounded-xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
           No feedback in this category.
         </div>
       ) : (
         <div className="-mx-5 overflow-x-auto px-5 sm:mx-0 sm:px-0">
-          <div className="min-w-[700px] overflow-hidden rounded-xl border border-slate-200 bg-white">
+          <div className="min-w-[700px] overflow-hidden rounded-xl border border-border bg-card">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-100 bg-slate-50">
-                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 w-[40%]">
+              <tr className="border-b border-border bg-accent/40">
+                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground w-[40%]">
                   Feedback
                 </th>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Category
                 </th>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Status
                 </th>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Upvotes
                 </th>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Reward
                 </th>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Date
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-border">
               {filtered.map((item) => (
                 <Fragment key={item.id}>
                   <tr
                     onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
-                    className="cursor-pointer transition-colors hover:bg-slate-50 active:bg-slate-100"
+                    className="cursor-pointer transition-colors hover:bg-accent/50 active:bg-accent/70"
                   >
-                    <td className="px-5 py-4 text-sm text-slate-700">
+                    <td className="px-5 py-4 text-sm text-foreground">
                       <p className="line-clamp-2 leading-relaxed">{item.content}</p>
                     </td>
                     <td className="px-5 py-4">
@@ -155,28 +155,28 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
                         {STATUS_LABELS[item.status]}
                       </Badge>
                     </td>
-                    <td className="px-5 py-4 text-sm tabular-nums text-slate-600">{item.upvotes}</td>
+                    <td className="px-5 py-4 text-sm tabular-nums text-muted-foreground">{item.upvotes}</td>
                     <td className="px-5 py-4">
                       {item.reward ? (
                         <Badge>{REWARD_STATUS_LABELS[item.reward.status]}</Badge>
                       ) : (
-                        <span className="text-sm text-slate-400">None</span>
+                        <span className="text-sm text-muted-foreground">None</span>
                       )}
                     </td>
-                    <td className="px-5 py-4 text-sm text-slate-400 whitespace-nowrap">
+                    <td className="px-5 py-4 text-sm text-muted-foreground whitespace-nowrap">
                       {formattedDate(item.createdAt)}
                     </td>
                   </tr>
                   {expandedId === item.id && (
-                    <tr className="bg-slate-50">
+                    <tr className="bg-accent/40">
                       <td colSpan={6} className="px-5 py-5">
-                        <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
+                        <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
                           {item.content}
                         </p>
                         {item.adminNote && (
-                          <div className="mt-3 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2">
-                            <p className="text-xs font-medium text-blue-700 mb-0.5">Admin note</p>
-                            <p className="text-xs text-blue-600">{item.adminNote}</p>
+                          <div className="mt-3 rounded-lg border border-border bg-accent/60 px-3 py-2">
+                            <p className="text-xs font-medium text-foreground mb-0.5">Admin note</p>
+                            <p className="text-xs text-muted-foreground">{item.adminNote}</p>
                           </div>
                         )}
                         <AwardPanel item={item} onRewarded={handleRewarded} />
@@ -255,15 +255,15 @@ function AwardPanel({
   }
 
   return (
-    <div className="mt-4 rounded-lg border border-slate-200 bg-white px-5 py-4">
-      <p className="text-sm font-semibold text-slate-600">Award a reward</p>
+    <div className="mt-4 rounded-lg border border-border bg-card px-5 py-4">
+      <p className="text-sm font-semibold text-muted-foreground">Award a reward</p>
       <div className="mt-3 grid gap-3 sm:grid-cols-3 sm:items-end">
         <div className="space-y-1.5 sm:col-span-1">
-          <label className="text-sm font-medium text-slate-600">Reward type</label>
+          <label className="text-sm font-medium text-muted-foreground">Reward type</label>
           <select
             value={rewardType}
             onChange={(e) => setRewardType(e.target.value as RewardType)}
-            className="w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+            className="w-full cursor-pointer rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
           >
             <option value="PROMO_CODE">Promo code</option>
             <option value="HOLIDAY_DAY">Holiday day</option>
@@ -271,13 +271,13 @@ function AwardPanel({
         </div>
 
         <div className="space-y-1.5 sm:col-span-1">
-          <label className="text-sm font-medium text-slate-600">Promo code</label>
+          <label className="text-sm font-medium text-muted-foreground">Promo code</label>
           <input
             value={promoCode}
             onChange={(e) => setPromoCode(e.target.value)}
             disabled={!isPromo}
             placeholder={isPromo ? "Enter promo code" : "Not required"}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 disabled:bg-slate-50 disabled:text-slate-400"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20 disabled:bg-accent/40 disabled:text-muted-foreground"
           />
         </div>
 
@@ -295,18 +295,18 @@ function AwardPanel({
       </div>
 
       {!canAward && (
-        <p className="mt-2 text-xs text-amber-600">
+        <p className="mt-2 text-xs text-amber-500">
           This feedback cannot be awarded because the submitter session is missing.
         </p>
       )}
 
-      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-2 text-xs text-red-500">{error}</p>}
       {success && (
-        <p className="mt-2 text-xs text-emerald-700">
+        <p className="mt-2 text-xs text-emerald-500">
           Reward awarded. Claim code generated for the submitter.
         </p>
       )}
-      <p className="mt-2 text-xs text-slate-400">
+      <p className="mt-2 text-xs text-muted-foreground">
         Awards are limited to 3 per month for each submitter.
       </p>
     </div>

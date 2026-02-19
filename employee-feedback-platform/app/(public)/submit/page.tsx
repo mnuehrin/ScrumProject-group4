@@ -124,7 +124,7 @@ export default function SubmitPage() {
     <section className="space-y-6">
       <div className="space-y-1">
         <h1 className="sr-only">Answer admin questions</h1>
-        <p className="max-w-2xl text-base leading-relaxed text-slate-600">
+        <p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
           Browse campaigns by category and respond to the questions that matter to you.
         </p>
       </div>
@@ -150,26 +150,26 @@ export default function SubmitPage() {
           {filteredCampaigns.map((campaign) => (
             <div
               key={campaign.id}
-              className="rounded-2xl border border-slate-200/60 bg-white/90 p-5 shadow-[0_12px_32px_-24px_rgba(15,23,42,0.3)]"
+              className="rounded-2xl border border-border bg-card p-5 shadow-[0_12px_32px_-24px_rgba(15,23,42,0.3)]"
             >
               <div className="flex flex-wrap items-center gap-2">
                 <Badge>{CATEGORY_LABELS[campaign.category]}</Badge>
-                <p className="text-xs text-slate-400">Campaign</p>
+                <p className="text-xs text-muted-foreground">Campaign</p>
               </div>
-              <h2 className="mt-2 text-lg font-semibold text-slate-900">{campaign.title}</h2>
+              <h2 className="mt-2 text-lg font-semibold text-foreground">{campaign.title}</h2>
               {campaign.description && (
-                <p className="mt-1 text-sm text-slate-600">{campaign.description}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{campaign.description}</p>
               )}
 
               <div className="mt-4 space-y-3">
                 {campaign.questions.map((q) => (
                   <div
                     key={q.id}
-                    className="rounded-xl border border-slate-200/60 bg-slate-50/80 p-4"
+                    className="rounded-xl border border-border bg-accent/40 p-4"
                   >
-                    <p className="text-sm font-medium text-slate-900">{q.prompt}</p>
+                    <p className="text-sm font-medium text-foreground">{q.prompt}</p>
                     {q.hasResponded ? (
-                      <p className="mt-2 text-xs text-emerald-600">Response submitted.</p>
+                      <p className="mt-2 text-xs text-emerald-500">Response submitted.</p>
                     ) : (
                       <div className="mt-3 space-y-2">
                         {!openQuestions.has(q.id) ? (

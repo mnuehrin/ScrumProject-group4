@@ -61,13 +61,13 @@ export function FeedbackCard({ feedback, upvoteSlot, threadSlot }: FeedbackCardP
         </div>
       </CardHeader>
       <CardContent>
-        <p className="text-sm leading-relaxed text-slate-700 whitespace-pre-wrap">
+        <p className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">
           {feedback.content}
         </p>
         {feedback.adminNote && (
-          <div className="mt-3 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2">
-            <p className="text-xs font-medium text-blue-700 mb-0.5">Admin note</p>
-            <p className="text-xs text-blue-600">{feedback.adminNote}</p>
+          <div className="mt-3 rounded-lg border border-border bg-accent/60 px-3 py-2">
+            <p className="text-xs font-medium text-foreground mb-0.5">Admin note</p>
+            <p className="text-xs text-muted-foreground">{feedback.adminNote}</p>
           </div>
         )}
       </CardContent>

@@ -164,7 +164,7 @@ export default function AdminQuestionsPage() {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">
+      <div className="rounded-xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
         Loading question campaigns…
       </div>
     );
@@ -172,9 +172,9 @@ export default function AdminQuestionsPage() {
 
   return (
     <section className="space-y-6">
-      <div className="space-y-2 rounded-xl border border-slate-200 bg-white px-6 py-5">
+      <div className="space-y-2 rounded-xl border border-border bg-card px-6 py-5">
         <h1 className="sr-only">Question campaigns</h1>
-        <p className="text-sm leading-relaxed text-slate-600">
+        <p className="text-sm leading-relaxed text-muted-foreground">
           Create and publish live questions for employees.
         </p>
       </div>
@@ -185,7 +185,7 @@ export default function AdminQuestionsPage() {
         </div>
       )}
 
-      <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
+      <div className="rounded-xl border border-border bg-card p-5 space-y-4">
         <div className="space-y-2">
           <label className="text-xs font-semibold uppercase tracking-wide text-slate-400">
             New campaign
@@ -194,12 +194,12 @@ export default function AdminQuestionsPage() {
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
             placeholder="Campaign title"
-            className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+            className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
           />
           <select
             value={newCategory}
             onChange={(e) => setNewCategory(e.target.value as Campaign["category"])}
-            className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+            className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
           >
             {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
               <option key={value} value={value}>
@@ -212,7 +212,7 @@ export default function AdminQuestionsPage() {
             onChange={(e) => setNewDescription(e.target.value)}
             placeholder="Optional description"
             rows={2}
-            className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+            className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
           />
         </div>
         <GlassButton size="sm" onClick={createCampaign} disabled={creating || newTitle.trim().length < 3}>
@@ -221,12 +221,12 @@ export default function AdminQuestionsPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
-        <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
+        <div className="rounded-xl border border-border bg-card p-4 space-y-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
             Campaigns
           </p>
           {campaigns.length === 0 ? (
-            <p className="text-sm text-slate-500">No campaigns yet.</p>
+            <p className="text-sm text-muted-foreground">No campaigns yet.</p>
           ) : (
             <ul className="space-y-2">
               {campaigns.map((c) => (
@@ -236,15 +236,15 @@ export default function AdminQuestionsPage() {
                     onClick={() => setSelectedCampaignId(c.id)}
                     className={`w-full cursor-pointer rounded-lg border px-4 py-3 text-left text-sm transition-all ${
                       selectedCampaignId === c.id
-                        ? "border-slate-300 bg-slate-100 text-slate-900 shadow-sm"
-                        : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 active:bg-slate-100"
+                        ? "border-border bg-accent/60 text-foreground shadow-sm"
+                        : "border-border bg-card text-muted-foreground hover:bg-accent/50 active:bg-accent/70"
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-medium">{c.title}</span>
                       <Badge>{STATUS_LABELS[c.status]}</Badge>
                     </div>
-                    <p className="mt-1 text-xs text-slate-400">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       {CATEGORY_LABELS[c.category]} · {c.questions?.length ?? 0} questions
                     </p>
                   </button>
@@ -254,17 +254,17 @@ export default function AdminQuestionsPage() {
           )}
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
+        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
           {selectedCampaign ? (
             <>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-semibold text-slate-900">{selectedCampaign.title}</h2>
+                    <h2 className="text-lg font-semibold text-foreground">{selectedCampaign.title}</h2>
                     <Badge>{CATEGORY_LABELS[selectedCampaign.category]}</Badge>
                   </div>
                   {selectedCampaign.description && (
-                    <p className="text-sm text-slate-600">{selectedCampaign.description}</p>
+                    <p className="text-sm text-muted-foreground">{selectedCampaign.description}</p>
                   )}
                 </div>
                 <div className="flex gap-2">
@@ -281,7 +281,7 @@ export default function AdminQuestionsPage() {
                 </div>
               </div>
 
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 space-y-3">
+              <div className="rounded-lg border border-border bg-accent/40 p-4 space-y-3">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
                   Add question
                 </p>
@@ -290,7 +290,7 @@ export default function AdminQuestionsPage() {
                   onChange={(e) => setQuestionDraft(e.target.value)}
                   placeholder="Write a question prompt..."
                   rows={3}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                  className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
                 />
                 <GlassButton
                   size="sm"
@@ -303,12 +303,12 @@ export default function AdminQuestionsPage() {
 
               <div className="space-y-3">
                 {selectedCampaign.questions.length === 0 ? (
-                  <p className="text-sm text-slate-500">No questions yet.</p>
+                  <p className="text-sm text-muted-foreground">No questions yet.</p>
                 ) : (
                   selectedCampaign.questions.map((q) => (
-                    <div key={q.id} className="rounded-lg border border-slate-200 bg-white p-4">
-                      <p className="text-sm font-medium text-slate-900">{q.prompt}</p>
-                      <p className="mt-1 text-xs text-slate-400">
+                    <div key={q.id} className="rounded-lg border border-border bg-card p-4">
+                      <p className="text-sm font-medium text-foreground">{q.prompt}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
                         Order {q.order} · {q.responsesCount ?? 0} responses
                       </p>
                     </div>
@@ -317,7 +317,7 @@ export default function AdminQuestionsPage() {
               </div>
             </>
           ) : (
-            <p className="text-sm text-slate-500">Select a campaign to manage questions.</p>
+            <p className="text-sm text-muted-foreground">Select a campaign to manage questions.</p>
           )}
         </div>
       </div>
