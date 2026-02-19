@@ -24,6 +24,7 @@ export async function GET(
     select: {
       id: true,
       questionId: true,
+      parentId: true,
       sessionId: true,
       content: true,
       createdAt: true,
@@ -34,6 +35,7 @@ export async function GET(
     responses.map((response) => ({
       id: response.id,
       questionId: response.questionId,
+      parentId: response.parentId,
       content: response.content,
       createdAt: response.createdAt,
       authorLabel: toAuthorLabel(response.sessionId),
@@ -54,7 +56,7 @@ export async function POST(
     );
   }
 
-  const { sessionId, content } = parsed.data;
+  const { sessionId, content, parentId } = parsed.data;
 
   const question = await prisma.question.findUnique({
     where: { id: params.id },
@@ -64,15 +66,29 @@ export async function POST(
     return NextResponse.json({ error: "Question not found" }, { status: 404 });
   }
 
-  const existing = await prisma.questionResponse.findUnique({
-    where: { questionId_sessionId: { questionId: params.id, sessionId } },
-  });
+  if (!parentId) {
+    const existing = await prisma.questionResponse.findFirst({
+      where: { questionId: params.id, sessionId, parentId: null },
+      select: { id: true },
+    });
 
-  if (existing) {
-    return NextResponse.json(
-      { error: "You have already responded to this question." },
-      { status: 409 }
-    );
+    if (existing) {
+      return NextResponse.json(
+        { error: "You have already responded to this question." },
+        { status: 409 }
+      );
+    }
+  } else {
+    const parent = await prisma.questionResponse.findUnique({
+      where: { id: parentId },
+      select: { id: true, questionId: true },
+    });
+    if (!parent || parent.questionId !== params.id) {
+      return NextResponse.json(
+        { error: "Parent response not found for this question." },
+        { status: 400 }
+      );
+    }
   }
 
   const response = await prisma.questionResponse.create({
@@ -80,6 +96,7 @@ export async function POST(
       questionId: params.id,
       sessionId,
       content: content.trim(),
+      parentId: parentId ?? null,
     },
   });
 

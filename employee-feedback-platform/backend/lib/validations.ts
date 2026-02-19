@@ -97,6 +97,7 @@ export const submitResponseSchema = z.object({
     .trim()
     .min(2, "Response must be at least 2 characters.")
     .max(2000, "Response must be 2000 characters or fewer."),
+  parentId: z.string().uuid("Invalid parent response ID.").optional(),
 });
 
 export type SubmitResponseInput = z.infer<typeof submitResponseSchema>;

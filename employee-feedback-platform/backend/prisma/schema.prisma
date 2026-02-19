@@ -168,14 +168,17 @@ model Question {
 model QuestionResponse {
   id         String   @id @default(uuid()) @db.VarChar(36)
   questionId String   @map("question_id")
+  parentId   String?  @map("parent_id")
   sessionId  String   @db.VarChar(191) @map("session_id")
   content    String   @db.Text
   createdAt  DateTime @default(now()) @map("created_at")
 
-  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  question   Question          @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  parent     QuestionResponse? @relation("QuestionReplies", fields: [parentId], references: [id], onDelete: SetNull)
+  replies    QuestionResponse[] @relation("QuestionReplies")
 
-  @@unique([questionId, sessionId])
   @@index([questionId])
+  @@index([parentId])
   @@index([sessionId])
   @@map("question_responses")
 }
