@@ -31,7 +31,7 @@ export default function HomePage() {
                 href="/submit"
                 className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 shadow-sm transition hover:border-slate-300"
               >
-                Submit feedback
+                Answer questions
               </Link>
               <Link
                 href="/feedback"

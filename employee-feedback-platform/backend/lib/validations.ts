@@ -61,6 +61,9 @@ export const createCampaignSchema = z.object({
   description: z.string().trim().max(2000).optional(),
   startsAt: z.string().datetime().optional(),
   endsAt: z.string().datetime().optional(),
+  category: z.enum(["CULTURE", "TOOLS", "WORKLOAD", "MANAGEMENT", "OTHER"], {
+    errorMap: () => ({ message: "Please select a valid category." }),
+  }),
   status: z.enum(["DRAFT", "LIVE", "ARCHIVED"]).optional(),
 });
 
@@ -71,6 +74,9 @@ export const updateCampaignSchema = z.object({
   description: z.string().trim().max(2000).optional(),
   startsAt: z.string().datetime().nullable().optional(),
   endsAt: z.string().datetime().nullable().optional(),
+  category: z
+    .enum(["CULTURE", "TOOLS", "WORKLOAD", "MANAGEMENT", "OTHER"])
+    .optional(),
   status: z.enum(["DRAFT", "LIVE", "ARCHIVED"]).optional(),
 });
 

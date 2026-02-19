@@ -15,6 +15,7 @@ type Campaign = {
   id: string;
   title: string;
   description: string | null;
+  category: "CULTURE" | "TOOLS" | "WORKLOAD" | "MANAGEMENT" | "OTHER";
   status: "DRAFT" | "LIVE" | "ARCHIVED";
   startsAt: string | null;
   endsAt: string | null;
@@ -27,6 +28,14 @@ const STATUS_LABELS: Record<Campaign["status"], string> = {
   ARCHIVED: "Archived",
 };
 
+const CATEGORY_LABELS: Record<Campaign["category"], string> = {
+  CULTURE: "Culture",
+  TOOLS: "Tools",
+  WORKLOAD: "Workload",
+  MANAGEMENT: "Management",
+  OTHER: "Other",
+};
+
 export default function AdminQuestionsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,6 +43,7 @@ export default function AdminQuestionsPage() {
   const [creating, setCreating] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
+  const [newCategory, setNewCategory] = useState<Campaign["category"]>("CULTURE");
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
   const [questionDraft, setQuestionDraft] = useState("");
   const [savingQuestion, setSavingQuestion] = useState(false);
@@ -75,6 +85,7 @@ export default function AdminQuestionsPage() {
         body: JSON.stringify({
           title: newTitle,
           description: newDescription || undefined,
+          category: newCategory,
         }),
       });
       const data = await res.json();
@@ -92,6 +103,7 @@ export default function AdminQuestionsPage() {
       setSelectedCampaignId(data.id);
       setNewTitle("");
       setNewDescription("");
+      setNewCategory("CULTURE");
     } catch {
       setError("Unable to create campaign.");
     } finally {
@@ -178,6 +190,17 @@ export default function AdminQuestionsPage() {
             placeholder="Campaign title"
             className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
           />
+          <select
+            value={newCategory}
+            onChange={(e) => setNewCategory(e.target.value as Campaign["category"])}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+          >
+            {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
           <textarea
             value={newDescription}
             onChange={(e) => setNewDescription(e.target.value)}
@@ -216,7 +239,7 @@ export default function AdminQuestionsPage() {
                       <Badge>{STATUS_LABELS[c.status]}</Badge>
                     </div>
                     <p className="mt-1 text-xs text-slate-400">
-                      {c.questions?.length ?? 0} questions
+                      {CATEGORY_LABELS[c.category]} · {c.questions?.length ?? 0} questions
                     </p>
                   </button>
                 </li>
@@ -230,7 +253,10 @@ export default function AdminQuestionsPage() {
             <>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-lg font-semibold text-slate-900">{selectedCampaign.title}</h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-semibold text-slate-900">{selectedCampaign.title}</h2>
+                    <Badge>{CATEGORY_LABELS[selectedCampaign.category]}</Badge>
+                  </div>
                   {selectedCampaign.description && (
                     <p className="text-sm text-slate-600">{selectedCampaign.description}</p>
                   )}

@@ -17,7 +17,7 @@ import {
 type NavItem = {
   href: string;
   label: string;
-  icon: "home" | "submit" | "questions" | "feed" | "rewards" | "admin" | "login";
+  icon: "home" | "submit" | "feed" | "rewards" | "admin" | "login";
 };
 
 const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
@@ -25,8 +25,7 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
     title: "Workspace",
     items: [
       { href: "/", label: "Overview", icon: "home" },
-      { href: "/submit", label: "Submit feedback", icon: "submit" },
-      { href: "/questions", label: "Live questions", icon: "questions" },
+      { href: "/submit", label: "Answer questions", icon: "submit" },
       { href: "/feedback", label: "Feedback feed", icon: "feed" },
       { href: "/rewards", label: "My rewards", icon: "rewards" },
     ],
@@ -82,13 +81,6 @@ function SidebarItemIcon({
       return (
         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" className={iconClass}>
           <path d="M10 4 12.2 8.4 17 9l-3.5 3.2.9 4.8L10 14.8 5.6 17l.9-4.8L3 9l4.8-.6L10 4Z" strokeLinejoin="round" />
-        </svg>
-      );
-    case "questions":
-      return (
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" className={iconClass}>
-          <path d="M4 5h12M4 10h8M4 15h10" strokeLinecap="round" />
-          <path d="M16 11v3" strokeLinecap="round" />
         </svg>
       );
     case "admin":

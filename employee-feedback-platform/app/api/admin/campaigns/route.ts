@@ -46,12 +46,13 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { title, description, startsAt, endsAt, status } = parsed.data;
+  const { title, description, startsAt, endsAt, status, category } = parsed.data;
 
   const campaign = await prisma.campaign.create({
     data: {
       title: title.trim(),
       description: description?.trim() || null,
+      category,
       startsAt: startsAt ? new Date(startsAt) : null,
       endsAt: endsAt ? new Date(endsAt) : null,
       status: status ?? "DRAFT",

@@ -136,6 +136,7 @@ model Campaign {
   id          String         @id @default(uuid()) @db.VarChar(36)
   title       String         @db.VarChar(191)
   description String?        @db.Text
+  category    FeedbackCategory @default(OTHER)
   status      CampaignStatus @default(DRAFT)
   startsAt    DateTime?      @map("starts_at")
   endsAt      DateTime?      @map("ends_at")
@@ -145,6 +146,7 @@ model Campaign {
   questions   Question[]
 
   @@index([status])
+  @@index([category])
   @@map("campaigns")
 }
 

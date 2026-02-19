@@ -22,7 +22,7 @@ export async function PATCH(
     );
   }
 
-  const { title, description, startsAt, endsAt, status } = parsed.data;
+  const { title, description, startsAt, endsAt, status, category } = parsed.data;
 
   const campaign = await prisma.campaign.update({
     where: { id: params.id },
@@ -31,6 +31,7 @@ export async function PATCH(
       description: description?.trim() ?? undefined,
       startsAt: startsAt === null ? null : startsAt ? new Date(startsAt) : undefined,
       endsAt: endsAt === null ? null : endsAt ? new Date(endsAt) : undefined,
+      category,
       status,
     },
   });
