@@ -50,6 +50,7 @@ export default function SubmitPage() {
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<Category | "ALL">("ALL");
+  const [openQuestions, setOpenQuestions] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     async function loadCampaigns() {
@@ -98,11 +99,28 @@ export default function SubmitPage() {
         })),
       }));
       setDrafts((prev) => ({ ...prev, [questionId]: "" }));
+      setOpenQuestions((prev) => {
+        const next = new Set(prev);
+        next.delete(questionId);
+        return next;
+      });
     } catch {
       setError("Unable to submit response.");
     } finally {
       setSubmittingId(null);
     }
+  }
+
+  function toggleQuestion(questionId: string) {
+    setOpenQuestions((prev) => {
+      const next = new Set(prev);
+      if (next.has(questionId)) {
+        next.delete(questionId);
+      } else {
+        next.add(questionId);
+      }
+      return next;
+    });
   }
 
   const filteredCampaigns = useMemo(() => {
@@ -164,26 +182,41 @@ export default function SubmitPage() {
                       <p className="mt-2 text-xs text-emerald-600">Response submitted.</p>
                     ) : (
                       <div className="mt-3 space-y-2">
-                        <Textarea
-                          rows={3}
-                          placeholder="Your response"
-                          value={drafts[q.id] ?? ""}
-                          onChange={(e) =>
-                            setDrafts((prev) => ({ ...prev, [q.id]: e.target.value }))
-                          }
-                        />
-                        <div className="flex justify-end">
-                          <Button
-                            size="sm"
-                            onClick={() => submitResponse(q.id)}
-                            disabled={
-                              submittingId === q.id ||
-                              (drafts[q.id] ?? "").trim().length < 2
-                            }
-                          >
-                            {submittingId === q.id ? "Submitting..." : "Submit"}
+                        {!openQuestions.has(q.id) ? (
+                          <Button size="sm" variant="secondary" onClick={() => toggleQuestion(q.id)}>
+                            Answer this question
                           </Button>
-                        </div>
+                        ) : (
+                          <>
+                            <Textarea
+                              rows={3}
+                              placeholder="Your response"
+                              value={drafts[q.id] ?? ""}
+                              onChange={(e) =>
+                                setDrafts((prev) => ({ ...prev, [q.id]: e.target.value }))
+                              }
+                            />
+                            <div className="flex items-center justify-end gap-2">
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={() => toggleQuestion(q.id)}
+                              >
+                                Cancel
+                              </Button>
+                              <Button
+                                size="sm"
+                                onClick={() => submitResponse(q.id)}
+                                disabled={
+                                  submittingId === q.id ||
+                                  (drafts[q.id] ?? "").trim().length < 2
+                                }
+                              >
+                                {submittingId === q.id ? "Submitting..." : "Submit"}
+                              </Button>
+                            </div>
+                          </>
+                        )}
                       </div>
                     )}
                   </div>
