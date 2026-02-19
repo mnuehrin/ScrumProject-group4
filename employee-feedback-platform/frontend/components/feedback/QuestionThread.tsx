@@ -341,17 +341,12 @@ function ThreadItem({
 
   return (
     <li className="relative">
-      {level > 0 && (
-        <span className="absolute -left-7 top-1 h-5 w-7 rounded-bl-xl border-b border-l border-border/70" />
-      )}
+      {level > 0 && <span className="pointer-events-none absolute -left-5 top-5 h-px w-3 bg-border/70" />}
       <div className="flex gap-3 py-1.5">
         <div className="relative w-9 shrink-0">
           <div className="grid h-9 w-9 place-items-center rounded-full bg-accent text-xs font-semibold text-accent-foreground">
             {authorInitial(comment.authorLabel)}
           </div>
-          {hasReplies && repliesExpanded && (
-            <span className="absolute left-[18px] top-[2.5rem] -bottom-1 w-px bg-border/70" />
-          )}
         </div>
 
         <div className="min-w-0 flex-1 space-y-1.5">
@@ -362,13 +357,15 @@ function ThreadItem({
 
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">{comment.content}</p>
 
-          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-            <button type="button" className="cursor-pointer rounded px-2 py-1 font-semibold transition-colors hover:bg-accent/70 hover:text-foreground">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5"><path d="M8 2.5a.75.75 0 0 1 .53.22l4 4a.75.75 0 0 1-1.06 1.06L8 4.31 4.53 7.78a.75.75 0 0 1-1.06-1.06l4-4A.75.75 0 0 1 8 2.5Z" /></svg>
-            </button>
-            <button type="button" className="cursor-pointer rounded px-2 py-1 font-semibold transition-colors hover:bg-accent/70 hover:text-foreground">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5"><path d="M8 13.5a.75.75 0 0 1-.53-.22l-4-4a.75.75 0 0 1 1.06-1.06L8 11.69l3.47-3.47a.75.75 0 0 1 1.06 1.06l-4 4a.75.75 0 0 1-.53.22Z" /></svg>
-            </button>
+          <div className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
+            <div className="flex w-[68px] items-center gap-1">
+              <button type="button" className="grid h-7 w-7 cursor-pointer place-items-center rounded font-semibold transition-colors hover:bg-accent/70 hover:text-foreground">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5"><path d="M8 2.5a.75.75 0 0 1 .53.22l4 4a.75.75 0 0 1-1.06 1.06L8 4.31 4.53 7.78a.75.75 0 0 1-1.06-1.06l4-4A.75.75 0 0 1 8 2.5Z" /></svg>
+              </button>
+              <button type="button" className="grid h-7 w-7 cursor-pointer place-items-center rounded font-semibold transition-colors hover:bg-accent/70 hover:text-foreground">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5"><path d="M8 13.5a.75.75 0 0 1-.53-.22l-4-4a.75.75 0 0 1 1.06-1.06L8 11.69l3.47-3.47a.75.75 0 0 1 1.06 1.06l-4 4a.75.75 0 0 1-.53.22Z" /></svg>
+              </button>
+            </div>
             <button
               type="button"
               onClick={() => setReplyingTo(showReply ? null : comment.id)}
@@ -428,8 +425,7 @@ function ThreadItem({
       )}
 
       {hasReplies && repliesExpanded && (
-        <ul className="relative mt-0.5 ml-4 pl-7 space-y-2">
-          <span className="pointer-events-none absolute left-0 -top-3 bottom-3 w-px bg-border/70" />
+        <ul className="mt-1 ml-4 space-y-2 border-l border-border/70 pl-5">
           {visibleReplies.map((reply) => (
             <ThreadItem
               key={reply.id}

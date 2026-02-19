@@ -249,7 +249,7 @@ function UpvoteButton({ count, hasUpvoted, onUpvote }: UpvoteButtonProps) {
         hasUpvoted
           ? "border-primary bg-primary text-primary-foreground shadow-sm"
           : "border-border bg-card text-muted-foreground hover:border-border hover:bg-accent/70 hover:text-foreground active:bg-accent"
-      }`}
+      } min-w-[78px] justify-center`}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
