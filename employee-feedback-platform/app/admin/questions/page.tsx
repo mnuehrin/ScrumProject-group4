@@ -173,7 +173,7 @@ export default function AdminQuestionsPage() {
   return (
     <section className="space-y-6">
       <div className="space-y-2 rounded-xl border border-slate-200 bg-white px-6 py-5">
-        <h1 className="text-2xl font-semibold text-slate-900">Question campaigns</h1>
+        <h1 className="sr-only">Question campaigns</h1>
         <p className="text-sm leading-relaxed text-slate-600">
           Create and publish live questions for employees.
         </p>

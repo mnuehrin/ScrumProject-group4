@@ -54,7 +54,7 @@ function SidebarItemIcon({
 }) {
   const iconClass = cn(
     "h-4 w-4",
-    active ? "text-slate-700" : "text-slate-400 group-hover:text-slate-700"
+    active ? "text-slate-900" : "text-slate-400 group-hover:text-slate-700"
   );
 
   switch (icon) {
@@ -104,13 +104,15 @@ function NavLinks() {
   const showLabels = open || isMobile;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {NAV_GROUPS.map((group, index) => (
         <div
           key={group.title}
-          className={cn("space-y-2", index > 0 && "border-t border-slate-200 pt-4")}
+          className={cn("space-y-2.5", index > 0 && "border-t border-slate-200/70 pt-5")}
         >
-          <SidebarGroupLabel className={cn("text-slate-400", !showLabels && "md:sr-only")}>
+          <SidebarGroupLabel
+            className={cn("text-[10px] tracking-[0.2em] text-slate-400", !showLabels && "md:sr-only")}
+          >
             {group.title}
           </SidebarGroupLabel>
           <SidebarMenu>
@@ -125,16 +127,17 @@ function NavLinks() {
                       if (isMobile) setOpenMobile(false);
                     }}
                     className={cn(
-                      "group flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                      "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold transition-all",
                       showLabels ? "justify-start" : "justify-center",
                       active
-                        ? "bg-slate-100 text-slate-900"
+                        ? "bg-slate-900/5 text-slate-900 shadow-[inset_0_0_0_1px_rgba(15,23,42,0.08)]"
                         : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                     )}
                   >
                     <span
                       className={cn(
-                        "inline-flex h-6 w-6 items-center justify-center rounded-md"
+                        "inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors",
+                        active ? "bg-white shadow-sm" : "group-hover:bg-white"
                       )}
                     >
                       <SidebarItemIcon icon={item.icon} active={active} />
@@ -158,27 +161,27 @@ export function SidebarNavigation() {
   const showLabels = open || isMobile;
 
   return (
-    <Sidebar className="border-slate-200 bg-white">
-      <SidebarHeader className="border-slate-200">
-        <div className={cn("flex items-center gap-2.5 px-1", !showLabels && "md:justify-center")}>
-          <div className={cn("space-y-0.5", !showLabels && "md:hidden")}>
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+    <Sidebar className="border-slate-200/80 bg-gradient-to-b from-white via-white to-slate-50">
+      <SidebarHeader className="border-slate-200/70">
+        <div className={cn("flex items-center gap-3 px-1", !showLabels && "md:justify-center")}>
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-xs font-semibold uppercase tracking-wide text-white shadow-sm">
+            EF
+          </div>
+          <div className={cn("space-y-1", !showLabels && "md:hidden")}>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
               Employee Feedback
             </p>
-            <p className="text-base font-semibold leading-none text-slate-800">Navigation</p>
-          </div>
-          {!showLabels && (
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-              EF
+            <p className="font-display text-lg font-semibold leading-none text-slate-900">
+              Navigation
             </p>
-          )}
+          </div>
         </div>
       </SidebarHeader>
       <SidebarContent>
         <NavLinks />
       </SidebarContent>
-      <SidebarFooter className="border-slate-200">
-        <p className={cn("px-2 text-xs text-slate-400", !showLabels && "md:hidden")}>
+      <SidebarFooter className="border-slate-200/70">
+        <p className={cn("px-2 text-[11px] text-slate-400", !showLabels && "md:hidden")}>
           v1.0 &middot; Feedback Platform
         </p>
       </SidebarFooter>

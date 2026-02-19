@@ -123,7 +123,7 @@ export default function SubmitPage() {
   return (
     <section className="space-y-6">
       <div className="space-y-2 rounded-xl border border-slate-200 bg-white px-6 py-5">
-        <h1 className="text-2xl font-semibold text-slate-900">Answer admin questions</h1>
+        <h1 className="sr-only">Answer admin questions</h1>
         <p className="text-sm leading-relaxed text-slate-600">
           Browse campaigns by category and respond to the questions that matter to you.
         </p>

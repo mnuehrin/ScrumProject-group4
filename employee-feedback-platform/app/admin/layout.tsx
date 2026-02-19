@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NavbarTitle } from "@/components/layout/NavbarTitle";
 import { SidebarNavigation } from "@/components/layout/SidebarNavigation";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
@@ -11,12 +12,12 @@ export default function AdminLayout({
     <SidebarProvider>
       <SidebarNavigation />
       <SidebarInset className="bg-slate-50">
-        <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-slate-200 bg-slate-50/95 px-4 backdrop-blur sm:px-6">
-          <div className="flex items-center gap-3">
-            <SidebarTrigger className="border-slate-300 bg-white" />
-            <p className="text-sm font-medium text-slate-700">Admin dashboard</p>
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200/70 bg-white/80 px-4 backdrop-blur sm:px-6">
+          <div className="flex items-center gap-4">
+            <SidebarTrigger className="border-slate-200/80 bg-white/80" />
+            <NavbarTitle />
           </div>
-          <Link href="/" className="text-sm text-slate-600 hover:text-slate-900">
+          <Link href="/" className="text-sm font-medium text-slate-600 hover:text-slate-900">
             Back to home
           </Link>
         </header>

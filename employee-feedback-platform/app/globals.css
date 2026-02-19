@@ -6,6 +6,22 @@
   color-scheme: light;
 }
 
-body {
-  @apply bg-slate-50 text-slate-900;
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased;
+    font-family: var(--font-body);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
 }

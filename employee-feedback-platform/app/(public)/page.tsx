@@ -7,9 +7,10 @@ export default function HomePage() {
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
           Employee Feedback Platform
         </p>
-        <h1 className="text-2xl font-semibold text-slate-900">
+        <h1 className="sr-only">Overview</h1>
+        <p className="text-base font-medium text-slate-700">
           Anonymous feedback, visible impact.
-        </h1>
+        </p>
         <p className="max-w-2xl text-sm leading-relaxed text-slate-600">
           Use this space to collect and act on employee feedback while keeping
           the loop transparent.
