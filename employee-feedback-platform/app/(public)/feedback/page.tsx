@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { FeedbackFeed } from "@/components/feedback/FeedbackFeed";
+import { FeedbackSidePanel } from "@/components/feedback/FeedbackSidePanel";
 import type { FeedbackWithMeta } from "@/types";
 
 async function getFeedback(): Promise<FeedbackWithMeta[]> {
@@ -80,9 +81,19 @@ async function getCampaignFeed(): Promise<CampaignQuestionFeedView[]> {
 export default async function FeedbackPage() {
   const feedback = await getFeedback();
   const campaignQuestions = await getCampaignFeed();
+  const companyName = process.env.NEXT_PUBLIC_COMPANY_NAME || "Employee Feedback";
+  const liveCampaigns = new Set(campaignQuestions.map((item) => item.campaignId)).size;
+  const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const weeklyFeedbackCount = feedback.filter(
+    (item) => new Date(item.createdAt).getTime() >= oneWeekAgo.getTime()
+  ).length;
+  const weeklyQuestionCount = campaignQuestions.filter(
+    (item) => new Date(item.createdAt).getTime() >= oneWeekAgo.getTime()
+  ).length;
+  const weeklyActivity = weeklyFeedbackCount + weeklyQuestionCount;
 
   return (
-    <section className="max-w-5xl space-y-7">
+    <section className="w-full space-y-7">
       <div className="space-y-2">
         <h1 className="sr-only">Feedback feed</h1>
         <p className="text-sm text-muted-foreground">
@@ -90,18 +101,25 @@ export default async function FeedbackPage() {
           resonate with you to help surface the most important issues.
         </p>
       </div>
-      <FeedbackFeed
-        initialFeedback={feedback}
-        initialCampaignQuestions={campaignQuestions.map((item) => ({
-          id: item.id,
-          campaignTitle: item.campaignTitle,
-          campaignDescription: item.campaignDescription,
-          category: item.campaignCategory,
-          prompt: item.questionPrompt,
-          createdAt: item.createdAt,
-          responsesCount: item.responsesCount,
-        }))}
-      />
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <FeedbackFeed
+          initialFeedback={feedback}
+          initialCampaignQuestions={campaignQuestions.map((item) => ({
+            id: item.id,
+            campaignTitle: item.campaignTitle,
+            campaignDescription: item.campaignDescription,
+            category: item.campaignCategory,
+            prompt: item.questionPrompt,
+            createdAt: item.createdAt,
+            responsesCount: item.responsesCount,
+          }))}
+        />
+        <FeedbackSidePanel
+          companyName={companyName}
+          liveCampaigns={liveCampaigns}
+          weeklyActivity={weeklyActivity}
+        />
+      </div>
     </section>
   );
 }

@@ -10,10 +10,10 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider>
+    <SidebarProvider className="h-screen overflow-hidden">
       <SidebarNavigation />
-      <SidebarInset className="bg-transparent">
-        <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-border bg-background/85 px-4 backdrop-blur sm:px-6">
+      <SidebarInset className="flex h-screen flex-col overflow-hidden bg-transparent">
+        <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center justify-between border-b border-border bg-background/85 px-4 backdrop-blur sm:px-6">
           <div className="flex items-center gap-4">
             <SidebarTrigger className="border-border bg-card/80" />
             <NavbarTitle />
@@ -25,7 +25,7 @@ export default function AdminLayout({
             </Link>
           </div>
         </header>
-        <main className="mx-auto w-full max-w-6xl px-5 py-6 sm:px-7 lg:px-9">
+        <main className="mx-auto h-full w-full max-w-6xl overflow-y-auto px-5 py-6 sm:px-7 lg:px-9">
           {children}
         </main>
       </SidebarInset>
