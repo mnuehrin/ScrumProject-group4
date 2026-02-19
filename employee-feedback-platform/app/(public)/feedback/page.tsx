@@ -81,7 +81,10 @@ async function getCampaignFeed(): Promise<CampaignQuestionFeedView[]> {
 export default async function FeedbackPage() {
   const feedback = await getFeedback();
   const campaignQuestions = await getCampaignFeed();
-  const companyName = process.env.NEXT_PUBLIC_COMPANY_NAME || "Employee Feedback";
+  const companyName = process.env.NEXT_PUBLIC_COMPANY_NAME || "Sundevils";
+  const companyLogoSrc =
+    process.env.NEXT_PUBLIC_COMPANY_LOGO ||
+    "/Arizona_State_University_Pitchfork_-_Square_-_EzB.webp";
   const liveCampaigns = new Set(campaignQuestions.map((item) => item.campaignId)).size;
   const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const weeklyFeedbackCount = feedback.filter(
@@ -116,9 +119,10 @@ export default async function FeedbackPage() {
             }))}
           />
         </div>
-        <div className="xl:-mt-2 xl:h-full xl:overflow-hidden">
+        <div className="xl:-mt-16 xl:h-full xl:overflow-hidden">
           <FeedbackSidePanel
             companyName={companyName}
+            companyLogoSrc={companyLogoSrc}
             liveCampaigns={liveCampaigns}
             weeklyActivity={weeklyActivity}
           />

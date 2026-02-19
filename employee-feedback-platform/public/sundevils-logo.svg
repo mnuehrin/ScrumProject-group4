@@ -1,0 +1,39 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Sundevils Trident</title>
+  <desc id="desc">A maroon and gold trident mark for the Sundevils workspace.</desc>
+  <g fill="none" fill-rule="evenodd">
+    <path
+      d="M128 14
+         C120 34 114 60 114 92
+         L114 136
+         L88 124
+         C82 98 72 76 54 54
+         C70 60 86 70 100 84
+         C96 66 96 48 100 30
+         C110 20 119 14 128 14
+         Z
+         M128 14
+         C136 14 146 20 156 30
+         C160 48 160 66 156 84
+         C170 70 186 60 202 54
+         C184 76 174 98 168 124
+         L142 136
+         L142 92
+         C142 60 136 34 128 14
+         Z
+         M114 136
+         L142 136
+         L142 170
+         L128 242
+         L114 170
+         Z"
+      fill="#FFC627"
+      stroke="#8C1D40"
+      stroke-width="8"
+      stroke-linejoin="round"
+    />
+    <rect x="112" y="154" width="32" height="7" rx="2" fill="#8C1D40" />
+    <rect x="112" y="166" width="32" height="7" rx="2" fill="#8C1D40" />
+    <rect x="112" y="178" width="32" height="7" rx="2" fill="#8C1D40" />
+  </g>
+</svg>

@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const COMMUNITY_RULES = [
   {
     title: "Be respectful",
@@ -28,12 +30,14 @@ const COMMUNITY_RULES = [
 
 interface FeedbackSidePanelProps {
   companyName: string;
+  companyLogoSrc: string;
   liveCampaigns: number;
   weeklyActivity: number;
 }
 
 export function FeedbackSidePanel({
   companyName,
+  companyLogoSrc,
   liveCampaigns,
   weeklyActivity,
 }: FeedbackSidePanelProps) {
@@ -41,13 +45,26 @@ export function FeedbackSidePanel({
     <aside className="xl:h-full">
       <section className="overflow-hidden rounded-xl border border-sidebar-border bg-sidebar text-sidebar-foreground xl:flex xl:h-full xl:flex-col">
         <div className="border-b border-sidebar-border px-5 py-4">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-            Workspace
-          </p>
-          <h2 className="mt-1.5 font-display text-xl font-semibold leading-tight text-foreground">
-            {companyName}
-          </h2>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          <div className="flex items-center gap-3">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-sidebar-border bg-card/60">
+              <Image
+                src={companyLogoSrc}
+                alt={`${companyName} logo`}
+                width={56}
+                height={56}
+                className="h-14 w-14 object-contain"
+              />
+            </div>
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                Workspace
+              </p>
+              <h2 className="mt-1 font-display text-xl font-semibold leading-tight text-foreground">
+                {companyName}
+              </h2>
+            </div>
+          </div>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
             Anonymous feedback space for employees. Keep discussions helpful, respectful, and focused on improving the workplace.
           </p>
         </div>
