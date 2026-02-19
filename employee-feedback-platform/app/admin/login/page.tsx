@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { Button as GlassButton } from "@/components/ui/glass/button";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -72,9 +72,9 @@ export default function AdminLoginPage() {
           </p>
         )}
 
-        <Button type="submit" disabled={loading} className="w-full" size="lg">
+        <GlassButton type="submit" disabled={loading} className="w-full" size="lg">
           {loading ? "Signing in…" : "Sign in"}
-        </Button>
+        </GlassButton>
       </form>
     </section>
   );

@@ -26,8 +26,8 @@ export function CategoryPills({ active, onChange, counts }: CategoryPillsProps) 
           onClick={() => onChange(tab.value)}
           className={`cursor-pointer rounded-full border px-4 py-1.5 text-[13px] font-semibold transition-all ${
             active === tab.value
-              ? "border-transparent bg-slate-900 text-white shadow-sm"
-              : "border-slate-200/80 bg-white/80 text-slate-600 hover:border-slate-300 hover:bg-slate-50 active:bg-slate-100"
+              ? "border-transparent bg-primary text-primary-foreground shadow-sm"
+              : "border-border bg-card/80 text-muted-foreground hover:bg-accent/60 hover:text-foreground"
           }`}
         >
           {tab.label}

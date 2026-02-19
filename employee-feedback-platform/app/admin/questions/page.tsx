@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button as GlassButton } from "@/components/ui/glass/button";
 import { Badge } from "@/components/ui/badge";
 
 type Question = {
@@ -215,9 +215,9 @@ export default function AdminQuestionsPage() {
             className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
           />
         </div>
-        <Button size="sm" onClick={createCampaign} disabled={creating || newTitle.trim().length < 3}>
+        <GlassButton size="sm" onClick={createCampaign} disabled={creating || newTitle.trim().length < 3}>
           {creating ? "Creating..." : "Create campaign"}
-        </Button>
+        </GlassButton>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
@@ -269,14 +269,14 @@ export default function AdminQuestionsPage() {
                 </div>
                 <div className="flex gap-2">
                   {(["DRAFT", "LIVE", "ARCHIVED"] as Campaign["status"][]).map((status) => (
-                    <Button
+                    <GlassButton
                       key={status}
                       size="sm"
-                      variant={selectedCampaign.status === status ? "primary" : "secondary"}
+                      variant={selectedCampaign.status === status ? "glass" : "secondary"}
                       onClick={() => updateStatus(selectedCampaign.id, status)}
                     >
                       {STATUS_LABELS[status]}
-                    </Button>
+                    </GlassButton>
                   ))}
                 </div>
               </div>
@@ -292,13 +292,13 @@ export default function AdminQuestionsPage() {
                   rows={3}
                   className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
                 />
-                <Button
+                <GlassButton
                   size="sm"
                   onClick={addQuestion}
                   disabled={savingQuestion || questionDraft.trim().length < 3}
                 >
                   {savingQuestion ? "Saving..." : "Add question"}
-                </Button>
+                </GlassButton>
               </div>
 
               <div className="space-y-3">

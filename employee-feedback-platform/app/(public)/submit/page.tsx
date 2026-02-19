@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { getSessionId } from "@/components/feedback/session";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button as GlassButton } from "@/components/ui/glass/button";
 import { CategoryPills, type CategoryValue } from "@/components/ui/category-pills";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -173,9 +173,9 @@ export default function SubmitPage() {
                     ) : (
                       <div className="mt-3 space-y-2">
                         {!openQuestions.has(q.id) ? (
-                          <Button size="sm" variant="secondary" onClick={() => toggleQuestion(q.id)}>
+                          <GlassButton size="sm" variant="secondary" onClick={() => toggleQuestion(q.id)}>
                             Answer this question
-                          </Button>
+                          </GlassButton>
                         ) : (
                           <>
                             <Textarea
@@ -187,14 +187,14 @@ export default function SubmitPage() {
                               }
                             />
                             <div className="flex items-center justify-end gap-2">
-                              <Button
+                              <GlassButton
                                 size="sm"
                                 variant="secondary"
                                 onClick={() => toggleQuestion(q.id)}
                               >
                                 Cancel
-                              </Button>
-                              <Button
+                              </GlassButton>
+                              <GlassButton
                                 size="sm"
                                 onClick={() => submitResponse(q.id)}
                                 disabled={
@@ -203,7 +203,7 @@ export default function SubmitPage() {
                                 }
                               >
                                 {submittingId === q.id ? "Submitting..." : "Submit"}
-                              </Button>
+                              </GlassButton>
                             </div>
                           </>
                         )}

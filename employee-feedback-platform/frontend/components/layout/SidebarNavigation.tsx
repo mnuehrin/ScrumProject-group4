@@ -54,7 +54,7 @@ function SidebarItemIcon({
 }) {
   const iconClass = cn(
     "h-4 w-4",
-    active ? "text-slate-900" : "text-slate-400 group-hover:text-slate-700"
+    active ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
   );
 
   switch (icon) {
@@ -108,10 +108,10 @@ function NavLinks() {
       {NAV_GROUPS.map((group, index) => (
         <div
           key={group.title}
-          className={cn("space-y-2.5", index > 0 && "border-t border-slate-200/70 pt-5")}
+          className={cn("space-y-2.5", index > 0 && "border-t border-border pt-5")}
         >
           <SidebarGroupLabel
-            className={cn("text-[10px] tracking-[0.2em] text-slate-400", !showLabels && "md:sr-only")}
+            className={cn("text-[10px] tracking-[0.2em] text-muted-foreground", !showLabels && "md:sr-only")}
           >
             {group.title}
           </SidebarGroupLabel>
@@ -130,14 +130,14 @@ function NavLinks() {
                       "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold transition-all",
                       showLabels ? "justify-start" : "justify-center",
                       active
-                        ? "bg-slate-900/5 text-slate-900 shadow-[inset_0_0_0_1px_rgba(15,23,42,0.08)]"
-                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                        ? "bg-accent/70 text-foreground ring-1 ring-border"
+                        : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
                     )}
                   >
                     <span
                       className={cn(
                         "inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors",
-                        active ? "bg-white shadow-sm" : "group-hover:bg-white"
+                        active ? "bg-card/80 shadow-sm ring-1 ring-border" : "group-hover:bg-card/70"
                       )}
                     >
                       <SidebarItemIcon icon={item.icon} active={active} />
@@ -161,22 +161,22 @@ export function SidebarNavigation() {
   const showLabels = open || isMobile;
 
   return (
-    <Sidebar className="border-slate-200/80 bg-gradient-to-b from-white via-white to-slate-50">
-      <SidebarHeader className="border-slate-200/70 h-16">
+    <Sidebar className="border-border bg-sidebar">
+      <SidebarHeader className="border-border h-16">
         <div
           className={cn(
             "flex h-full items-center gap-3 px-1",
             !showLabels && "md:justify-center"
           )}
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-xs font-semibold uppercase tracking-wide text-white shadow-sm">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 via-slate-900 to-sky-500 text-xs font-semibold uppercase tracking-wide text-white shadow-sm">
             EF
           </div>
           <div className={cn("space-y-1", !showLabels && "md:hidden")}>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
               Employee Feedback
             </p>
-            <p className="font-display text-lg font-semibold leading-none text-slate-900">
+            <p className="font-display text-lg font-semibold leading-none text-foreground">
               Navigation
             </p>
           </div>
@@ -185,8 +185,8 @@ export function SidebarNavigation() {
       <SidebarContent>
         <NavLinks />
       </SidebarContent>
-      <SidebarFooter className="border-slate-200/70">
-        <p className={cn("px-2 text-[11px] text-slate-400", !showLabels && "md:hidden")}>
+      <SidebarFooter className="border-border">
+        <p className={cn("px-2 text-[11px] text-muted-foreground", !showLabels && "md:hidden")}>
           v1.0 &middot; Feedback Platform
         </p>
       </SidebarFooter>

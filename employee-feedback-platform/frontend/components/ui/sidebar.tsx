@@ -95,7 +95,7 @@ export const Sidebar = React.forwardRef<
       <aside
         ref={ref}
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 -translate-x-full border-r border-slate-200 bg-white transition-transform duration-200 md:static md:z-0 md:translate-x-0 md:transition-[width] md:duration-200",
+          "fixed inset-y-0 left-0 z-50 w-64 -translate-x-full border-r border-border bg-sidebar transition-transform duration-200 md:static md:z-0 md:translate-x-0 md:transition-[width] md:duration-200",
           openMobile && "translate-x-0",
           open ? "md:w-64" : "md:w-16",
           className
@@ -116,7 +116,7 @@ export const SidebarHeader = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "flex h-16 items-center border-b border-slate-200 px-4",
+      "flex h-16 items-center border-b border-border px-4",
       className
     )}
     {...props}
@@ -142,7 +142,7 @@ export const SidebarFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("border-t border-slate-200 px-4 py-3", className)}
+    className={cn("border-t border-border px-4 py-3", className)}
     {...props}
   />
 ));
@@ -210,7 +210,7 @@ export const SidebarTrigger = React.forwardRef<
         onClick?.(event);
       }}
       className={cn(
-        "inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900",
+        "inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-card/80 text-foreground transition-colors hover:bg-accent/60",
         className
       )}
       {...props}

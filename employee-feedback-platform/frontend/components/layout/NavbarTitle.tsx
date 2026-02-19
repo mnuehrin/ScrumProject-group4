@@ -39,10 +39,11 @@ export function NavbarTitle({ className }: { className?: string }) {
 
   return (
     <div className={cn("flex flex-col leading-tight", className)}>
-      <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+      <span className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+        <span className="h-1.5 w-1.5 rounded-full bg-primary" />
         {eyebrow}
       </span>
-      <span className="font-display text-lg font-semibold text-slate-900 sm:text-xl">
+      <span className="font-display text-lg font-semibold text-foreground sm:text-xl">
         {title}
       </span>
     </div>
