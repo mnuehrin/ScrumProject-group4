@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { EmojiReactionPicker } from "@/components/feedback/EmojiReactionPicker";
 import { getSessionId } from "@/components/feedback/session";
 import type { ThreadComment } from "@/types";
 
@@ -106,6 +107,10 @@ export function FeedbackThread({ feedbackId, initialCount }: FeedbackThreadProps
   const [expandedReplyIds, setExpandedReplyIds] = useState<Set<string>>(new Set());
   const [visibleReplyCounts, setVisibleReplyCounts] = useState<Record<string, number>>({});
   const [visibleRootCount, setVisibleRootCount] = useState(INITIAL_VISIBLE_ROOT_COMMENTS);
+  const [reactionPickerFor, setReactionPickerFor] = useState<string | null>(null);
+  const [reactionsByComment, setReactionsByComment] = useState<
+    Record<string, Record<string, number>>
+  >({});
 
   const thread = useMemo(() => buildThread(comments, sort), [comments, sort]);
 
@@ -131,6 +136,7 @@ export function FeedbackThread({ feedbackId, initialCount }: FeedbackThreadProps
       setComposerOpen(false);
       setReplyingTo(null);
       setVisibleRootCount(INITIAL_VISIBLE_ROOT_COMMENTS);
+      setReactionPickerFor(null);
     }
     if (next && comments.length === 0 && !loading) {
       await loadComments();
@@ -200,6 +206,20 @@ export function FeedbackThread({ feedbackId, initialCount }: FeedbackThreadProps
       const next = Math.min(totalReplies, current + INITIAL_VISIBLE_REPLIES);
       return { ...prev, [commentId]: next };
     });
+  }
+
+  function addReaction(commentId: string, emoji: string) {
+    setReactionsByComment((prev) => {
+      const current = prev[commentId] ?? {};
+      return {
+        ...prev,
+        [commentId]: {
+          ...current,
+          [emoji]: (current[emoji] ?? 0) + 1,
+        },
+      };
+    });
+    setReactionPickerFor(null);
   }
 
   const discussionCount = comments.length || initialCount;
@@ -288,6 +308,10 @@ export function FeedbackThread({ feedbackId, initialCount }: FeedbackThreadProps
                   toggleReplies={toggleReplies}
                   visibleReplyCounts={visibleReplyCounts}
                   showMoreReplies={showMoreReplies}
+                  reactionPickerFor={reactionPickerFor}
+                  setReactionPickerFor={setReactionPickerFor}
+                  reactionsByComment={reactionsByComment}
+                  addReaction={addReaction}
                 />
               ))}
               {hiddenRootComments > 0 && (
@@ -331,6 +355,10 @@ function ThreadItem({
   toggleReplies,
   visibleReplyCounts,
   showMoreReplies,
+  reactionPickerFor,
+  setReactionPickerFor,
+  reactionsByComment,
+  addReaction,
 }: {
   comment: ThreadNode;
   level: number;
@@ -344,6 +372,10 @@ function ThreadItem({
   toggleReplies: (commentId: string) => void;
   visibleReplyCounts: Record<string, number>;
   showMoreReplies: (commentId: string, totalReplies: number) => void;
+  reactionPickerFor: string | null;
+  setReactionPickerFor: React.Dispatch<React.SetStateAction<string | null>>;
+  reactionsByComment: Record<string, Record<string, number>>;
+  addReaction: (commentId: string, emoji: string) => void;
 }) {
   const canReply = level < MAX_REPLY_DEPTH;
   const showReply = replyingTo === comment.id && canReply;
@@ -352,6 +384,8 @@ function ThreadItem({
   const visibleCount = visibleReplyCounts[comment.id] ?? INITIAL_VISIBLE_REPLIES;
   const visibleReplies = repliesExpanded ? comment.replies.slice(0, visibleCount) : [];
   const remainingReplies = repliesExpanded ? comment.replies.length - visibleReplies.length : 0;
+  const reactionPickerOpen = reactionPickerFor === comment.id;
+  const reactionEntries = Object.entries(reactionsByComment[comment.id] ?? {});
 
   return (
     <li className="relative">
@@ -377,14 +411,7 @@ function ThreadItem({
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">{comment.content}</p>
 
           <div className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
-            <div className="flex w-[68px] items-center gap-1">
-              <button type="button" className="grid h-7 w-7 cursor-pointer place-items-center rounded font-semibold transition-colors hover:bg-accent/70 hover:text-foreground">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5"><path d="M8 2.5a.75.75 0 0 1 .53.22l4 4a.75.75 0 0 1-1.06 1.06L8 4.31 4.53 7.78a.75.75 0 0 1-1.06-1.06l4-4A.75.75 0 0 1 8 2.5Z" /></svg>
-              </button>
-              <button type="button" className="grid h-7 w-7 cursor-pointer place-items-center rounded font-semibold transition-colors hover:bg-accent/70 hover:text-foreground">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5"><path d="M8 13.5a.75.75 0 0 1-.53-.22l-4-4a.75.75 0 0 1 1.06-1.06L8 11.69l3.47-3.47a.75.75 0 0 1 1.06 1.06l-4 4a.75.75 0 0 1-.53.22Z" /></svg>
-              </button>
-            </div>
+            <CommentVoteButtons />
             {canReply && (
               <button
                 type="button"
@@ -397,6 +424,20 @@ function ThreadItem({
             {!canReply && (
               <span className="px-2 text-xs text-muted-foreground/80">Max depth</span>
             )}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() =>
+                  setReactionPickerFor((prev) => (prev === comment.id ? null : comment.id))
+                }
+                className="cursor-pointer rounded px-2 py-1 font-semibold transition-colors hover:bg-accent/70 hover:text-foreground"
+              >
+                React
+              </button>
+              {reactionPickerOpen && (
+                <EmojiReactionPicker onPick={(emoji) => addReaction(comment.id, emoji)} />
+              )}
+            </div>
             {hasReplies && repliesExpanded && (
               <button
                 type="button"
@@ -407,6 +448,21 @@ function ThreadItem({
               </button>
             )}
           </div>
+          {reactionEntries.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 pt-0.5">
+              {reactionEntries.map(([emoji, count]) => (
+                <button
+                  key={`${comment.id}-${emoji}`}
+                  type="button"
+                  onClick={() => addReaction(comment.id, emoji)}
+                  className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2 py-0.5 text-xs text-foreground transition-colors hover:bg-accent/70"
+                >
+                  <span>{emoji}</span>
+                  <span className="tabular-nums text-muted-foreground">{count}</span>
+                </button>
+              ))}
+            </div>
+          )}
 
           {showReply && (
             <div className="space-y-2 pt-1">
@@ -465,6 +521,10 @@ function ThreadItem({
               toggleReplies={toggleReplies}
               visibleReplyCounts={visibleReplyCounts}
               showMoreReplies={showMoreReplies}
+              reactionPickerFor={reactionPickerFor}
+              setReactionPickerFor={setReactionPickerFor}
+              reactionsByComment={reactionsByComment}
+              addReaction={addReaction}
             />
           ))}
           {remainingReplies > 0 && (
@@ -484,5 +544,34 @@ function ThreadItem({
         </ul>
       )}
     </li>
+  );
+}
+
+function CommentVoteButtons() {
+  return (
+    <div className="flex w-[74px] items-center">
+      <div className="inline-flex items-center rounded-full border border-border/80 bg-card/70 p-0.5">
+        <button
+          type="button"
+          aria-label="Upvote comment"
+          className="grid h-6 w-6 cursor-pointer place-items-center rounded-full text-muted-foreground transition-colors hover:bg-orange-500/15 hover:text-orange-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-3.5 w-3.5">
+            <path d="M8 12V4" strokeLinecap="round" />
+            <path d="m5 7 3-3 3 3" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          aria-label="Downvote comment"
+          className="grid h-6 w-6 cursor-pointer place-items-center rounded-full text-muted-foreground transition-colors hover:bg-sky-500/15 hover:text-sky-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-3.5 w-3.5">
+            <path d="M8 4v8" strokeLinecap="round" />
+            <path d="m5 9 3 3 3-3" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      </div>
+    </div>
   );
 }
