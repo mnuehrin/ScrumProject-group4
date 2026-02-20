@@ -29,15 +29,15 @@ const CATEGORY_VARIANTS: Record<FeedbackCategory, "culture" | "tools" | "workloa
 };
 
 const STATUS_LABELS: Record<FeedbackStatus, string> = {
-  PENDING: "Pending",
-  REVIEWED: "Reviewed",
-  IN_PROGRESS: "In Progress",
+  PENDING: "Draft",
+  REVIEWED: "Live",
+  IN_PROGRESS: "Live",
   RESOLVED: "Resolved",
 };
 
 const STATUS_VARIANTS: Record<FeedbackStatus, "pending" | "reviewed" | "in_progress" | "resolved"> = {
   PENDING: "pending",
-  REVIEWED: "reviewed",
+  REVIEWED: "in_progress",
   IN_PROGRESS: "in_progress",
   RESOLVED: "resolved",
 };
@@ -62,6 +62,14 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const filtered = rows.filter((f) => activeCategory === "ALL" || f.category === activeCategory);
+  const statusCards = [
+    { label: "Draft", count: rows.filter((f) => f.status === "PENDING").length },
+    {
+      label: "Live",
+      count: rows.filter((f) => f.status === "REVIEWED" || f.status === "IN_PROGRESS").length,
+    },
+    { label: "Resolved", count: rows.filter((f) => f.status === "RESOLVED").length },
+  ];
 
   const formattedDate = (d: Date) =>
     new Intl.DateTimeFormat("en-US", {
@@ -79,16 +87,13 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
   return (
     <div className="space-y-4">
       {/* Stats row */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {(["PENDING", "REVIEWED", "IN_PROGRESS", "RESOLVED"] as FeedbackStatus[]).map((s) => {
-          const count = rows.filter((f) => f.status === s).length;
-          return (
-            <div key={s} className="rounded-xl border border-border bg-card px-5 py-4">
-              <p className="text-sm text-muted-foreground mb-1">{STATUS_LABELS[s]}</p>
-              <p className="text-3xl font-semibold tabular-nums text-foreground">{count}</p>
-            </div>
-          );
-        })}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {statusCards.map((statusCard) => (
+          <div key={statusCard.label} className="rounded-xl border border-border bg-card px-5 py-4">
+            <p className="text-sm text-muted-foreground mb-1">{statusCard.label}</p>
+            <p className="text-3xl font-semibold tabular-nums text-foreground">{statusCard.count}</p>
+          </div>
+        ))}
       </div>
 
       <CategoryPills

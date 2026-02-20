@@ -19,15 +19,15 @@ const CATEGORY_VARIANTS: Record<FeedbackCategory, "culture" | "tools" | "workloa
 };
 
 const STATUS_LABELS: Record<FeedbackStatus, string> = {
-  PENDING: "Pending",
-  REVIEWED: "Reviewed",
-  IN_PROGRESS: "In Progress",
+  PENDING: "Draft",
+  REVIEWED: "Live",
+  IN_PROGRESS: "Live",
   RESOLVED: "Resolved",
 };
 
 const STATUS_VARIANTS: Record<FeedbackStatus, "pending" | "reviewed" | "in_progress" | "resolved"> = {
   PENDING: "pending",
-  REVIEWED: "reviewed",
+  REVIEWED: "in_progress",
   IN_PROGRESS: "in_progress",
   RESOLVED: "resolved",
 };

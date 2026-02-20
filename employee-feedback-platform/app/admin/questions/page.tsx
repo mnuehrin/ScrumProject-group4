@@ -25,7 +25,7 @@ type Campaign = {
 const STATUS_LABELS: Record<Campaign["status"], string> = {
   DRAFT: "Draft",
   LIVE: "Live",
-  ARCHIVED: "Archived",
+  ARCHIVED: "Resolved",
 };
 
 const CATEGORY_LABELS: Record<Campaign["category"], string> = {
