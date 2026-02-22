@@ -1,0 +1,184 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum FeedbackCategory {
+  CULTURE
+  TOOLS
+  WORKLOAD
+  MANAGEMENT
+  OTHER
+}
+
+enum FeedbackStatus {
+  PENDING
+  REVIEWED
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum ActivityAction {
+  CREATED
+  UPVOTED
+  STATUS_CHANGED
+  REWARDED
+  REDEEMED
+  COMMENTED
+}
+
+enum RewardType {
+  PROMO_CODE
+  HOLIDAY_DAY
+}
+
+enum RewardStatus {
+  AWARDED
+  REDEEMED
+}
+
+enum CampaignStatus {
+  DRAFT
+  LIVE
+  ARCHIVED
+}
+
+enum QuestionType {
+  TEXT
+}
+
+model Feedback {
+  id              String           @id @default(uuid()) @db.VarChar(36)
+  content         String           @db.Text
+  category        FeedbackCategory
+  createdAt       DateTime         @default(now()) @map("created_at")
+  upvotes         Int              @default(0)
+  status          FeedbackStatus   @default(PENDING)
+  adminNote       String?          @db.Text @map("admin_note")
+  statusUpdatedAt DateTime?        @map("status_updated_at")
+  statusUpdatedBy String?          @map("status_updated_by")
+  submitterSessionId String?        @db.VarChar(191) @map("submitter_session_id")
+
+  upvoteEvents Upvote[]
+  activityLogs ActivityLog[]
+  reward       Reward?
+  comments     FeedbackComment[]
+
+  @@index([submitterSessionId])
+  @@map("feedback")
+}
+
+model FeedbackComment {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  feedbackId String   @map("feedback_id")
+  parentId  String?  @map("parent_id")
+  sessionId String   @db.VarChar(191) @map("session_id")
+  content   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  feedback Feedback          @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  parent   FeedbackComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: SetNull)
+  replies  FeedbackComment[] @relation("CommentReplies")
+
+  @@index([feedbackId])
+  @@index([parentId])
+  @@map("feedback_comments")
+}
+
+model Reward {
+  id         String       @id @default(uuid()) @db.VarChar(36)
+  feedbackId String       @unique @map("feedback_id")
+  rewardType RewardType
+  status     RewardStatus @default(AWARDED)
+  claimCode  String       @unique @db.VarChar(32) @map("claim_code")
+  promoCode  String?      @db.VarChar(191) @map("promo_code")
+  awardedAt  DateTime     @default(now()) @map("awarded_at")
+  redeemedAt DateTime?    @map("redeemed_at")
+  awardedBy  String?      @db.VarChar(191) @map("awarded_by")
+
+  feedback Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+
+  @@index([feedbackId])
+  @@map("rewards")
+}
+
+model Upvote {
+  id         String   @id @default(uuid()) @db.VarChar(36)
+  feedbackId String   @map("feedback_id")
+  sessionId  String   @db.VarChar(191) @map("session_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  feedback Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+
+  @@unique([feedbackId, sessionId])
+  @@index([feedbackId])
+  @@map("upvotes")
+}
+
+model ActivityLog {
+  id         String         @id @default(uuid()) @db.VarChar(36)
+  feedbackId String         @map("feedback_id")
+  action     ActivityAction
+  details    Json?
+  createdAt  DateTime       @default(now()) @map("created_at")
+
+  feedback Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+
+  @@index([feedbackId])
+  @@map("activity_log")
+}
+
+model Campaign {
+  id          String         @id @default(uuid()) @db.VarChar(36)
+  title       String         @db.VarChar(191)
+  description String?        @db.Text
+  category    FeedbackCategory @default(OTHER)
+  status      CampaignStatus @default(DRAFT)
+  startsAt    DateTime?      @map("starts_at")
+  endsAt      DateTime?      @map("ends_at")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  questions   Question[]
+
+  @@index([status])
+  @@index([category])
+  @@map("campaigns")
+}
+
+model Question {
+  id         String       @id @default(uuid()) @db.VarChar(36)
+  campaignId String       @map("campaign_id")
+  prompt     String       @db.Text
+  type       QuestionType @default(TEXT)
+  order      Int          @default(0)
+  createdAt  DateTime     @default(now()) @map("created_at")
+
+  campaign   Campaign     @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  responses  QuestionResponse[]
+
+  @@index([campaignId])
+  @@map("questions")
+}
+
+model QuestionResponse {
+  id         String   @id @default(uuid()) @db.VarChar(36)
+  questionId String   @map("question_id")
+  parentId   String?  @map("parent_id")
+  sessionId  String   @db.VarChar(191) @map("session_id")
+  content    String   @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  question   Question          @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  parent     QuestionResponse? @relation("QuestionReplies", fields: [parentId], references: [id], onDelete: SetNull)
+  replies    QuestionResponse[] @relation("QuestionReplies")
+
+  @@index([questionId])
+  @@index([parentId])
+  @@index([sessionId])
+  @@map("question_responses")
+}

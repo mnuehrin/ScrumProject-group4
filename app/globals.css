@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --radius: 0.625rem;
+
+  --background: #fafafa;
+  --foreground: #111111;
+  --card: #ffffff;
+  --card-foreground: #111111;
+  --popover: #ffffff;
+  --popover-foreground: #111111;
+
+  --primary: #0f766e;
+  --primary-foreground: #ffffff;
+
+  --secondary: #f5f5f5;
+  --secondary-foreground: #171717;
+
+  --muted: #f5f5f5;
+  --muted-foreground: #666666;
+
+  --accent: #f5f5f5;
+  --accent-foreground: #171717;
+
+  --destructive: #e5484d;
+  --destructive-foreground: #ffffff;
+
+  --border: #e5e5e5;
+  --input: #e5e5e5;
+  --ring: #0f766e;
+
+  --chart-1: #0f766e;
+  --chart-2: #10b981;
+  --chart-3: #f59e0b;
+  --chart-4: #8b5cf6;
+  --chart-5: #f97316;
+
+  --sidebar: #fcfcfc;
+  --sidebar-foreground: #111111;
+  --sidebar-primary: #0f766e;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f5f5f5;
+  --sidebar-accent-foreground: #171717;
+  --sidebar-border: #e5e5e5;
+  --sidebar-ring: #0f766e;
+}
+
+.dark {
+  color-scheme: dark;
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --card: #111111;
+  --card-foreground: #ededed;
+  --popover: #111111;
+  --popover-foreground: #ededed;
+
+  --primary: #5eead4;
+  --primary-foreground: #042f2e;
+
+  --secondary: #1a1a1a;
+  --secondary-foreground: #e6e6e6;
+
+  --muted: #171717;
+  --muted-foreground: #a1a1a1;
+
+  --accent: #1a1a1a;
+  --accent-foreground: #f5f5f5;
+
+  --destructive: #e5484d;
+  --destructive-foreground: #ffffff;
+
+  --border: #262626;
+  --input: #262626;
+  --ring: #2dd4bf;
+
+  --sidebar: #0b0b0b;
+  --sidebar-foreground: #e5e5e5;
+  --sidebar-primary: #5eead4;
+  --sidebar-primary-foreground: #042f2e;
+  --sidebar-accent: #1a1a1a;
+  --sidebar-accent-foreground: #f5f5f5;
+  --sidebar-border: #262626;
+  --sidebar-ring: #2dd4bf;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply text-foreground antialiased;
+    font-family: var(--font-body);
+    background-color: var(--background);
+    background-image:
+      radial-gradient(1200px 600px at 15% -10%, rgba(15, 118, 110, 0.10), transparent 58%),
+      radial-gradient(900px 520px at 92% 6%, rgba(17, 17, 17, 0.04), transparent 70%);
+    background-attachment: fixed;
+  }
+
+  .dark body {
+    background-color: #0a0a0a;
+    background-image: linear-gradient(180deg, #0a0a0a 0%, #0a0a0a 100%);
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+}
