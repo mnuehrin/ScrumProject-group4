@@ -163,13 +163,30 @@ model Question {
   prompt     String       @db.Text
   type       QuestionType @default(TEXT)
   order      Int          @default(0)
+  upvotes    Int          @default(0)
+  downvotes  Int          @default(0)
   createdAt  DateTime     @default(now()) @map("created_at")
 
   campaign   Campaign     @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   responses  QuestionResponse[]
+  votes      QuestionVote[]
 
   @@index([campaignId])
   @@map("questions")
+}
+
+model QuestionVote {
+  id         String   @id @default(uuid()) @db.VarChar(36)
+  questionId String   @map("question_id")
+  sessionId  String   @db.VarChar(191) @map("session_id")
+  voteType   VoteType @default(UP) @map("vote_type")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, sessionId])
+  @@index([questionId])
+  @@map("question_votes")
 }
 
 model QuestionResponse {

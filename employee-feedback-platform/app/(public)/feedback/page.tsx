@@ -26,6 +26,8 @@ type CampaignQuestionFeedView = {
   questionPrompt: string;
   createdAt: Date;
   responsesCount: number;
+  upvotes: number;
+  downvotes: number;
 };
 
 async function getCampaignFeed(): Promise<CampaignQuestionFeedView[]> {
@@ -73,6 +75,8 @@ async function getCampaignFeed(): Promise<CampaignQuestionFeedView[]> {
         questionPrompt: question.prompt,
         createdAt: question.createdAt,
         responsesCount: responseCountMap.get(question.id) ?? 0,
+        upvotes: question.upvotes ?? 0,
+        downvotes: question.downvotes ?? 0,
       });
     });
   });
@@ -118,6 +122,8 @@ export default async function FeedbackPage() {
               prompt: item.questionPrompt,
               createdAt: item.createdAt,
               responsesCount: item.responsesCount,
+              upvotes: item.upvotes,
+              downvotes: item.downvotes,
             }))}
           />
         </div>

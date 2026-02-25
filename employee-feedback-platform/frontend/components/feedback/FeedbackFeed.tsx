@@ -8,7 +8,7 @@ import { getSessionId } from "@/components/feedback/session";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { CategoryPills, type CategoryValue } from "@/components/ui/category-pills";
-import type { FeedbackWithMeta, CategoryFilter, SortOption, FeedbackCategory } from "@/types";
+import type { FeedbackWithMeta, SortOption, FeedbackCategory } from "@/types";
 
 /* ------------------------------------------------------------------ */
 /*  Main feed                                                          */
@@ -27,33 +27,22 @@ export function FeedbackFeed({ initialFeedback, initialCampaignQuestions }: Feed
   const [activeCategory, setActiveCategory] = useState<CategoryValue>("ALL");
   const [sort, setSort] = useState<SortOption>("newest");
 
-  // Track in-flight requests per feedback id to prevent double-fire
   const inflightRef = useRef<Set<string>>(new Set());
 
   const handleVote = useCallback(async (id: string, voteType: "UP" | "DOWN") => {
-    // Guard: don't fire a second request while one is in-flight for this item
     if (inflightRef.current.has(id)) return;
     inflightRef.current.add(id);
 
-    // Snapshot the item BEFORE we mutate, so we can rollback on error
     let snapshot: FeedbackWithMeta | undefined;
 
-    // Optimistic update
     setFeedback((prev) =>
       prev.map((f) => {
         if (f.id !== id) return f;
-        snapshot = { ...f }; // capture pre-mutation state
-
-        const up = f.upvotes ?? 0;
-        const down = f.downvotes ?? 0;
-
-        // The server will +1 the new direction.
-        // Each click just adds to the chosen counter — no toggle logic on the client.
-        // The server is the source of truth and we'll sync to it after.
+        snapshot = { ...f };
         return {
           ...f,
-          upvotes: up + (voteType === "UP" ? 1 : 0),
-          downvotes: down + (voteType === "DOWN" ? 1 : 0),
+          upvotes: (f.upvotes ?? 0) + (voteType === "UP" ? 1 : 0),
+          downvotes: (f.downvotes ?? 0) + (voteType === "DOWN" ? 1 : 0),
         };
       })
     );
@@ -64,30 +53,62 @@ export function FeedbackFeed({ initialFeedback, initialCampaignQuestions }: Feed
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionId: getSessionId(), voteType }),
       });
-
-      if (!res.ok) {
-        throw new Error(`Vote failed: ${res.status}`);
-      }
-
+      if (!res.ok) throw new Error(`Vote failed: ${res.status}`);
       const data = await res.json();
-
-      // Sync to the server's authoritative state (overrides any optimistic drift)
       setFeedback((prev) =>
         prev.map((f) =>
           f.id === id
-            ? {
-                ...f,
-                upvotes: data.upvotes ?? f.upvotes,
-                downvotes: data.downvotes ?? f.downvotes ?? 0,
-              }
+            ? { ...f, upvotes: data.upvotes ?? f.upvotes, downvotes: data.downvotes ?? f.downvotes ?? 0 }
             : f
         )
       );
     } catch {
-      // Rollback to pre-optimistic snapshot
       if (snapshot) {
         const rollback = snapshot;
         setFeedback((prev) => prev.map((f) => (f.id === id ? rollback : f)));
+      }
+    } finally {
+      inflightRef.current.delete(id);
+    }
+  }, []);
+
+  const handleQuestionVote = useCallback(async (id: string, voteType: "UP" | "DOWN") => {
+    if (inflightRef.current.has(id)) return;
+    inflightRef.current.add(id);
+
+    let snapshot: CampaignQuestionItem | undefined;
+
+    setCampaignQuestions((prev) =>
+      prev.map((q) => {
+        if (q.id !== id) return q;
+        snapshot = { ...q };
+        return {
+          ...q,
+          upvotes: (q.upvotes ?? 0) + (voteType === "UP" ? 1 : 0),
+          downvotes: (q.downvotes ?? 0) + (voteType === "DOWN" ? 1 : 0),
+        };
+      })
+    );
+
+    try {
+      const res = await fetch(`/api/questions/${id}/vote`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId: getSessionId(), voteType }),
+      });
+      if (!res.ok) throw new Error(`Vote failed: ${res.status}`);
+      const data = await res.json();
+      setCampaignQuestions((prev) =>
+        prev.map((q) =>
+          q.id === id
+            ? { ...q, upvotes: data.upvotes ?? q.upvotes, downvotes: data.downvotes ?? q.downvotes ?? 0 }
+            : q
+        )
+      );
+    } catch {
+      if (snapshot) {
+        const rollback = snapshot;
+        setCampaignQuestions((prev) => prev.map((q) => (q.id === id ? rollback : q)));
       }
     } finally {
       inflightRef.current.delete(id);
@@ -179,6 +200,7 @@ export function FeedbackFeed({ initialFeedback, initialCampaignQuestions }: Feed
               <li key={item.data.id}>
                 <CampaignQuestionCard
                   question={item.data}
+                  onVote={(voteType) => handleQuestionVote(item.data.id, voteType)}
                   threadSlot={
                     <QuestionThread
                       questionId={item.data.id}
@@ -205,7 +227,76 @@ export function FeedbackFeed({ initialFeedback, initialCampaignQuestions }: Feed
 }
 
 /* ------------------------------------------------------------------ */
-/*  Vote buttons — fire-and-forget style, no persistent highlight      */
+/*  Campaign question card (unchanged)                                 */
+/* ------------------------------------------------------------------ */
+
+type CampaignQuestionItem = {
+  id: string;
+  campaignTitle: string;
+  campaignDescription: string | null;
+  category: FeedbackCategory;
+  prompt: string;
+  createdAt: Date;
+  responsesCount: number;
+  upvotes: number;
+  downvotes: number;
+};
+
+type FeedItem =
+  | { kind: "feedback"; data: FeedbackWithMeta }
+  | { kind: "question"; data: CampaignQuestionItem };
+
+function CampaignQuestionCard({
+  question,
+  onVote,
+  threadSlot,
+}: {
+  question: CampaignQuestionItem;
+  onVote: (voteType: "UP" | "DOWN") => void;
+  threadSlot: React.ReactNode;
+}) {
+  const formattedDate = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(question.createdAt));
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant={CATEGORY_VARIANTS[question.category]}>
+              {CATEGORY_LABELS[question.category]}
+            </Badge>
+            <Badge variant="pending">Campaign</Badge>
+          </div>
+          <span className="shrink-0 text-xs text-muted-foreground">{formattedDate}</span>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        <p className="text-sm font-semibold text-foreground">{question.campaignTitle}</p>
+        {question.campaignDescription && (
+          <p className="text-xs text-muted-foreground">{question.campaignDescription}</p>
+        )}
+        <p className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">
+          {question.prompt}
+        </p>
+      </CardContent>
+      <CardFooter>
+        <VoteButtons
+          upvotes={question.upvotes ?? 0}
+          downvotes={question.downvotes ?? 0}
+          onVote={onVote}
+        />
+      </CardFooter>
+      <CardContent>{threadSlot}</CardContent>
+    </Card>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Vote buttons                                                       */
 /* ------------------------------------------------------------------ */
 
 interface VoteButtonsProps {
@@ -242,77 +333,6 @@ function VoteButtons({ upvotes, downvotes, onVote }: VoteButtonsProps) {
         <span className="tabular-nums">{down}</span>
       </button>
     </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Campaign question card (unchanged)                                 */
-/* ------------------------------------------------------------------ */
-
-type CampaignQuestionItem = {
-  id: string;
-  campaignTitle: string;
-  campaignDescription: string | null;
-  category: FeedbackCategory;
-  prompt: string;
-  createdAt: Date;
-  responsesCount: number;
-};
-
-type FeedItem =
-  | { kind: "feedback"; data: FeedbackWithMeta }
-  | { kind: "question"; data: CampaignQuestionItem };
-
-function CampaignQuestionCard({
-  question,
-  threadSlot,
-}: {
-  question: CampaignQuestionItem;
-  threadSlot: React.ReactNode;
-}) {
-  const formattedDate = new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(new Date(question.createdAt));
-
-  return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant={CATEGORY_VARIANTS[question.category]}>
-              {CATEGORY_LABELS[question.category]}
-            </Badge>
-            <Badge variant="pending">Campaign</Badge>
-          </div>
-          <span className="shrink-0 text-xs text-muted-foreground">{formattedDate}</span>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <p className="text-sm font-semibold text-foreground">{question.campaignTitle}</p>
-        {question.campaignDescription && (
-          <p className="text-xs text-muted-foreground">{question.campaignDescription}</p>
-        )}
-        <p className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">
-          {question.prompt}
-        </p>
-      </CardContent>
-      <CardFooter>
-        <div className="flex items-center gap-2 rounded-full border border-border bg-card/80 px-4 py-2 text-sm font-medium text-muted-foreground">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            className="h-4 w-4"
-          >
-            <path d="M10 3c-3.866 0-7 2.686-7 6 0 1.576.706 3.01 1.86 4.086-.144.94-.5 2.054-1.17 3.214a.75.75 0 00.905 1.08c1.64-.498 3.03-1.114 4.106-1.778.84.248 1.737.398 2.649.398 3.866 0 7-2.686 7-6s-3.134-6-7-6z" />
-          </svg>
-          <span className="tabular-nums">{question.responsesCount}</span>
-        </div>
-      </CardFooter>
-      <CardContent>{threadSlot}</CardContent>
-    </Card>
   );
 }
 

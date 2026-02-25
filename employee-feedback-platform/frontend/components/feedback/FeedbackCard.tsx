@@ -71,7 +71,7 @@ export function FeedbackCard({ feedback, upvoteSlot, threadSlot }: FeedbackCardP
           </div>
         )}
       </CardContent>
-      <CardFooter className="justify-between">
+      <CardFooter>
         {upvoteSlot}
       </CardFooter>
       {threadSlot && <CardContent>{threadSlot}</CardContent>}
