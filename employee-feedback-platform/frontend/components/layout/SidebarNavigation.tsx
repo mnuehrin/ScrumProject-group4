@@ -31,9 +31,9 @@ const WORKSPACE_ITEMS: NavItem[] = [
 ];
 
 const ADMIN_ITEMS: NavItem[] = [
-  { href: "/admin/dashboard", label: "Feedback dashboard", icon: "admin" },
-  { href: "/admin", label: "Feedback table", icon: "admin" },
-  { href: "/admin/questions", label: "Question admin", icon: "admin" },
+  { href: "/admin/dashboard", label: "Analytics", icon: "admin" },
+  { href: "/admin", label: "Dashboard", icon: "admin" },
+  { href: "/admin/questions", label: "Create Post", icon: "admin" },
 ];
 
 function isActive(pathname: string, href: string) {
