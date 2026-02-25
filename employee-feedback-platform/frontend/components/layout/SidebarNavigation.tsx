@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import {
   Sidebar,
@@ -16,30 +17,23 @@ import {
 } from "@/components/ui/sidebar";
 
 type NavItem = {
-  href: string;
+  href?: string;
   label: string;
-  icon: "home" | "submit" | "feed" | "rewards" | "admin" | "login";
+  icon: "home" | "submit" | "feed" | "rewards" | "admin" | "login" | "logout";
+  action?: () => void;
 };
 
-const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
-  {
-    title: "Workspace",
-    items: [
-      { href: "/", label: "Overview", icon: "home" },
-      { href: "/submit", label: "Answer questions", icon: "submit" },
-      { href: "/feedback", label: "Feedback feed", icon: "feed" },
-      { href: "/rewards", label: "My rewards", icon: "rewards" },
-    ],
-  },
-  {
-    title: "Moderation",
-    items: [
-      { href: "/admin/dashboard", label: "Feedback dashboard", icon: "admin" },
-      { href: "/admin", label: "Feedback table", icon: "admin" },
-      { href: "/admin/questions", label: "Question admin", icon: "admin" },
-      { href: "/admin/login", label: "Admin sign in", icon: "login" },
-    ],
-  },
+const WORKSPACE_ITEMS: NavItem[] = [
+  { href: "/", label: "Overview", icon: "home" },
+  { href: "/submit", label: "Answer questions", icon: "submit" },
+  { href: "/feedback", label: "Feedback feed", icon: "feed" },
+  { href: "/rewards", label: "My rewards", icon: "rewards" },
+];
+
+const ADMIN_ITEMS: NavItem[] = [
+  { href: "/admin/dashboard", label: "Feedback dashboard", icon: "admin" },
+  { href: "/admin", label: "Feedback table", icon: "admin" },
+  { href: "/admin/questions", label: "Question admin", icon: "admin" },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -97,17 +91,36 @@ function SidebarItemIcon({
           <path d="M8 6V4h8v12H8v-2M4 10h9M10 7l3 3-3 3" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       );
+    case "logout":
+      return (
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" className={iconClass}>
+          <path d="M12 6V4H4v12h8v-2M9 10h9M15 7l3 3-3 3" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
   }
 }
 
 function NavLinks() {
   const pathname = usePathname();
   const { open, isMobile, setOpenMobile } = useSidebar();
+  const { data: session } = useSession();
   const showLabels = open || isMobile;
+
+  const moderationItems: NavItem[] = session?.user
+    ? [
+        ...ADMIN_ITEMS,
+        { label: "Sign out", icon: "logout" as const, action: () => signOut({ callbackUrl: "/" }) },
+      ]
+    : [{ href: "/admin/login", label: "Admin sign in", icon: "login" as const }];
+
+  const navGroups = [
+    { title: "Workspace", items: WORKSPACE_ITEMS },
+    { title: "Moderation", items: moderationItems },
+  ];
 
   return (
     <div className="space-y-5">
-      {NAV_GROUPS.map((group, index) => (
+      {navGroups.map((group, index) => (
         <div
           key={group.title}
           className={cn("space-y-2.5", index > 0 && "border-t border-border pt-5")}
@@ -119,12 +132,37 @@ function NavLinks() {
           </SidebarGroupLabel>
           <SidebarMenu>
             {group.items.map((item) => {
-              const active = isActive(pathname, item.href);
+              const active = item.href ? isActive(pathname, item.href) : false;
+
+              if (item.action) {
+                return (
+                  <SidebarMenuItem key={item.label}>
+                    <button
+                      onClick={() => {
+                        if (isMobile) setOpenMobile(false);
+                        item.action!();
+                      }}
+                      className={cn(
+                        "group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold transition-all",
+                        showLabels ? "justify-start" : "justify-center",
+                        "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+                      )}
+                    >
+                      <span className="inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors group-hover:bg-card/70">
+                        <SidebarItemIcon icon={item.icon} active={false} />
+                      </span>
+                      <span className={cn("truncate", !showLabels && "md:hidden")}>
+                        {item.label}
+                      </span>
+                    </button>
+                  </SidebarMenuItem>
+                );
+              }
 
               return (
                 <SidebarMenuItem key={item.href}>
                   <Link
-                    href={item.href}
+                    href={item.href!}
                     onClick={() => {
                       if (isMobile) setOpenMobile(false);
                     }}
