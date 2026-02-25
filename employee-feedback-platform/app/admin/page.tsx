@@ -12,7 +12,9 @@ async function getAllFeedback(): Promise<FeedbackWithMeta[]> {
   });
   return rows.map((f) => ({
     ...f,
+    downvotes: f.downvotes ?? 0,
     hasUpvoted: false,
+    hasDownvoted: false,
     reward: f.reward ?? null,
     commentsCount: f._count.comments,
   }));
@@ -103,12 +105,14 @@ export default async function AdminPage() {
       category: campaign.category,
       createdAt: question.createdAt,
       upvotes: question.responsesCount,
+      downvotes: 0,
       status: campaignStatusToFeedbackStatus(campaign.status),
       adminNote: `Campaign: ${campaign.title}`,
       statusUpdatedAt: null,
       statusUpdatedBy: null,
       submitterSessionId: null,
       hasUpvoted: false,
+      hasDownvoted: false,
       reward: null,
       commentsCount: question.responsesCount,
     }))

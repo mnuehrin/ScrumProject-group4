@@ -10,7 +10,9 @@ async function getFeedback(): Promise<FeedbackWithMeta[]> {
   });
   return rows.map((f) => ({
     ...f,
+    downvotes: f.downvotes ?? 0,
     hasUpvoted: false,
+    hasDownvoted: false,
     commentsCount: f._count.comments,
   }));
 }

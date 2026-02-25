@@ -18,6 +18,13 @@ export const upvoteSchema = z.object({
 
 export type UpvoteInput = z.infer<typeof upvoteSchema>;
 
+export const voteSchema = z.object({
+  sessionId: z.string().min(1, "Session ID is required."),
+  voteType: z.enum(["UP", "DOWN"]),
+});
+
+export type VoteInput = z.infer<typeof voteSchema>;
+
 export const awardSchema = z
   .object({
     rewardType: z.enum(["PROMO_CODE", "HOLIDAY_DAY"], {

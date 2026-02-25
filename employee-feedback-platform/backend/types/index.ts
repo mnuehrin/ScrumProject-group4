@@ -32,6 +32,7 @@ export type {
 
 export type FeedbackWithMeta = Feedback & {
   hasUpvoted: boolean;
+  hasDownvoted: boolean;
   reward?: Reward | null;
   commentsCount: number;
 };

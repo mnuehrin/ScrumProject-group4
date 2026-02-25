@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { FeedbackCard } from "@/components/feedback/FeedbackCard";
 import { FeedbackThread } from "@/components/feedback/FeedbackThread";
 import { QuestionThread } from "@/components/feedback/QuestionThread";
@@ -9,6 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { CategoryPills, type CategoryValue } from "@/components/ui/category-pills";
 import type { FeedbackWithMeta, CategoryFilter, SortOption, FeedbackCategory } from "@/types";
+
+/* ------------------------------------------------------------------ */
+/*  Main feed                                                          */
+/* ------------------------------------------------------------------ */
 
 interface FeedbackFeedProps {
   initialFeedback: FeedbackWithMeta[];
@@ -23,23 +27,74 @@ export function FeedbackFeed({ initialFeedback, initialCampaignQuestions }: Feed
   const [activeCategory, setActiveCategory] = useState<CategoryValue>("ALL");
   const [sort, setSort] = useState<SortOption>("newest");
 
-  const handleUpvote = useCallback(async (id: string) => {
-    const sessionId = getSessionId();
+  // Track in-flight requests per feedback id to prevent double-fire
+  const inflightRef = useRef<Set<string>>(new Set());
+
+  const handleVote = useCallback(async (id: string, voteType: "UP" | "DOWN") => {
+    // Guard: don't fire a second request while one is in-flight for this item
+    if (inflightRef.current.has(id)) return;
+    inflightRef.current.add(id);
+
+    // Snapshot the item BEFORE we mutate, so we can rollback on error
+    let snapshot: FeedbackWithMeta | undefined;
+
+    // Optimistic update
+    setFeedback((prev) =>
+      prev.map((f) => {
+        if (f.id !== id) return f;
+        snapshot = { ...f }; // capture pre-mutation state
+
+        const up = f.upvotes ?? 0;
+        const down = f.downvotes ?? 0;
+
+        // The server will +1 the new direction.
+        // Each click just adds to the chosen counter — no toggle logic on the client.
+        // The server is the source of truth and we'll sync to it after.
+        return {
+          ...f,
+          upvotes: up + (voteType === "UP" ? 1 : 0),
+          downvotes: down + (voteType === "DOWN" ? 1 : 0),
+        };
+      })
+    );
+
     try {
-      const res = await fetch(`/api/feedback/${id}/upvote`, {
+      const res = await fetch(`/api/feedback/${id}/vote`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId }),
+        body: JSON.stringify({ sessionId: getSessionId(), voteType }),
       });
-      if (!res.ok) return;
-      const { upvotes, hasUpvoted } = await res.json();
+
+      if (!res.ok) {
+        throw new Error(`Vote failed: ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      // Sync to the server's authoritative state (overrides any optimistic drift)
       setFeedback((prev) =>
-        prev.map((f) => (f.id === id ? { ...f, upvotes, hasUpvoted } : f))
+        prev.map((f) =>
+          f.id === id
+            ? {
+                ...f,
+                upvotes: data.upvotes ?? f.upvotes,
+                downvotes: data.downvotes ?? f.downvotes ?? 0,
+              }
+            : f
+        )
       );
     } catch {
-      // silently fail
+      // Rollback to pre-optimistic snapshot
+      if (snapshot) {
+        const rollback = snapshot;
+        setFeedback((prev) => prev.map((f) => (f.id === id ? rollback : f)));
+      }
+    } finally {
+      inflightRef.current.delete(id);
     }
   }, []);
+
+  /* ---- Build & filter feed items ---- */
 
   const items: FeedItem[] = [
     ...campaignQuestions.map((item) => ({ kind: "question" as const, data: item })),
@@ -103,10 +158,10 @@ export function FeedbackFeed({ initialFeedback, initialCampaignQuestions }: Feed
                   <FeedbackCard
                     feedback={item.data}
                     upvoteSlot={
-                      <UpvoteButton
-                        count={item.data.upvotes}
-                        hasUpvoted={item.data.hasUpvoted}
-                        onUpvote={() => handleUpvote(item.data.id)}
+                      <VoteButtons
+                        upvotes={item.data.upvotes}
+                        downvotes={item.data.downvotes}
+                        onVote={(voteType) => handleVote(item.data.id, voteType)}
                       />
                     }
                     threadSlot={
@@ -148,6 +203,51 @@ export function FeedbackFeed({ initialFeedback, initialCampaignQuestions }: Feed
     </div>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/*  Vote buttons — fire-and-forget style, no persistent highlight      */
+/* ------------------------------------------------------------------ */
+
+interface VoteButtonsProps {
+  upvotes: number;
+  downvotes: number;
+  onVote: (voteType: "UP" | "DOWN") => void;
+}
+
+function VoteButtons({ upvotes, downvotes, onVote }: VoteButtonsProps) {
+  const up = upvotes ?? 0;
+  const down = downvotes ?? 0;
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <button
+        onClick={() => onVote("UP")}
+        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary active:bg-primary active:text-primary-foreground"
+        aria-label="Upvote"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+          <path fillRule="evenodd" d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z" clipRule="evenodd" />
+        </svg>
+        <span className="tabular-nums">{up}</span>
+      </button>
+
+      <button
+        onClick={() => onVote("DOWN")}
+        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary active:bg-primary active:text-primary-foreground"
+        aria-label="Downvote"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+          <path fillRule="evenodd" d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z" clipRule="evenodd" />
+        </svg>
+        <span className="tabular-nums">{down}</span>
+      </button>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Campaign question card (unchanged)                                 */
+/* ------------------------------------------------------------------ */
 
 type CampaignQuestionItem = {
   id: string;
@@ -234,36 +334,3 @@ const CATEGORY_VARIANTS: Record<
   MANAGEMENT: "management",
   OTHER: "other",
 };
-
-interface UpvoteButtonProps {
-  count: number;
-  hasUpvoted: boolean;
-  onUpvote: () => void;
-}
-
-function UpvoteButton({ count, hasUpvoted, onUpvote }: UpvoteButtonProps) {
-  return (
-    <button
-      onClick={onUpvote}
-      className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${
-        hasUpvoted
-          ? "border-primary bg-primary text-primary-foreground shadow-sm"
-          : "border-border bg-card text-muted-foreground hover:border-border hover:bg-accent/70 hover:text-foreground active:bg-accent"
-      } min-w-[78px] justify-center`}
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-        className="h-4 w-4"
-      >
-        <path
-          fillRule="evenodd"
-          d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
-          clipRule="evenodd"
-        />
-      </svg>
-      <span className="tabular-nums">{count}</span>
-    </button>
-  );
-}
