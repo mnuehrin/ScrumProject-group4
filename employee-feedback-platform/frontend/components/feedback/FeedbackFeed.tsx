@@ -269,7 +269,7 @@ function CampaignQuestionCard({
             <Badge variant={CATEGORY_VARIANTS[question.category]}>
               {CATEGORY_LABELS[question.category]}
             </Badge>
-            <Badge variant="pending">Campaign</Badge>
+            <Badge variant="pending">Feedback</Badge>
           </div>
           <span className="shrink-0 text-xs text-muted-foreground">{formattedDate}</span>
         </div>

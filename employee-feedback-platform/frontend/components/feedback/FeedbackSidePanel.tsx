@@ -68,7 +68,7 @@ export function FeedbackSidePanel({
         <div className="grid grid-cols-2 border-b border-sidebar-border px-5 py-4">
           <div className="border-r border-sidebar-border pr-4">
             <p className="text-3xl font-semibold tabular-nums text-foreground">{liveCampaigns}</p>
-            <p className="text-xs text-muted-foreground">Live campaigns</p>
+            <p className="text-xs text-muted-foreground">Live posts</p>
           </div>
           <div className="pl-4">
             <p className="text-3xl font-semibold tabular-nums text-foreground">{weeklyActivity}</p>

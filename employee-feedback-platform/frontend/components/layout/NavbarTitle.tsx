@@ -17,10 +17,10 @@ const TITLE_MAP: Array<{
   { match: (pathname) => pathname.startsWith("/submit"), title: "Answer admin questions", eyebrow: "Workspace" },
   { match: (pathname) => pathname.startsWith("/feedback"), title: "Feedback feed", eyebrow: "Workspace" },
   { match: (pathname) => pathname.startsWith("/rewards"), title: "My rewards", eyebrow: "Workspace" },
-  { match: (pathname) => pathname.startsWith("/admin/dashboard"), title: "Feedback dashboard", eyebrow: "Moderation" },
-  { match: (pathname) => pathname.startsWith("/admin/questions"), title: "Question campaigns", eyebrow: "Moderation" },
+  { match: (pathname) => pathname.startsWith("/admin/dashboard"), title: "Analytics", eyebrow: "Moderation" },
+  { match: (pathname) => pathname.startsWith("/admin/questions"), title: "Create Post", eyebrow: "Moderation" },
   { match: (pathname) => pathname.startsWith("/admin/login"), title: "Sign in", eyebrow: "Moderation" },
-  { match: (pathname) => pathname.startsWith("/admin"), title: "Feedback table", eyebrow: "Moderation" },
+  { match: (pathname) => pathname.startsWith("/admin"), title: "Dashboard", eyebrow: "Moderation" },
 ];
 
 const FALLBACK_TITLE: NavTitle = { title: "Public workspace", eyebrow: "Workspace" };
