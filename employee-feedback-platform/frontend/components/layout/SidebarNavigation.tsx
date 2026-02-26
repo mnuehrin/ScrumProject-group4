@@ -19,7 +19,17 @@ import {
 type NavItem = {
   href?: string;
   label: string;
-  icon: "home" | "submit" | "feed" | "rewards" | "admin" | "analytics" | "dashboard" | "create-post" | "login" | "logout";
+  icon:
+    | "home"
+    | "submit"
+    | "feed"
+    | "rewards"
+    | "admin"
+    | "analytics"
+    | "dashboard"
+    | "create-post"
+    | "login"
+    | "logout";
   action?: () => void;
 };
 
@@ -35,26 +45,6 @@ const ADMIN_ITEMS: NavItem[] = [
   { href: "/admin/dashboard", label: "Analytics", icon: "analytics" },
   { href: "/admin", label: "Dashboard", icon: "dashboard" },
   { href: "/admin/questions", label: "Create Post", icon: "create-post" },
-const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
-  {
-    title: "Workspace",
-    items: [
-      { href: "/", label: "Overview", icon: "home" },
-      { href: "/submit", label: "Answer questions", icon: "submit" },
-      { href: "/feedback", label: "Feedback feed", icon: "feed" },
-      { href: "/rewards", label: "My rewards", icon: "rewards" },
-      { href: "/submit-feedback", label: "Submit feedback", icon: "submit" },
-    ],
-  },
-  {
-    title: "Moderation",
-    items: [
-      { href: "/admin/dashboard", label: "Feedback dashboard", icon: "admin" },
-      { href: "/admin", label: "Feedback table", icon: "admin" },
-      { href: "/admin/questions", label: "Question admin", icon: "admin" },
-      { href: "/admin/login", label: "Admin sign in", icon: "login" },
-    ],
-  },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -77,45 +67,90 @@ function SidebarItemIcon({
   switch (icon) {
     case "home":
       return (
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" className={iconClass}>
+        <svg
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          className={iconClass}
+        >
           <path d="M3.5 9.5 10 4l6.5 5.5" strokeLinecap="round" strokeLinejoin="round" />
           <path d="M5.5 8.5V16h9V8.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       );
     case "submit":
       return (
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" className={iconClass}>
+        <svg
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          className={iconClass}
+        >
           <path d="M10 4v12M4 10h12" strokeLinecap="round" />
         </svg>
       );
     case "feed":
       return (
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" className={iconClass}>
+        <svg
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          className={iconClass}
+        >
           <path d="M5 5h10M5 10h10M5 15h10" strokeLinecap="round" />
         </svg>
       );
     case "rewards":
       return (
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" className={iconClass}>
-          <path d="M10 4 12.2 8.4 17 9l-3.5 3.2.9 4.8L10 14.8 5.6 17l.9-4.8L3 9l4.8-.6L10 4Z" strokeLinejoin="round" />
+        <svg
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          className={iconClass}
+        >
+          <path
+            d="M10 4 12.2 8.4 17 9l-3.5 3.2.9 4.8L10 14.8 5.6 17l.9-4.8L3 9l4.8-.6L10 4Z"
+            strokeLinejoin="round"
+          />
         </svg>
       );
     case "admin":
       return (
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" className={iconClass}>
+        <svg
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          className={iconClass}
+        >
           <path d="M10 3 16 6v4c0 3.7-2.3 5.9-6 7-3.7-1.1-6-3.3-6-7V6l6-3Z" strokeLinejoin="round" />
         </svg>
       );
     case "analytics":
       return (
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" className={iconClass}>
+        <svg
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          className={iconClass}
+        >
           <path d="M3 15 7 9l3.5 4L14 7l3 4" strokeLinecap="round" strokeLinejoin="round" />
           <path d="M3 17h14" strokeLinecap="round" />
         </svg>
       );
     case "dashboard":
       return (
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" className={iconClass}>
+        <svg
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          className={iconClass}
+        >
           <rect x="3" y="3" width="6" height="6" rx="1" strokeLinejoin="round" />
           <rect x="11" y="3" width="6" height="6" rx="1" strokeLinejoin="round" />
           <rect x="3" y="11" width="6" height="6" rx="1" strokeLinejoin="round" />
@@ -124,20 +159,38 @@ function SidebarItemIcon({
       );
     case "create-post":
       return (
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" className={iconClass}>
+        <svg
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          className={iconClass}
+        >
           <path d="M13 3.5 16.5 7 8 15.5H4.5V12L13 3.5Z" strokeLinejoin="round" />
           <path d="M11 5.5l3.5 3.5" strokeLinecap="round" />
         </svg>
       );
     case "login":
       return (
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" className={iconClass}>
+        <svg
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          className={iconClass}
+        >
           <path d="M8 6V4h8v12H8v-2M4 10h9M10 7l3 3-3 3" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       );
     case "logout":
       return (
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" className={iconClass}>
+        <svg
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          className={iconClass}
+        >
           <path d="M12 6V4H4v12h8v-2M9 10h9M15 7l3 3-3 3" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       );
@@ -153,11 +206,15 @@ function NavLinks() {
   const moderationItems: NavItem[] = session?.user
     ? [
         ...ADMIN_ITEMS,
-        { label: "Sign out", icon: "logout" as const, action: () => signOut({ callbackUrl: "/" }) },
+        {
+          label: "Sign out",
+          icon: "logout",
+          action: () => signOut({ callbackUrl: "/" }),
+        },
       ]
-    : [{ href: "/admin/login", label: "Admin sign in", icon: "login" as const }];
+    : [{ href: "/admin/login", label: "Admin sign in", icon: "login" }];
 
-  const navGroups = [
+  const navGroups: { title: string; items: NavItem[] }[] = [
     { title: "Workspace", items: WORKSPACE_ITEMS },
     { title: "Moderation", items: moderationItems },
   ];
@@ -170,10 +227,14 @@ function NavLinks() {
           className={cn("space-y-2.5", index > 0 && "border-t border-border pt-5")}
         >
           <SidebarGroupLabel
-            className={cn("text-[10px] tracking-[0.2em] text-muted-foreground", !showLabels && "md:sr-only")}
+            className={cn(
+              "text-[10px] tracking-[0.2em] text-muted-foreground",
+              !showLabels && "md:sr-only"
+            )}
           >
             {group.title}
           </SidebarGroupLabel>
+
           <SidebarMenu>
             {group.items.map((item) => {
               const active = item.href ? isActive(pathname, item.href) : false;
@@ -184,7 +245,7 @@ function NavLinks() {
                     <button
                       onClick={() => {
                         if (isMobile) setOpenMobile(false);
-                        item.action!();
+                        item.action?.();
                       }}
                       className={cn(
                         "group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold transition-all",
@@ -249,12 +310,7 @@ export function SidebarNavigation() {
   return (
     <Sidebar className="border-border bg-sidebar">
       <SidebarHeader className="border-border h-16">
-        <div
-          className={cn(
-            "flex h-full items-center gap-3 px-1",
-            !showLabels && "md:justify-center"
-          )}
-        >
+        <div className={cn("flex h-full items-center gap-3 px-1", !showLabels && "md:justify-center")}>
           <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-border bg-card/70 shadow-sm">
             <Image
               src={companyLogoSrc}
@@ -274,9 +330,11 @@ export function SidebarNavigation() {
           </div>
         </div>
       </SidebarHeader>
+
       <SidebarContent>
         <NavLinks />
       </SidebarContent>
+
       <SidebarFooter className="border-border">
         <p className={cn("px-2 text-[11px] text-muted-foreground", !showLabels && "md:hidden")}>
           v1.0 &middot; Feedback Platform
