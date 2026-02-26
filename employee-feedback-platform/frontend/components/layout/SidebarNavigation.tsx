@@ -26,6 +26,7 @@ type NavItem = {
 const WORKSPACE_ITEMS: NavItem[] = [
   { href: "/", label: "Overview", icon: "home" },
   { href: "/submit", label: "Answer questions", icon: "submit" },
+  { href: "/submit-feedback", label: "Submit feedback", icon: "submit" },
   { href: "/feedback", label: "Feedback feed", icon: "feed" },
   { href: "/rewards", label: "My rewards", icon: "rewards" },
 ];
@@ -34,6 +35,26 @@ const ADMIN_ITEMS: NavItem[] = [
   { href: "/admin/dashboard", label: "Analytics", icon: "analytics" },
   { href: "/admin", label: "Dashboard", icon: "dashboard" },
   { href: "/admin/questions", label: "Create Post", icon: "create-post" },
+const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
+  {
+    title: "Workspace",
+    items: [
+      { href: "/", label: "Overview", icon: "home" },
+      { href: "/submit", label: "Answer questions", icon: "submit" },
+      { href: "/feedback", label: "Feedback feed", icon: "feed" },
+      { href: "/rewards", label: "My rewards", icon: "rewards" },
+      { href: "/submit-feedback", label: "Submit feedback", icon: "submit" },
+    ],
+  },
+  {
+    title: "Moderation",
+    items: [
+      { href: "/admin/dashboard", label: "Feedback dashboard", icon: "admin" },
+      { href: "/admin", label: "Feedback table", icon: "admin" },
+      { href: "/admin/questions", label: "Question admin", icon: "admin" },
+      { href: "/admin/login", label: "Admin sign in", icon: "login" },
+    ],
+  },
 ];
 
 function isActive(pathname: string, href: string) {

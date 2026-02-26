@@ -47,11 +47,10 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(result);
 }
 
-// POST /api/feedback
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
-  const parsed = createFeedbackSchema.safeParse(body);
 
+  const parsed = createFeedbackSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
       { error: "Validation failed", issues: parsed.error.flatten().fieldErrors },
@@ -62,11 +61,23 @@ export async function POST(req: NextRequest) {
   const { content, category } = parsed.data;
   const sessionId = getOrCreateSessionId(req);
 
+  const promptResponses = Array.isArray(body?.promptResponses)
+    ? body.promptResponses
+    : [];
+
   const feedback = await prisma.feedback.create({
     data: {
       content,
       category,
       submitterSessionId: sessionId || null,
+      promptResponses: promptResponses.length
+        ? {
+            create: promptResponses.map((r: any) => ({
+              questionId: r.questionId,
+              content: String(r.content ?? "").trim(),
+            })),
+          }
+        : undefined,
     },
   });
 

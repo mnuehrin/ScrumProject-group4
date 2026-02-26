@@ -8,6 +8,15 @@ export const createFeedbackSchema = z.object({
   category: z.enum(["CULTURE", "TOOLS", "WORKLOAD", "MANAGEMENT", "OTHER"], {
     errorMap: () => ({ message: "Please select a valid category." }),
   }),
+  
+  promptResponses: z
+    .array(
+      z.object({
+        questionId: z.string().uuid(),
+        content: z.string().trim().min(2).max(2000),
+      })
+    )
+    .optional(),
 });
 
 export type CreateFeedbackInput = z.infer<typeof createFeedbackSchema>;

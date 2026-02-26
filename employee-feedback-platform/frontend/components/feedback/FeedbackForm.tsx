@@ -24,6 +24,8 @@ const GUIDED_PROMPTS: Record<string, string> = {
   OTHER: "Share anything on your mind — all feedback is welcome.",
 };
 
+
+
 type Status = "idle" | "loading" | "success" | "error";
 
 export function FeedbackForm() {
@@ -43,27 +45,27 @@ export function FeedbackForm() {
   const selectedCategory = watch("category");
   const prompt = selectedCategory ? GUIDED_PROMPTS[selectedCategory] : null;
 
-  async function onSubmit(data: CreateFeedbackInput) {
-    setStatus("loading");
-    try {
-      const res = await fetch("/api/feedback", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-session-id": getSessionId(),
-        },
-        body: JSON.stringify(data),
-      });
+async function onSubmit(data: CreateFeedbackInput) {
+  setStatus("loading");
+  try {
+    const res = await fetch("/api/feedback", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-session-id": getSessionId(),
+      },
+      body: JSON.stringify(data), // <-- just send category + content
+    });
 
-      if (!res.ok) throw new Error("Submission failed");
+    if (!res.ok) throw new Error("Submission failed");
 
-      setStatus("success");
-      reset();
-      setCharCount(0);
-    } catch {
-      setStatus("error");
-    }
+    setStatus("success");
+    reset();
+    setCharCount(0);
+  } catch {
+    setStatus("error");
   }
+}
 
   if (status === "success") {
     return (
