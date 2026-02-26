@@ -14,7 +14,7 @@ const TITLE_MAP: Array<{
   eyebrow: string;
 }> = [
   { match: (pathname) => pathname === "/", title: "Overview", eyebrow: "Workspace" },
-  { match: (pathname) => pathname.startsWith("/submit"), title: "Answer admin questions", eyebrow: "Workspace" },
+  { match: (pathname) => pathname.startsWith("/submit"), title: "Participate", eyebrow: "Workspace" },
   { match: (pathname) => pathname.startsWith("/feedback"), title: "Feedback feed", eyebrow: "Workspace" },
   { match: (pathname) => pathname.startsWith("/rewards"), title: "My rewards", eyebrow: "Workspace" },
   { match: (pathname) => pathname.startsWith("/admin/dashboard"), title: "Analytics", eyebrow: "Moderation" },

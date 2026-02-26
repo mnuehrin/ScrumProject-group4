@@ -61,6 +61,7 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
   const [activeCategory, setActiveCategory] = useState<CategoryValue>("ALL");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [updatingIds, setUpdatingIds] = useState<Set<string>>(new Set());
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
 
   const filtered = rows.filter((f) => activeCategory === "ALL" || f.category === activeCategory);
 
@@ -118,6 +119,38 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
       });
     }
   }, []);
+
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+
+  const confirmDelete = useCallback(async () => {
+    if (!pendingDeleteId) return;
+    const feedbackId = pendingDeleteId;
+    setPendingDeleteId(null);
+
+    setDeletingIds((prev) => new Set(prev).add(feedbackId));
+
+    // Optimistic removal
+    setRows((prev) => prev.filter((item) => item.id !== feedbackId));
+    if (expandedId === feedbackId) setExpandedId(null);
+
+    try {
+      const res = await fetch(`/api/feedback/${feedbackId}`, { method: "DELETE" });
+      if (!res.ok) {
+        // Revert — re-fetch to be safe
+        const refetch = await fetch("/api/feedback").then((r) => r.json()).catch(() => null);
+        if (refetch) setRows(refetch);
+      }
+    } catch {
+      const refetch = await fetch("/api/feedback").then((r) => r.json()).catch(() => null);
+      if (refetch) setRows(refetch);
+    } finally {
+      setDeletingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(feedbackId);
+        return next;
+      });
+    }
+  }, [pendingDeleteId, expandedId]);
 
   return (
     <div className="space-y-4">
@@ -179,6 +212,9 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
                 <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Date
                 </th>
+                <th className="px-3 py-3.5 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground w-[50px]">
+                  
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -234,10 +270,25 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
                       <td className="px-5 py-4 text-sm text-muted-foreground whitespace-nowrap">
                         {formattedDate(item.createdAt)}
                       </td>
+                      <td className="px-3 py-4 text-center">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPendingDeleteId(item.id);
+                          }}
+                          disabled={deletingIds.has(item.id)}
+                          className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-950/40 disabled:opacity-50"
+                          title="Delete feedback"
+                        >
+                          <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+                            <path fillRule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                      </td>
                     </tr>
                     {expandedId === item.id && (
                       <tr className="bg-accent/40">
-                        <td colSpan={7} className="px-5 py-5">
+                        <td colSpan={8} className="px-5 py-5">
                           <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
                             {item.content}
                           </p>
@@ -256,6 +307,32 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
               })}
             </tbody>
           </table>
+          </div>
+        </div>
+      )}
+
+      {/* Delete confirmation modal */}
+      {pendingDeleteId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="mx-4 w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-xl">
+            <h3 className="text-base font-semibold text-foreground">Delete feedback?</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              This will permanently remove this feedback and all its comments, votes, and rewards. This action cannot be undone.
+            </p>
+            <div className="mt-5 flex items-center justify-end gap-3">
+              <button
+                onClick={() => setPendingDeleteId(null)}
+                className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}

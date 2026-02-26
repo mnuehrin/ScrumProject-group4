@@ -35,8 +35,7 @@ type NavItem = {
 
 const WORKSPACE_ITEMS: NavItem[] = [
   { href: "/", label: "Overview", icon: "home" },
-  { href: "/submit", label: "Answer questions", icon: "submit" },
-  { href: "/submit-feedback", label: "Submit feedback", icon: "submit" },
+  { href: "/submit", label: "Participate", icon: "submit" },
   { href: "/feedback", label: "Feedback feed", icon: "feed" },
   { href: "/rewards", label: "My rewards", icon: "rewards" },
 ];

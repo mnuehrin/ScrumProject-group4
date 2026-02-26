@@ -54,3 +54,37 @@ export async function PATCH(
 
   return NextResponse.json(campaign);
 }
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const existing = await prisma.campaign.findUnique({
+    where: { id: params.id },
+    include: { questions: { select: { id: true } } },
+  });
+
+  if (!existing) {
+    return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
+  }
+
+  const questionIds = existing.questions.map((q) => q.id);
+
+  await prisma.$transaction([
+    // Delete question responses first
+    ...(questionIds.length > 0
+      ? [prisma.questionResponse.deleteMany({ where: { questionId: { in: questionIds } } })]
+      : []),
+    // Delete questions
+    prisma.question.deleteMany({ where: { campaignId: params.id } }),
+    // Delete the campaign
+    prisma.campaign.delete({ where: { id: params.id } }),
+  ]);
+
+  return NextResponse.json({ success: true });
+}

@@ -232,6 +232,7 @@ export function FeedbackFeed({ initialFeedback, initialCampaignQuestions }: Feed
 
 type CampaignQuestionItem = {
   id: string;
+  campaignId: string;
   campaignTitle: string;
   campaignDescription: string | null;
   category: FeedbackCategory;

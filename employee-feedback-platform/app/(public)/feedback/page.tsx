@@ -125,6 +125,7 @@ export default async function FeedbackPage() {
             initialFeedback={feedback}
             initialCampaignQuestions={campaignQuestions.map((item) => ({
               id: item.id,
+              campaignId: item.campaignId,
               campaignTitle: item.campaignTitle,
               campaignDescription: item.campaignDescription,
               category: item.campaignCategory,
