@@ -129,6 +129,8 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
 
     setDeletingIds((prev) => new Set(prev).add(feedbackId));
 
+    const removedItem = rows.find((item) => item.id === feedbackId);
+
     // Optimistic removal
     setRows((prev) => prev.filter((item) => item.id !== feedbackId));
     if (expandedId === feedbackId) setExpandedId(null);
@@ -136,13 +138,11 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
     try {
       const res = await fetch(`/api/feedback/${feedbackId}`, { method: "DELETE" });
       if (!res.ok) {
-        // Revert — re-fetch to be safe
-        const refetch = await fetch("/api/feedback").then((r) => r.json()).catch(() => null);
-        if (refetch) setRows(refetch);
+        // Revert the removed item back
+        if (removedItem) setRows((prev) => [...prev, removedItem].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
       }
     } catch {
-      const refetch = await fetch("/api/feedback").then((r) => r.json()).catch(() => null);
-      if (refetch) setRows(refetch);
+      if (removedItem) setRows((prev) => [...prev, removedItem].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
     } finally {
       setDeletingIds((prev) => {
         const next = new Set(prev);
