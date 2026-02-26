@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Fragment } from "react";
+import { useState, Fragment, useCallback } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CategoryPills, type CategoryValue } from "@/components/ui/category-pills";
@@ -60,6 +60,7 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
   const [rows, setRows] = useState(feedback);
   const [activeCategory, setActiveCategory] = useState<CategoryValue>("ALL");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [updatingIds, setUpdatingIds] = useState<Set<string>>(new Set());
 
   const filtered = rows.filter((f) => activeCategory === "ALL" || f.category === activeCategory);
 
@@ -75,6 +76,48 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
       prev.map((item) => (item.id === feedbackId ? { ...item, reward } : item))
     );
   };
+
+  const handleToggleReviewed = useCallback(async (feedbackId: string, currentStatus: FeedbackStatus) => {
+    const newStatus: FeedbackStatus = currentStatus === "PENDING" ? "REVIEWED" : "PENDING";
+
+    // Optimistic update
+    setRows((prev) =>
+      prev.map((item) =>
+        item.id === feedbackId ? { ...item, status: newStatus } : item
+      )
+    );
+    setUpdatingIds((prev) => new Set(prev).add(feedbackId));
+
+    try {
+      const res = await fetch(`/api/feedback/${feedbackId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!res.ok) {
+        // Revert on failure
+        setRows((prev) =>
+          prev.map((item) =>
+            item.id === feedbackId ? { ...item, status: currentStatus } : item
+          )
+        );
+      }
+    } catch {
+      // Revert on network error
+      setRows((prev) =>
+        prev.map((item) =>
+          item.id === feedbackId ? { ...item, status: currentStatus } : item
+        )
+      );
+    } finally {
+      setUpdatingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(feedbackId);
+        return next;
+      });
+    }
+  }, []);
 
   return (
     <div className="space-y-4">
@@ -111,11 +154,14 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
         </div>
       ) : (
         <div className="-mx-5 overflow-x-auto px-5 sm:mx-0 sm:px-0">
-          <div className="min-w-[700px] overflow-hidden rounded-xl border border-border bg-card">
+          <div className="min-w-[750px] overflow-hidden rounded-xl border border-border bg-card">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-accent/40">
-                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground w-[40%]">
+                <th className="px-3 py-3.5 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground w-[60px]">
+                  Reviewed
+                </th>
+                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground w-[38%]">
                   Feedback
                 </th>
                 <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -136,55 +182,78 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {filtered.map((item) => (
-                <Fragment key={item.id}>
-                  <tr
-                    onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
-                    className="cursor-pointer transition-colors hover:bg-accent/50 active:bg-accent/70"
-                  >
-                    <td className="px-5 py-4 text-sm text-foreground">
-                      <p className="line-clamp-2 leading-relaxed">{item.content}</p>
-                    </td>
-                    <td className="px-5 py-4">
-                      <Badge variant={CATEGORY_VARIANTS[item.category]}>
-                        {CATEGORY_LABELS[item.category]}
-                      </Badge>
-                    </td>
-                    <td className="px-5 py-4">
-                      <Badge variant={STATUS_VARIANTS[item.status]}>
-                        {STATUS_LABELS[item.status]}
-                      </Badge>
-                    </td>
-                    <td className="px-5 py-4 text-sm tabular-nums text-muted-foreground">{item.upvotes}</td>
-                    <td className="px-5 py-4">
-                      {item.reward ? (
-                        <Badge>{REWARD_STATUS_LABELS[item.reward.status]}</Badge>
-                      ) : (
-                        <span className="text-sm text-muted-foreground">None</span>
-                      )}
-                    </td>
-                    <td className="px-5 py-4 text-sm text-muted-foreground whitespace-nowrap">
-                      {formattedDate(item.createdAt)}
-                    </td>
-                  </tr>
-                  {expandedId === item.id && (
-                    <tr className="bg-accent/40">
-                      <td colSpan={6} className="px-5 py-5">
-                        <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
-                          {item.content}
-                        </p>
-                        {item.adminNote && (
-                          <div className="mt-3 rounded-lg border border-border bg-accent/60 px-3 py-2">
-                            <p className="text-xs font-medium text-foreground mb-0.5">Admin note</p>
-                            <p className="text-xs text-muted-foreground">{item.adminNote}</p>
-                          </div>
+              {filtered.map((item) => {
+                const isReviewed = item.status !== "PENDING";
+                const isToggleable = item.status === "PENDING" || item.status === "REVIEWED";
+                const isUpdating = updatingIds.has(item.id);
+
+                return (
+                  <Fragment key={item.id}>
+                    <tr
+                      onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
+                      className="cursor-pointer transition-colors hover:bg-accent/50 active:bg-accent/70"
+                    >
+                      <td className="px-3 py-4 text-center">
+                        <input
+                          type="checkbox"
+                          checked={isReviewed}
+                          disabled={!isToggleable || isUpdating}
+                          title={
+                            !isToggleable
+                              ? `Status is "${STATUS_LABELS[item.status]}" — cannot toggle`
+                              : isReviewed
+                              ? "Unmark as reviewed"
+                              : "Mark as reviewed"
+                          }
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={() => handleToggleReviewed(item.id, item.status)}
+                          className="h-4 w-4 cursor-pointer rounded border-border text-primary accent-primary focus:ring-2 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50"
+                        />
+                      </td>
+                      <td className="px-5 py-4 text-sm text-foreground">
+                        <p className="line-clamp-2 leading-relaxed">{item.content}</p>
+                      </td>
+                      <td className="px-5 py-4">
+                        <Badge variant={CATEGORY_VARIANTS[item.category]}>
+                          {CATEGORY_LABELS[item.category]}
+                        </Badge>
+                      </td>
+                      <td className="px-5 py-4">
+                        <Badge variant={STATUS_VARIANTS[item.status]}>
+                          {STATUS_LABELS[item.status]}
+                        </Badge>
+                      </td>
+                      <td className="px-5 py-4 text-sm tabular-nums text-muted-foreground">{item.upvotes}</td>
+                      <td className="px-5 py-4">
+                        {item.reward ? (
+                          <Badge>{REWARD_STATUS_LABELS[item.reward.status]}</Badge>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">None</span>
                         )}
-                        <AwardPanel item={item} onRewarded={handleRewarded} />
+                      </td>
+                      <td className="px-5 py-4 text-sm text-muted-foreground whitespace-nowrap">
+                        {formattedDate(item.createdAt)}
                       </td>
                     </tr>
-                  )}
-                </Fragment>
-              ))}
+                    {expandedId === item.id && (
+                      <tr className="bg-accent/40">
+                        <td colSpan={7} className="px-5 py-5">
+                          <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
+                            {item.content}
+                          </p>
+                          {item.adminNote && (
+                            <div className="mt-3 rounded-lg border border-border bg-accent/60 px-3 py-2">
+                              <p className="text-xs font-medium text-foreground mb-0.5">Admin note</p>
+                              <p className="text-xs text-muted-foreground">{item.adminNote}</p>
+                            </div>
+                          )}
+                          <AwardPanel item={item} onRewarded={handleRewarded} />
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                );
+              })}
             </tbody>
           </table>
           </div>
