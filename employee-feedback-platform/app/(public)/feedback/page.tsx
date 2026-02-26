@@ -5,12 +5,15 @@ import type { FeedbackWithMeta } from "@/types";
 
 async function getFeedback(): Promise<FeedbackWithMeta[]> {
   const rows = await prisma.feedback.findMany({
+    where: { questionId: null },
     orderBy: { createdAt: "desc" },
     include: { _count: { select: { comments: true } } },
   });
   return rows.map((f) => ({
     ...f,
+    downvotes: f.downvotes ?? 0,
     hasUpvoted: false,
+    hasDownvoted: false,
     commentsCount: f._count.comments,
   }));
 }
@@ -24,6 +27,8 @@ type CampaignQuestionFeedView = {
   questionPrompt: string;
   createdAt: Date;
   responsesCount: number;
+  upvotes: number;
+  downvotes: number;
 };
 
 async function getCampaignFeed(): Promise<CampaignQuestionFeedView[]> {
@@ -71,6 +76,8 @@ async function getCampaignFeed(): Promise<CampaignQuestionFeedView[]> {
         questionPrompt: question.prompt,
         createdAt: question.createdAt,
         responsesCount: responseCountMap.get(question.id) ?? 0,
+        upvotes: question.upvotes ?? 0,
+        downvotes: question.downvotes ?? 0,
       });
     });
   });
@@ -116,6 +123,8 @@ export default async function FeedbackPage() {
               prompt: item.questionPrompt,
               createdAt: item.createdAt,
               responsesCount: item.responsesCount,
+              upvotes: item.upvotes,
+              downvotes: item.downvotes,
             }))}
           />
         </div>

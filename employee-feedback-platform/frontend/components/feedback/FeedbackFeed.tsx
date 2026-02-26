@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { FeedbackCard } from "@/components/feedback/FeedbackCard";
 import { FeedbackThread } from "@/components/feedback/FeedbackThread";
 import { QuestionThread } from "@/components/feedback/QuestionThread";
@@ -8,7 +8,11 @@ import { getSessionId } from "@/components/feedback/session";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { CategoryPills, type CategoryValue } from "@/components/ui/category-pills";
-import type { FeedbackWithMeta, CategoryFilter, SortOption, FeedbackCategory } from "@/types";
+import type { FeedbackWithMeta, SortOption, FeedbackCategory } from "@/types";
+
+/* ------------------------------------------------------------------ */
+/*  Main feed                                                          */
+/* ------------------------------------------------------------------ */
 
 interface FeedbackFeedProps {
   initialFeedback: FeedbackWithMeta[];
@@ -23,23 +27,95 @@ export function FeedbackFeed({ initialFeedback, initialCampaignQuestions }: Feed
   const [activeCategory, setActiveCategory] = useState<CategoryValue>("ALL");
   const [sort, setSort] = useState<SortOption>("newest");
 
-  const handleUpvote = useCallback(async (id: string) => {
-    const sessionId = getSessionId();
+  const inflightRef = useRef<Set<string>>(new Set());
+
+  const handleVote = useCallback(async (id: string, voteType: "UP" | "DOWN") => {
+    if (inflightRef.current.has(id)) return;
+    inflightRef.current.add(id);
+
+    let snapshot: FeedbackWithMeta | undefined;
+
+    setFeedback((prev) =>
+      prev.map((f) => {
+        if (f.id !== id) return f;
+        snapshot = { ...f };
+        return {
+          ...f,
+          upvotes: (f.upvotes ?? 0) + (voteType === "UP" ? 1 : 0),
+          downvotes: (f.downvotes ?? 0) + (voteType === "DOWN" ? 1 : 0),
+        };
+      })
+    );
+
     try {
-      const res = await fetch(`/api/feedback/${id}/upvote`, {
+      const res = await fetch(`/api/feedback/${id}/vote`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId }),
+        body: JSON.stringify({ sessionId: getSessionId(), voteType }),
       });
-      if (!res.ok) return;
-      const { upvotes, hasUpvoted } = await res.json();
+      if (!res.ok) throw new Error(`Vote failed: ${res.status}`);
+      const data = await res.json();
       setFeedback((prev) =>
-        prev.map((f) => (f.id === id ? { ...f, upvotes, hasUpvoted } : f))
+        prev.map((f) =>
+          f.id === id
+            ? { ...f, upvotes: data.upvotes ?? f.upvotes, downvotes: data.downvotes ?? f.downvotes ?? 0 }
+            : f
+        )
       );
     } catch {
-      // silently fail
+      if (snapshot) {
+        const rollback = snapshot;
+        setFeedback((prev) => prev.map((f) => (f.id === id ? rollback : f)));
+      }
+    } finally {
+      inflightRef.current.delete(id);
     }
   }, []);
+
+  const handleQuestionVote = useCallback(async (id: string, voteType: "UP" | "DOWN") => {
+    if (inflightRef.current.has(id)) return;
+    inflightRef.current.add(id);
+
+    let snapshot: CampaignQuestionItem | undefined;
+
+    setCampaignQuestions((prev) =>
+      prev.map((q) => {
+        if (q.id !== id) return q;
+        snapshot = { ...q };
+        return {
+          ...q,
+          upvotes: (q.upvotes ?? 0) + (voteType === "UP" ? 1 : 0),
+          downvotes: (q.downvotes ?? 0) + (voteType === "DOWN" ? 1 : 0),
+        };
+      })
+    );
+
+    try {
+      const res = await fetch(`/api/questions/${id}/vote`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId: getSessionId(), voteType }),
+      });
+      if (!res.ok) throw new Error(`Vote failed: ${res.status}`);
+      const data = await res.json();
+      setCampaignQuestions((prev) =>
+        prev.map((q) =>
+          q.id === id
+            ? { ...q, upvotes: data.upvotes ?? q.upvotes, downvotes: data.downvotes ?? q.downvotes ?? 0 }
+            : q
+        )
+      );
+    } catch {
+      if (snapshot) {
+        const rollback = snapshot;
+        setCampaignQuestions((prev) => prev.map((q) => (q.id === id ? rollback : q)));
+      }
+    } finally {
+      inflightRef.current.delete(id);
+    }
+  }, []);
+
+  /* ---- Build & filter feed items ---- */
 
   const items: FeedItem[] = [
     ...campaignQuestions.map((item) => ({ kind: "question" as const, data: item })),
@@ -103,10 +179,10 @@ export function FeedbackFeed({ initialFeedback, initialCampaignQuestions }: Feed
                   <FeedbackCard
                     feedback={item.data}
                     upvoteSlot={
-                      <UpvoteButton
-                        count={item.data.upvotes}
-                        hasUpvoted={item.data.hasUpvoted}
-                        onUpvote={() => handleUpvote(item.data.id)}
+                      <VoteButtons
+                        upvotes={item.data.upvotes}
+                        downvotes={item.data.downvotes}
+                        onVote={(voteType) => handleVote(item.data.id, voteType)}
                       />
                     }
                     threadSlot={
@@ -124,6 +200,7 @@ export function FeedbackFeed({ initialFeedback, initialCampaignQuestions }: Feed
               <li key={item.data.id}>
                 <CampaignQuestionCard
                   question={item.data}
+                  onVote={(voteType) => handleQuestionVote(item.data.id, voteType)}
                   threadSlot={
                     <QuestionThread
                       questionId={item.data.id}
@@ -149,6 +226,10 @@ export function FeedbackFeed({ initialFeedback, initialCampaignQuestions }: Feed
   );
 }
 
+/* ------------------------------------------------------------------ */
+/*  Campaign question card (unchanged)                                 */
+/* ------------------------------------------------------------------ */
+
 type CampaignQuestionItem = {
   id: string;
   campaignTitle: string;
@@ -157,6 +238,8 @@ type CampaignQuestionItem = {
   prompt: string;
   createdAt: Date;
   responsesCount: number;
+  upvotes: number;
+  downvotes: number;
 };
 
 type FeedItem =
@@ -165,9 +248,11 @@ type FeedItem =
 
 function CampaignQuestionCard({
   question,
+  onVote,
   threadSlot,
 }: {
   question: CampaignQuestionItem;
+  onVote: (voteType: "UP" | "DOWN") => void;
   threadSlot: React.ReactNode;
 }) {
   const formattedDate = new Intl.DateTimeFormat("en-US", {
@@ -184,7 +269,7 @@ function CampaignQuestionCard({
             <Badge variant={CATEGORY_VARIANTS[question.category]}>
               {CATEGORY_LABELS[question.category]}
             </Badge>
-            <Badge variant="pending">Campaign</Badge>
+            <Badge variant="pending">Feedback</Badge>
           </div>
           <span className="shrink-0 text-xs text-muted-foreground">{formattedDate}</span>
         </div>
@@ -199,20 +284,55 @@ function CampaignQuestionCard({
         </p>
       </CardContent>
       <CardFooter>
-        <div className="flex items-center gap-2 rounded-full border border-border bg-card/80 px-4 py-2 text-sm font-medium text-muted-foreground">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            className="h-4 w-4"
-          >
-            <path d="M10 3c-3.866 0-7 2.686-7 6 0 1.576.706 3.01 1.86 4.086-.144.94-.5 2.054-1.17 3.214a.75.75 0 00.905 1.08c1.64-.498 3.03-1.114 4.106-1.778.84.248 1.737.398 2.649.398 3.866 0 7-2.686 7-6s-3.134-6-7-6z" />
-          </svg>
-          <span className="tabular-nums">{question.responsesCount}</span>
-        </div>
+        <VoteButtons
+          upvotes={question.upvotes ?? 0}
+          downvotes={question.downvotes ?? 0}
+          onVote={onVote}
+        />
       </CardFooter>
       <CardContent>{threadSlot}</CardContent>
     </Card>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Vote buttons                                                       */
+/* ------------------------------------------------------------------ */
+
+interface VoteButtonsProps {
+  upvotes: number;
+  downvotes: number;
+  onVote: (voteType: "UP" | "DOWN") => void;
+}
+
+function VoteButtons({ upvotes, downvotes, onVote }: VoteButtonsProps) {
+  const up = upvotes ?? 0;
+  const down = downvotes ?? 0;
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <button
+        onClick={() => onVote("UP")}
+        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary active:bg-primary active:text-primary-foreground"
+        aria-label="Upvote"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+          <path fillRule="evenodd" d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z" clipRule="evenodd" />
+        </svg>
+        <span className="tabular-nums">{up}</span>
+      </button>
+
+      <button
+        onClick={() => onVote("DOWN")}
+        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary active:bg-primary active:text-primary-foreground"
+        aria-label="Downvote"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+          <path fillRule="evenodd" d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z" clipRule="evenodd" />
+        </svg>
+        <span className="tabular-nums">{down}</span>
+      </button>
+    </div>
   );
 }
 
@@ -234,36 +354,3 @@ const CATEGORY_VARIANTS: Record<
   MANAGEMENT: "management",
   OTHER: "other",
 };
-
-interface UpvoteButtonProps {
-  count: number;
-  hasUpvoted: boolean;
-  onUpvote: () => void;
-}
-
-function UpvoteButton({ count, hasUpvoted, onUpvote }: UpvoteButtonProps) {
-  return (
-    <button
-      onClick={onUpvote}
-      className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${
-        hasUpvoted
-          ? "border-primary bg-primary text-primary-foreground shadow-sm"
-          : "border-border bg-card text-muted-foreground hover:border-border hover:bg-accent/70 hover:text-foreground active:bg-accent"
-      } min-w-[78px] justify-center`}
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-        className="h-4 w-4"
-      >
-        <path
-          fillRule="evenodd"
-          d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
-          clipRule="evenodd"
-        />
-      </svg>
-      <span className="tabular-nums">{count}</span>
-    </button>
-  );
-}

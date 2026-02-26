@@ -28,7 +28,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Reward already redeemed." }, { status: 409 });
   }
 
-  if (reward.feedback.submitterSessionId !== sessionId) {
+  // Only enforce session check for employee-submitted feedback
+  if (reward.feedback.submitterSessionId && reward.feedback.submitterSessionId !== sessionId) {
     return NextResponse.json({ error: "Not authorized to redeem." }, { status: 403 });
   }
 

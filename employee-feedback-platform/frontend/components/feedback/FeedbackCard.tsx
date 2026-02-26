@@ -19,15 +19,15 @@ const CATEGORY_VARIANTS: Record<FeedbackCategory, "culture" | "tools" | "workloa
 };
 
 const STATUS_LABELS: Record<FeedbackStatus, string> = {
-  PENDING: "Draft",
-  REVIEWED: "Live",
-  IN_PROGRESS: "Live",
+  PENDING: "Pending",
+  REVIEWED: "Reviewed",
+  IN_PROGRESS: "In Progress",
   RESOLVED: "Resolved",
 };
 
 const STATUS_VARIANTS: Record<FeedbackStatus, "pending" | "reviewed" | "in_progress" | "resolved"> = {
   PENDING: "pending",
-  REVIEWED: "in_progress",
+  REVIEWED: "reviewed",
   IN_PROGRESS: "in_progress",
   RESOLVED: "resolved",
 };
@@ -71,7 +71,7 @@ export function FeedbackCard({ feedback, upvoteSlot, threadSlot }: FeedbackCardP
           </div>
         )}
       </CardContent>
-      <CardFooter className="justify-between">
+      <CardFooter>
         {upvoteSlot}
       </CardFooter>
       {threadSlot && <CardContent>{threadSlot}</CardContent>}

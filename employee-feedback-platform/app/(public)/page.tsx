@@ -23,7 +23,7 @@ export default function HomePage() {
           className="group rounded-xl border border-border bg-card px-5 py-4 shadow-sm transition-all hover:shadow-md hover:bg-accent/50"
         >
           <p className="text-sm font-semibold text-foreground">Answer questions</p>
-          <p className="mt-1 text-xs text-muted-foreground">Respond to active campaigns</p>
+          <p className="mt-1 text-xs text-muted-foreground">Respond to active feedback questions</p>
         </Link>
         <Link
           href="/feedback"

@@ -7,7 +7,7 @@ import { EmojiReactionPicker } from "@/components/feedback/EmojiReactionPicker";
 import { getSessionId } from "@/components/feedback/session";
 import type { ThreadComment } from "@/types";
 
-type CommentSort = "best" | "new" | "old";
+type CommentSort = "new" | "old";
 
 type ThreadNode = ThreadComment & {
   replies: ThreadNode[];
@@ -35,29 +35,13 @@ function authorInitial(authorLabel: string) {
   return authorLabel.replace("Anon-", "").charAt(0).toUpperCase() || "A";
 }
 
-function threadScore(node: ThreadNode): number {
-  if (node.replies.length === 0) return 0;
-  return node.replies.length + node.replies.reduce((acc, reply) => acc + threadScore(reply), 0);
-}
-
 function sortNodes(nodes: ThreadNode[], sort: CommentSort): ThreadNode[] {
   const sorted = [...nodes];
   sorted.sort((a, b) => {
     if (sort === "new") {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     }
-    if (sort === "old") {
-      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-    }
-
-    const aOp = a.isOriginalPoster ? 1 : 0;
-    const bOp = b.isOriginalPoster ? 1 : 0;
-    if (aOp !== bOp) return bOp - aOp;
-
-    const aScore = threadScore(a);
-    const bScore = threadScore(b);
-    if (aScore !== bScore) return bScore - aScore;
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
   });
 
   return sorted.map((node) => ({
@@ -95,7 +79,7 @@ function buildThread(comments: ThreadComment[], sort: CommentSort): ThreadNode[]
 
 export function FeedbackThread({ feedbackId, initialCount }: FeedbackThreadProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [sort, setSort] = useState<CommentSort>("best");
+  const [sort, setSort] = useState<CommentSort>("new");
   const [loading, setLoading] = useState(false);
   const [comments, setComments] = useState<ThreadComment[]>([]);
   const [newComment, setNewComment] = useState("");
@@ -255,7 +239,6 @@ export function FeedbackThread({ feedbackId, initialCount }: FeedbackThreadProps
                 onChange={(e) => setSort(e.target.value as CommentSort)}
                 className="cursor-pointer rounded-md border border-border bg-card px-3 py-1.5 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
               >
-                <option value="best">Best</option>
                 <option value="new">New</option>
                 <option value="old">Old</option>
               </select>
@@ -411,7 +394,6 @@ function ThreadItem({
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">{comment.content}</p>
 
           <div className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
-            <CommentVoteButtons />
             {canReply && (
               <button
                 type="button"
@@ -547,31 +529,3 @@ function ThreadItem({
   );
 }
 
-function CommentVoteButtons() {
-  return (
-    <div className="flex w-[74px] items-center">
-      <div className="inline-flex items-center rounded-full border border-border/80 bg-card/70 p-0.5">
-        <button
-          type="button"
-          aria-label="Upvote comment"
-          className="grid h-6 w-6 cursor-pointer place-items-center rounded-full text-muted-foreground transition-colors hover:bg-orange-500/15 hover:text-orange-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-3.5 w-3.5">
-            <path d="M8 12V4" strokeLinecap="round" />
-            <path d="m5 7 3-3 3 3" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
-        <button
-          type="button"
-          aria-label="Downvote comment"
-          className="grid h-6 w-6 cursor-pointer place-items-center rounded-full text-muted-foreground transition-colors hover:bg-primary/15 hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-3.5 w-3.5">
-            <path d="M8 4v8" strokeLinecap="round" />
-            <path d="m5 9 3 3 3-3" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
-      </div>
-    </div>
-  );
-}

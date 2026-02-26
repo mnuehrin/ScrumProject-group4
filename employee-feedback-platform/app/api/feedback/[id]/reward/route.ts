@@ -52,13 +52,6 @@ export async function POST(
     return NextResponse.json({ error: "Feedback not found" }, { status: 404 });
   }
 
-  if (!feedback.submitterSessionId) {
-    return NextResponse.json(
-      { error: "Cannot award feedback without a submitter session." },
-      { status: 400 }
-    );
-  }
-
   if (feedback.reward) {
     return NextResponse.json(
       { error: "Feedback already has a reward." },
@@ -66,20 +59,23 @@ export async function POST(
     );
   }
 
-  const now = new Date();
-  const { start, end } = getMonthWindow(now);
-  const awardCount = await prisma.reward.count({
-    where: {
-      awardedAt: { gte: start, lt: end },
-      feedback: { submitterSessionId: feedback.submitterSessionId },
-    },
-  });
+  // Only enforce per-submitter monthly limit for employee-submitted feedback
+  if (feedback.submitterSessionId) {
+    const now = new Date();
+    const { start, end } = getMonthWindow(now);
+    const awardCount = await prisma.reward.count({
+      where: {
+        awardedAt: { gte: start, lt: end },
+        feedback: { submitterSessionId: feedback.submitterSessionId },
+      },
+    });
 
-  if (awardCount >= 3) {
-    return NextResponse.json(
-      { error: "Monthly award limit reached for this submitter." },
-      { status: 429 }
-    );
+    if (awardCount >= 3) {
+      return NextResponse.json(
+        { error: "Monthly award limit reached for this submitter." },
+        { status: 429 }
+      );
+    }
   }
 
   const { rewardType, promoCode } = parsed.data;

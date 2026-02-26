@@ -25,7 +25,7 @@ type Campaign = {
 const STATUS_LABELS: Record<Campaign["status"], string> = {
   DRAFT: "Draft",
   LIVE: "Live",
-  ARCHIVED: "Resolved",
+  ARCHIVED: "Archived",
 };
 
 const CATEGORY_LABELS: Record<Campaign["category"], string> = {
@@ -165,7 +165,7 @@ export default function AdminQuestionsPage() {
   if (loading) {
     return (
       <div className="rounded-xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
-        Loading question campaigns…
+        Loading posts…
       </div>
     );
   }
@@ -173,7 +173,7 @@ export default function AdminQuestionsPage() {
   return (
     <section className="space-y-6">
       <div className="space-y-2 rounded-xl border border-border bg-card px-6 py-5">
-        <h1 className="sr-only">Question campaigns</h1>
+        <h1 className="sr-only">Create Post</h1>
         <p className="text-sm leading-relaxed text-muted-foreground">
           Create and publish live questions for employees.
         </p>
@@ -188,12 +188,12 @@ export default function AdminQuestionsPage() {
       <div className="rounded-xl border border-border bg-card p-5 space-y-4">
         <div className="space-y-2">
           <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            New campaign
+            New post
           </label>
           <input
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
-            placeholder="Campaign title"
+            placeholder="Post title"
             className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
           />
           <select
@@ -216,17 +216,17 @@ export default function AdminQuestionsPage() {
           />
         </div>
         <Button size="sm" onClick={createCampaign} disabled={creating || newTitle.trim().length < 3}>
-          {creating ? "Creating..." : "Create campaign"}
+          {creating ? "Creating..." : "Create post"}
         </Button>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
         <div className="rounded-xl border border-border bg-card p-4 space-y-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Campaigns
+            Posts
           </p>
           {campaigns.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No campaigns yet.</p>
+            <p className="text-sm text-muted-foreground">No posts yet.</p>
           ) : (
             <ul className="space-y-2">
               {campaigns.map((c) => (
@@ -317,7 +317,7 @@ export default function AdminQuestionsPage() {
               </div>
             </>
           ) : (
-            <p className="text-sm text-muted-foreground">Select a campaign to manage questions.</p>
+            <p className="text-sm text-muted-foreground">Select a post to manage questions.</p>
           )}
         </div>
       </div>

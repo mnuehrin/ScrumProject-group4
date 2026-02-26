@@ -41,6 +41,11 @@ enum RewardStatus {
   REDEEMED
 }
 
+enum VoteType {
+  UP
+  DOWN
+}
+
 enum CampaignStatus {
   DRAFT
   LIVE
@@ -57,12 +62,15 @@ model Feedback {
   category        FeedbackCategory
   createdAt       DateTime         @default(now()) @map("created_at")
   upvotes         Int              @default(0)
+  downvotes       Int              @default(0)
   status          FeedbackStatus   @default(PENDING)
   adminNote       String?          @db.Text @map("admin_note")
   statusUpdatedAt DateTime?        @map("status_updated_at")
   statusUpdatedBy String?          @map("status_updated_by")
   submitterSessionId String?        @db.VarChar(191) @map("submitter_session_id")
+  questionId      String?          @unique @db.VarChar(36) @map("question_id")
 
+  question     Question?        @relation(fields: [questionId], references: [id], onDelete: SetNull)
   upvoteEvents Upvote[]
   activityLogs ActivityLog[]
   reward       Reward?
@@ -110,6 +118,7 @@ model Upvote {
   id         String   @id @default(uuid()) @db.VarChar(36)
   feedbackId String   @map("feedback_id")
   sessionId  String   @db.VarChar(191) @map("session_id")
+  voteType   VoteType @default(UP) @map("vote_type")
   createdAt  DateTime @default(now()) @map("created_at")
 
   feedback Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
@@ -156,13 +165,31 @@ model Question {
   prompt     String       @db.Text
   type       QuestionType @default(TEXT)
   order      Int          @default(0)
+  upvotes    Int          @default(0)
+  downvotes  Int          @default(0)
   createdAt  DateTime     @default(now()) @map("created_at")
 
   campaign   Campaign     @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  feedback   Feedback?
   responses  QuestionResponse[]
+  votes      QuestionVote[]
 
   @@index([campaignId])
   @@map("questions")
+}
+
+model QuestionVote {
+  id         String   @id @default(uuid()) @db.VarChar(36)
+  questionId String   @map("question_id")
+  sessionId  String   @db.VarChar(191) @map("session_id")
+  voteType   VoteType @default(UP) @map("vote_type")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, sessionId])
+  @@index([questionId])
+  @@map("question_votes")
 }
 
 model QuestionResponse {

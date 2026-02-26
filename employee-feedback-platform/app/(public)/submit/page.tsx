@@ -125,7 +125,7 @@ export default function SubmitPage() {
       <div className="space-y-1">
         <h1 className="sr-only">Answer admin questions</h1>
         <p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
-          Browse campaigns by category and respond to the questions that matter to you.
+          Browse feedback by category and respond to the questions that matter to you.
         </p>
       </div>
 
@@ -139,11 +139,11 @@ export default function SubmitPage() {
 
       {loading ? (
         <div className="rounded-xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
-          Loading campaigns…
+          Loading feedback…
         </div>
       ) : filteredCampaigns.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
-          No campaigns in this category right now.
+          No feedback in this category right now.
         </div>
       ) : (
         <div className="space-y-4">
@@ -154,7 +154,7 @@ export default function SubmitPage() {
             >
               <div className="flex flex-wrap items-center gap-2">
                 <Badge>{CATEGORY_LABELS[campaign.category]}</Badge>
-                <p className="text-xs text-muted-foreground">Campaign</p>
+                <p className="text-xs text-muted-foreground">Feedback</p>
               </div>
               <h2 className="mt-2 text-lg font-semibold text-foreground">{campaign.title}</h2>
               {campaign.description && (

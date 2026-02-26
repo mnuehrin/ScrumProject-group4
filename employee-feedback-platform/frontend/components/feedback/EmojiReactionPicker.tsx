@@ -23,7 +23,7 @@ export function EmojiReactionPicker({ onPick }: EmojiReactionPickerProps) {
         skinTonesDisabled
         lazyLoadEmojis
         previewConfig={{ showPreview: false }}
-        theme={isDark ? "dark" : "light"}
+        theme={(isDark ? "dark" : "light") as any}
         width={280}
         height={320}
       />
