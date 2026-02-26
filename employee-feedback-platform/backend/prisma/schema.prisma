@@ -68,7 +68,9 @@ model Feedback {
   statusUpdatedAt DateTime?        @map("status_updated_at")
   statusUpdatedBy String?          @map("status_updated_by")
   submitterSessionId String?        @db.VarChar(191) @map("submitter_session_id")
+  questionId      String?          @unique @db.VarChar(36) @map("question_id")
 
+  question     Question?        @relation(fields: [questionId], references: [id], onDelete: SetNull)
   upvoteEvents Upvote[]
   activityLogs ActivityLog[]
   reward       Reward?
@@ -168,6 +170,7 @@ model Question {
   createdAt  DateTime     @default(now()) @map("created_at")
 
   campaign   Campaign     @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  feedback   Feedback?
   responses  QuestionResponse[]
   votes      QuestionVote[]
 

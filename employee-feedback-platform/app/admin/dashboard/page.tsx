@@ -3,6 +3,11 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { SubmissionsChart } from "./_components/submissions-chart";
+import { CategoryChart } from "./_components/category-chart";
+import { StatusChart } from "./_components/status-chart";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { MessageSquare, CheckCircle2, Flame, Clock } from "lucide-react";
 
 const CATEGORY_LABELS: Record<string, string> = {
   CULTURE: "Culture",
@@ -13,19 +18,28 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  PENDING: "PENDING",
-  REVIEWED: "REVIEWED",
-  IN_PROGRESS: "IN PROGRESS",
-  RESOLVED: "RESOLVED",
+  PENDING: "Pending",
+  REVIEWED: "Reviewed",
+  IN_PROGRESS: "In Progress",
+  RESOLVED: "Resolved",
 };
 
-const CATEGORY_BAR_COLORS: Record<string, string> = {
-  CULTURE: "bg-orange-500",
-  TOOLS: "bg-blue-500",
-  WORKLOAD: "bg-green-500",
-  MANAGEMENT: "bg-purple-500",
-  OTHER: "bg-slate-600",
+// Recharts requires raw color values (Hex, RGB, HSL)
+const CATEGORY_COLORS: Record<string, string> = {
+  CULTURE: "#f97316", // orange-500
+  TOOLS: "#3b82f6", // blue-500
+  WORKLOAD: "#22c55e", // green-500
+  MANAGEMENT: "#a855f7", // purple-500
+  OTHER: "#475569", // slate-600
 };
+
+const STATUS_COLORS: Record<string, string> = {
+  PENDING: "#64748b", // slate-500
+  REVIEWED: "#3b82f6", // blue-500
+  IN_PROGRESS: "#eab308", // yellow-500
+  RESOLVED: "#22c55e", // green-500
+};
+
 
 function isDbConnectionError(e: unknown): boolean {
   const msg = e instanceof Error ? e.message : String(e);
@@ -41,33 +55,52 @@ export default async function AdminDashboardPage() {
   if (!session) redirect("/admin/login");
 
   const now = new Date();
-  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
   let totalFeedback: number;
+  let totalFeedbackComments: number;
+  let totalResolvedFeedback: number;
+  let totalPendingFeedback: number;
+
+  let totalUpvotesObj: { _sum: { upvotes: number | null } };
+
   let byCategory: { category: string; _count: { id: number } }[];
   let byStatus: { status: string; _count: { id: number } }[];
+
   let feedbackDates: { createdAt: Date }[];
 
   try {
-    const [total, categoryRows, statusRows, allFeedback] = await Promise.all([
+    const [
+      fTotal, fcTotal,
+      fResolved, fPending,
+      fUpvotesSum,
+      fCategoryRows,
+      fStatusRows,
+      allFeedback,
+    ] = await Promise.all([
       prisma.feedback.count(),
-      prisma.feedback.groupBy({
-        by: ["category"],
-        _count: { id: true },
-      }),
-      prisma.feedback.groupBy({
-        by: ["status"],
-        _count: { id: true },
-      }),
+      prisma.feedbackComment.count(),
+      prisma.feedback.count({ where: { status: "RESOLVED" } }),
+      prisma.feedback.count({ where: { status: "PENDING" } }),
+      prisma.feedback.aggregate({ _sum: { upvotes: true } }),
+      prisma.feedback.groupBy({ by: ["category"], _count: { id: true } }),
+      prisma.feedback.groupBy({ by: ["status"], _count: { id: true } }),
       prisma.feedback.findMany({
-        where: { createdAt: { gte: oneWeekAgo } },
+        where: { createdAt: { gte: oneMonthAgo } },
         select: { createdAt: true },
         orderBy: { createdAt: "asc" },
       }),
     ]);
-    totalFeedback = total;
-    byCategory = categoryRows;
-    byStatus = statusRows;
+
+    totalFeedback = fTotal;
+    totalFeedbackComments = fcTotal;
+    totalResolvedFeedback = fResolved;
+    totalPendingFeedback = fPending;
+
+    totalUpvotesObj = fUpvotesSum;
+
+    byCategory = fCategoryRows;
+    byStatus = fStatusRows;
     feedbackDates = allFeedback;
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
@@ -103,12 +136,31 @@ export default async function AdminDashboardPage() {
     );
   }
 
+  // --- KPI Processing ---
+  const totalPosts = totalFeedback;
+  const totalDiscussions = totalFeedbackComments;
+  const totalSubmissions = totalPosts + totalDiscussions;
+
+  const totalResolved = totalResolvedFeedback;
+  const totalPending = totalPendingFeedback;
+
+  const resolutionRate = totalPosts > 0 ? ((totalResolved / totalPosts) * 100).toFixed(1) : "0";
+  const totalUpvotes = totalUpvotesObj._sum.upvotes || 0;
+  const avgEngagement = totalPosts > 0 ? (totalUpvotes / totalPosts).toFixed(1) : "0";
+
   const categoryTrends = Object.fromEntries(
     byCategory.map((row) => [row.category, row._count.id])
   );
+
   const statusTrends = Object.fromEntries(
     byStatus.map((row) => [row.status, row._count.id])
   );
+
+  // Pad the last 30 days so the chart doesn't have skipping dates
+  const last30Days = Array.from({ length: 30 }).map((_, i) => {
+    const d = new Date(now.getTime() - (29 - i) * 24 * 60 * 60 * 1000);
+    return d.toISOString().slice(0, 10);
+  });
 
   const submissionsByDate = feedbackDates.reduce<Record<string, number>>(
     (acc, { createdAt }) => {
@@ -118,125 +170,128 @@ export default async function AdminDashboardPage() {
     },
     {}
   );
-  const dateLabels = Object.keys(submissionsByDate).sort();
-  const submissionsOverTime = dateLabels.map((d) => ({
-    label: formatChartDate(new Date(d)),
-    value: submissionsByDate[d] ?? 0,
+
+  const submissionsOverTime = last30Days.map((dateStr) => ({
+    label: formatChartDate(new Date(dateStr)),
+    value: submissionsByDate[dateStr] ?? 0,
   }));
-  const maxOverTime = Math.max(1, ...submissionsOverTime.map((x) => x.value));
-  const maxCategory = Math.max(1, ...Object.values(categoryTrends));
-  const maxStatus = Math.max(1, ...Object.values(statusTrends));
 
   const categoryOrder = ["CULTURE", "TOOLS", "WORKLOAD", "MANAGEMENT", "OTHER"] as const;
+  const categoryChartData = categoryOrder.map(cat => ({
+    name: CATEGORY_LABELS[cat],
+    value: categoryTrends[cat] ?? 0,
+    fill: CATEGORY_COLORS[cat] ?? "#475569"
+  })).filter(d => d.value > 0);
+
   const statusOrder = ["PENDING", "REVIEWED", "IN_PROGRESS", "RESOLVED"] as const;
+  const statusChartData = statusOrder.map(status => ({
+    name: STATUS_LABELS[status],
+    value: statusTrends[status] ?? 0,
+    fill: STATUS_COLORS[status] ?? "#475569"
+  }));
 
   return (
     <section className="space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">
-            Feedback trends
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Analytics Dashboard
           </h1>
           <p className="text-sm text-muted-foreground">
-            Updates every 30s · {totalFeedback} total submissions
+            Monitor feedback trends, engagement, and resolution rates.
           </p>
         </div>
         <Link
           href="/admin"
-          className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition hover:bg-accent/50"
+          className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition hover:bg-accent hover:text-accent-foreground"
         >
           View feedback table
         </Link>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* SUBMISSIONS OVER TIME */}
-        <div className="rounded-xl border border-border bg-card px-5 py-4 shadow-sm">
-          <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-foreground">
-            Submissions over time
-          </h2>
-          <div className="space-y-3">
-            {submissionsOverTime.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No submissions yet.</p>
-            ) : (
-              submissionsOverTime.map(({ label, value }) => (
-                <div key={label} className="flex items-center gap-3">
-                  <span className="w-12 shrink-0 text-sm text-foreground">{label}</span>
-                  <div className="min-w-0 flex-1">
-                    <div className="h-6 w-full overflow-hidden rounded bg-muted/60">
-                      <div
-                        className="h-full rounded bg-slate-600"
-                        style={{ width: `${(value / maxOverTime) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                  <span className="w-6 shrink-0 text-right text-sm tabular-nums text-foreground">
-                    {value}
-                  </span>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+      {/* KPI Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <h3 className="text-sm font-medium text-muted-foreground">Total Feedback</h3>
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalSubmissions}</div>
+            <p className="text-xs text-muted-foreground">{totalPosts} posts · {totalDiscussions} discussions</p>
+          </CardContent>
+        </Card>
 
-        {/* BY CATEGORY */}
-        <div className="rounded-xl border border-border bg-card px-5 py-4 shadow-sm">
-          <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-foreground">
-            By category
-          </h2>
-          <div className="space-y-3">
-            {categoryOrder.map((cat) => {
-              const value = categoryTrends[cat] ?? 0;
-              return (
-                <div key={cat} className="flex items-center gap-3">
-                  <span className="w-24 shrink-0 text-sm text-foreground">{cat}</span>
-                  <div className="min-w-0 flex-1">
-                    <div className="h-6 w-full overflow-hidden rounded bg-muted/60">
-                      <div
-                        className={`h-full rounded ${CATEGORY_BAR_COLORS[cat] ?? "bg-slate-600"}`}
-                        style={{ width: `${(value / maxCategory) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                  <span className="w-6 shrink-0 text-right text-sm tabular-nums text-foreground">
-                    {value}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <h3 className="text-sm font-medium text-muted-foreground">Resolution Rate</h3>
+            <CheckCircle2 className="h-4 w-4 text-green-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{resolutionRate}%</div>
+            <p className="text-xs text-muted-foreground">{totalResolved} resolved out of {totalPosts} posts</p>
+          </CardContent>
+        </Card>
 
-        {/* BY STATUS */}
-        <div className="rounded-xl border border-border bg-card px-5 py-4 shadow-sm lg:col-span-2">
-          <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-foreground">
-            By status
-          </h2>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {statusOrder.map((status) => {
-              const value = statusTrends[status] ?? 0;
-              return (
-                <div key={status} className="flex items-center gap-3">
-                  <span className="w-24 shrink-0 text-sm text-foreground">
-                    {STATUS_LABELS[status]}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="h-6 w-full overflow-hidden rounded bg-muted/60">
-                      <div
-                        className="h-full rounded bg-slate-600"
-                        style={{ width: `${(value / maxStatus) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                  <span className="w-6 shrink-0 text-right text-sm tabular-nums text-foreground">
-                    {value}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <h3 className="text-sm font-medium text-muted-foreground">Pending Action</h3>
+            <Clock className="h-4 w-4 text-yellow-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalPending}</div>
+            <p className="text-xs text-muted-foreground">Posts awaiting initial review</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <h3 className="text-sm font-medium text-muted-foreground">Avg. Engagement</h3>
+            <Flame className="h-4 w-4 text-orange-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{avgEngagement}</div>
+            <p className="text-xs text-muted-foreground">Upvotes per post</p>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Main Charts */}
+      <div className="grid gap-6 lg:grid-cols-7">
+        {/* SUBMISSIONS OVER TIME (Spans more columns) */}
+        <Card className="col-span-full lg:col-span-4">
+          <CardHeader>
+            <h3 className="font-semibold leading-none tracking-tight">Submissions Over Time (30 Days)</h3>
+          </CardHeader>
+          <CardContent className="pl-2">
+            <SubmissionsChart data={submissionsOverTime} />
+          </CardContent>
+        </Card>
+
+        {/* CATEGORY DISTRIBUTION */}
+        <Card className="col-span-full lg:col-span-3">
+          <CardHeader>
+            <h3 className="font-semibold leading-none tracking-tight">Feedback by Category</h3>
+          </CardHeader>
+          <CardContent>
+            <CategoryChart data={categoryChartData} />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* BOTTOM ROW */}
+      <div className="grid gap-6">
+        {/* STATUS OVERVIEW */}
+        <Card>
+          <CardHeader>
+            <h3 className="font-semibold leading-none tracking-tight">Current Status Overview</h3>
+          </CardHeader>
+          <CardContent className="pl-2">
+            <StatusChart data={statusChartData} />
+          </CardContent>
+        </Card>
+      </div>
+
     </section>
   );
 }

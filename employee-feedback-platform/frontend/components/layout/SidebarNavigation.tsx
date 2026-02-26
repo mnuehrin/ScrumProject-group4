@@ -19,7 +19,7 @@ import {
 type NavItem = {
   href?: string;
   label: string;
-  icon: "home" | "submit" | "feed" | "rewards" | "admin" | "login" | "logout";
+  icon: "home" | "submit" | "feed" | "rewards" | "admin" | "analytics" | "dashboard" | "create-post" | "login" | "logout";
   action?: () => void;
 };
 
@@ -31,9 +31,9 @@ const WORKSPACE_ITEMS: NavItem[] = [
 ];
 
 const ADMIN_ITEMS: NavItem[] = [
-  { href: "/admin/dashboard", label: "Analytics", icon: "admin" },
-  { href: "/admin", label: "Dashboard", icon: "admin" },
-  { href: "/admin/questions", label: "Create Post", icon: "admin" },
+  { href: "/admin/dashboard", label: "Analytics", icon: "analytics" },
+  { href: "/admin", label: "Dashboard", icon: "dashboard" },
+  { href: "/admin/questions", label: "Create Post", icon: "create-post" },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -83,6 +83,29 @@ function SidebarItemIcon({
       return (
         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" className={iconClass}>
           <path d="M10 3 16 6v4c0 3.7-2.3 5.9-6 7-3.7-1.1-6-3.3-6-7V6l6-3Z" strokeLinejoin="round" />
+        </svg>
+      );
+    case "analytics":
+      return (
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" className={iconClass}>
+          <path d="M3 15 7 9l3.5 4L14 7l3 4" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M3 17h14" strokeLinecap="round" />
+        </svg>
+      );
+    case "dashboard":
+      return (
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" className={iconClass}>
+          <rect x="3" y="3" width="6" height="6" rx="1" strokeLinejoin="round" />
+          <rect x="11" y="3" width="6" height="6" rx="1" strokeLinejoin="round" />
+          <rect x="3" y="11" width="6" height="6" rx="1" strokeLinejoin="round" />
+          <rect x="11" y="11" width="6" height="6" rx="1" strokeLinejoin="round" />
+        </svg>
+      );
+    case "create-post":
+      return (
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" className={iconClass}>
+          <path d="M13 3.5 16.5 7 8 15.5H4.5V12L13 3.5Z" strokeLinejoin="round" />
+          <path d="M11 5.5l3.5 3.5" strokeLinecap="round" />
         </svg>
       );
     case "login":

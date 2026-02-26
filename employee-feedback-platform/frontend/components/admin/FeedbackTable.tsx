@@ -179,9 +179,7 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
                             <p className="text-xs text-muted-foreground">{item.adminNote}</p>
                           </div>
                         )}
-                        {!item.id.startsWith("campaign-question-") && (
-                          <AwardPanel item={item} onRewarded={handleRewarded} />
-                        )}
+                        <AwardPanel item={item} onRewarded={handleRewarded} />
                       </td>
                     </tr>
                   )}
@@ -210,10 +208,8 @@ function AwardPanel({
   const [success, setSuccess] = useState(false);
 
   const isPromo = rewardType === "PROMO_CODE";
-  const canAward = Boolean(item.submitterSessionId);
 
   async function handleAward() {
-    if (!canAward) return;
     setLoading(true);
     setError(null);
     setSuccess(false);
@@ -288,19 +284,13 @@ function AwardPanel({
             type="button"
             size="sm"
             className="w-full"
-            disabled={loading || !canAward || (isPromo && promoCode.trim().length === 0)}
+            disabled={loading || (isPromo && promoCode.trim().length === 0)}
             onClick={handleAward}
           >
             {loading ? "Awarding…" : "Award"}
           </Button>
         </div>
       </div>
-
-      {!canAward && (
-        <p className="mt-2 text-xs text-amber-500">
-          This feedback cannot be awarded because the submitter session is missing.
-        </p>
-      )}
 
       {error && <p className="mt-2 text-xs text-red-500">{error}</p>}
       {success && (

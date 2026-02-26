@@ -24,10 +24,10 @@ export async function POST(
 
   const campaign = await prisma.campaign.findUnique({
     where: { id: params.id },
-    select: { id: true },
+    select: { id: true, title: true, category: true, status: true },
   });
   if (!campaign) {
-    return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
+    return NextResponse.json({ error: "Post not found" }, { status: 404 });
   }
 
   const { prompt, type, order } = parsed.data;
@@ -37,12 +37,22 @@ export async function POST(
       ? order
       : (await prisma.question.count({ where: { campaignId: params.id } })) + 1;
 
+  const statusMap = { LIVE: "IN_PROGRESS", ARCHIVED: "RESOLVED", DRAFT: "PENDING" } as const;
+
   const question = await prisma.question.create({
     data: {
       campaignId: params.id,
       prompt: prompt.trim(),
       type: type ?? "TEXT",
       order: nextOrder,
+      feedback: {
+        create: {
+          content: prompt.trim(),
+          category: campaign.category,
+          status: statusMap[campaign.status] ?? "PENDING",
+          adminNote: `Post: ${campaign.title}`,
+        },
+      },
     },
   });
 

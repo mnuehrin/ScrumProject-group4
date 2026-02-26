@@ -5,6 +5,7 @@ import type { FeedbackWithMeta } from "@/types";
 
 async function getFeedback(): Promise<FeedbackWithMeta[]> {
   const rows = await prisma.feedback.findMany({
+    where: { questionId: null },
     orderBy: { createdAt: "desc" },
     include: { _count: { select: { comments: true } } },
   });

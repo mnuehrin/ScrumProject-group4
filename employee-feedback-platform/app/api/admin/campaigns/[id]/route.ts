@@ -34,7 +34,23 @@ export async function PATCH(
       category,
       status,
     },
+    include: { questions: { select: { id: true } } },
   });
+
+  // Sync linked Feedback records when status or category changes
+  if (status || category) {
+    const statusMap = { LIVE: "IN_PROGRESS", ARCHIVED: "RESOLVED", DRAFT: "PENDING" } as const;
+    const questionIds = campaign.questions.map((q) => q.id);
+    if (questionIds.length > 0) {
+      const updateData: Record<string, unknown> = {};
+      if (status) updateData.status = statusMap[status] ?? "PENDING";
+      if (category) updateData.category = category;
+      await prisma.feedback.updateMany({
+        where: { questionId: { in: questionIds } },
+        data: updateData,
+      });
+    }
+  }
 
   return NextResponse.json(campaign);
 }
