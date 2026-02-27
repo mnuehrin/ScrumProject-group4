@@ -238,7 +238,7 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
               </thead>
               <tbody className="divide-y divide-border">
                 {filtered.map((item) => {
-                  const isReviewed = item.reviewed;
+                  const isReviewed = item.reviewed ?? false;
                   const isUpdating = updatingIds.has(item.id);
 
                   return (
