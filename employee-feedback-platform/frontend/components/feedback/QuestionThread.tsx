@@ -392,7 +392,6 @@ function ThreadItem({
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">{comment.content}</p>
 
           <div className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
-            <CommentVoteButtons />
             <button
               type="button"
               onClick={() => setReplyingTo(showReply ? null : comment.id)}
@@ -523,31 +522,3 @@ function ThreadItem({
   );
 }
 
-function CommentVoteButtons() {
-  return (
-    <div className="flex w-[74px] items-center">
-      <div className="inline-flex items-center rounded-full border border-border/80 bg-card/70 p-0.5">
-        <button
-          type="button"
-          aria-label="Upvote comment"
-          className="grid h-6 w-6 cursor-pointer place-items-center rounded-full text-muted-foreground transition-colors hover:bg-orange-500/15 hover:text-orange-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-3.5 w-3.5">
-            <path d="M8 12V4" strokeLinecap="round" />
-            <path d="m5 7 3-3 3 3" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
-        <button
-          type="button"
-          aria-label="Downvote comment"
-          className="grid h-6 w-6 cursor-pointer place-items-center rounded-full text-muted-foreground transition-colors hover:bg-primary/15 hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-3.5 w-3.5">
-            <path d="M8 4v8" strokeLinecap="round" />
-            <path d="m5 9 3 3 3-3" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
-      </div>
-    </div>
-  );
-}
