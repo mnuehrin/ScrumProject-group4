@@ -19,7 +19,6 @@ export async function GET() {
 
   const feedbackRows = await prisma.feedback.findMany({
     orderBy: { createdAt: "desc" },
-    include: { _count: { select: { comments: true } } },
   });
 
   const allRows = feedbackRows.map((f) => ({
@@ -28,8 +27,6 @@ export async function GET() {
     category: f.category,
     status: f.status,
     createdAt: f.createdAt.toISOString(),
-    upvotes: f.upvotes,
-    commentsCount: f._count.comments,
     adminNote: f.adminNote ?? "",
   }));
 
@@ -39,8 +36,6 @@ export async function GET() {
     "category",
     "status",
     "createdAt",
-    "upvotes",
-    "commentsCount",
     "adminNote",
   ];
   const csvLines = [
