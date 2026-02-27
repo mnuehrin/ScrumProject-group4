@@ -60,7 +60,7 @@ export async function POST(
 
   const question = await prisma.question.findUnique({
     where: { id: params.id },
-    include: { campaign: { select: { title: true, category: true } } },
+    include: { campaign: { select: { title: true, category: true, status: true } } },
   });
   if (!question) {
     return NextResponse.json({ error: "Question not found" }, { status: 404 });
@@ -96,6 +96,12 @@ export async function POST(
   // the Feedback carries the employee's sessionId so the admin can reward it
   // and the employee can see the reward in "My Rewards". Reply threads don't
   // get a Feedback record since only top-level answers should be rewardable.
+  const campaignStatusMap = {
+    LIVE: "IN_PROGRESS",
+    ARCHIVED: "RESOLVED",
+    DRAFT: "PENDING",
+  } as const;
+
   const response = await prisma.$transaction(async (tx) => {
     const qr = await tx.questionResponse.create({
       data: {
@@ -112,7 +118,7 @@ export async function POST(
           content: content.trim(),
           category: question.campaign.category,
           status: "PENDING",
-          submitterSessionId: sessionId,  // ← enables "My Rewards" matching
+          submitterSessionId: sessionId,
           adminNote: `Q&A response · Campaign: ${question.campaign.title}`,
         },
       });

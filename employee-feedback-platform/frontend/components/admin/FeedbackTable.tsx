@@ -81,7 +81,7 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
   };
 
   const handleToggleReviewed = useCallback(async (feedbackId: string, currentStatus: FeedbackStatus) => {
-    const newStatus: FeedbackStatus = currentStatus === "PENDING" ? "REVIEWED" : "PENDING";
+    const newStatus: FeedbackStatus = currentStatus === "REVIEWED" ? "PENDING" : "REVIEWED";
 
     // Optimistic update
     setRows((prev) =>
@@ -192,125 +192,125 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
       ) : (
         <div className="-mx-5 overflow-x-auto px-5 sm:mx-0 sm:px-0">
           <div className="min-w-[750px] overflow-hidden rounded-xl border border-border bg-card">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border bg-accent/40">
-                <th className="px-3 py-3.5 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground w-[60px]">
-                  Reviewed
-                </th>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground w-[38%]">
-                  Feedback
-                </th>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Category
-                </th>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Status
-                </th>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Upvotes
-                </th>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Reward
-                </th>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Date
-                </th>
-                <th className="px-3 py-3.5 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground w-[50px]">
-                  
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {filtered.map((item) => {
-                const isReviewed = item.status !== "PENDING";
-                const isToggleable = item.status === "PENDING" || item.status === "REVIEWED";
-                const isUpdating = updatingIds.has(item.id);
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-accent/40">
+                  <th className="px-3 py-3.5 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground w-[60px]">
+                    Reviewed
+                  </th>
+                  <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground w-[38%]">
+                    Feedback
+                  </th>
+                  <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Category
+                  </th>
+                  <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Status
+                  </th>
+                  <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Upvotes
+                  </th>
+                  <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Reward
+                  </th>
+                  <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Date
+                  </th>
+                  <th className="px-3 py-3.5 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground w-[50px]">
 
-                return (
-                  <Fragment key={item.id}>
-                    <tr
-                      onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
-                      className="cursor-pointer transition-colors hover:bg-accent/50 active:bg-accent/70"
-                    >
-                      <td className="px-3 py-4 text-center">
-                        <input
-                          type="checkbox"
-                          checked={isReviewed}
-                          disabled={!isToggleable || isUpdating}
-                          title={
-                            !isToggleable
-                              ? `Status is "${STATUS_LABELS[item.status]}" — cannot toggle`
-                              : isReviewed
-                              ? "Unmark as reviewed"
-                              : "Mark as reviewed"
-                          }
-                          onClick={(e) => e.stopPropagation()}
-                          onChange={() => handleToggleReviewed(item.id, item.status)}
-                          className="h-4 w-4 cursor-pointer rounded border-border text-primary accent-primary focus:ring-2 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50"
-                        />
-                      </td>
-                      <td className="px-5 py-4 text-sm text-foreground">
-                        <p className="line-clamp-2 leading-relaxed">{item.content}</p>
-                      </td>
-                      <td className="px-5 py-4">
-                        <Badge variant={CATEGORY_VARIANTS[item.category]}>
-                          {CATEGORY_LABELS[item.category]}
-                        </Badge>
-                      </td>
-                      <td className="px-5 py-4">
-                        <Badge variant={STATUS_VARIANTS[item.status]}>
-                          {STATUS_LABELS[item.status]}
-                        </Badge>
-                      </td>
-                      <td className="px-5 py-4 text-sm tabular-nums text-muted-foreground">{item.upvotes}</td>
-                      <td className="px-5 py-4">
-                        {item.reward ? (
-                          <Badge>{REWARD_STATUS_LABELS[item.reward.status]}</Badge>
-                        ) : (
-                          <span className="text-sm text-muted-foreground">None</span>
-                        )}
-                      </td>
-                      <td className="px-5 py-4 text-sm text-muted-foreground whitespace-nowrap">
-                        {formattedDate(item.createdAt)}
-                      </td>
-                      <td className="px-3 py-4 text-center">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setPendingDeleteId(item.id);
-                          }}
-                          disabled={deletingIds.has(item.id)}
-                          className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-950/40 disabled:opacity-50"
-                          title="Delete feedback"
-                        >
-                          <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
-                            <path fillRule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clipRule="evenodd" />
-                          </svg>
-                        </button>
-                      </td>
-                    </tr>
-                    {expandedId === item.id && (
-                      <tr className="bg-accent/40">
-                        <td colSpan={8} className="px-5 py-5">
-                          <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
-                            {item.content}
-                          </p>
-                          {item.adminNote && (
-                            <div className="mt-3 rounded-lg border border-border bg-accent/60 px-3 py-2">
-                              <p className="text-xs font-medium text-foreground mb-0.5">Admin note</p>
-                              <p className="text-xs text-muted-foreground">{item.adminNote}</p>
-                            </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {filtered.map((item) => {
+                  const isReviewed = item.status === "REVIEWED";
+                  const isToggleable = item.status === "PENDING" || item.status === "REVIEWED";
+                  const isUpdating = updatingIds.has(item.id);
+
+                  return (
+                    <Fragment key={item.id}>
+                      <tr
+                        onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
+                        className="cursor-pointer transition-colors hover:bg-accent/50 active:bg-accent/70"
+                      >
+                        <td className="px-3 py-4 text-center">
+                          <input
+                            type="checkbox"
+                            checked={isReviewed}
+                            disabled={!isToggleable || isUpdating}
+                            title={
+                              !isToggleable
+                                ? `Status is "${STATUS_LABELS[item.status]}" — cannot toggle`
+                                : isReviewed
+                                  ? "Unmark as reviewed"
+                                  : "Mark as reviewed"
+                            }
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={() => handleToggleReviewed(item.id, item.status)}
+                            className="h-4 w-4 cursor-pointer rounded border-border text-primary accent-primary focus:ring-2 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50"
+                          />
+                        </td>
+                        <td className="px-5 py-4 text-sm text-foreground">
+                          <p className="line-clamp-2 leading-relaxed">{item.content}</p>
+                        </td>
+                        <td className="px-5 py-4">
+                          <Badge variant={CATEGORY_VARIANTS[item.category]}>
+                            {CATEGORY_LABELS[item.category]}
+                          </Badge>
+                        </td>
+                        <td className="px-5 py-4">
+                          <Badge variant={STATUS_VARIANTS[item.status]}>
+                            {STATUS_LABELS[item.status]}
+                          </Badge>
+                        </td>
+                        <td className="px-5 py-4 text-sm tabular-nums text-muted-foreground">{item.upvotes}</td>
+                        <td className="px-5 py-4">
+                          {item.reward ? (
+                            <Badge>{REWARD_STATUS_LABELS[item.reward.status]}</Badge>
+                          ) : (
+                            <span className="text-sm text-muted-foreground">None</span>
                           )}
-                          <AwardPanel item={item} onRewarded={handleRewarded} />
+                        </td>
+                        <td className="px-5 py-4 text-sm text-muted-foreground whitespace-nowrap">
+                          {formattedDate(item.createdAt)}
+                        </td>
+                        <td className="px-3 py-4 text-center">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPendingDeleteId(item.id);
+                            }}
+                            disabled={deletingIds.has(item.id)}
+                            className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-950/40 disabled:opacity-50"
+                            title="Delete feedback"
+                          >
+                            <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+                              <path fillRule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clipRule="evenodd" />
+                            </svg>
+                          </button>
                         </td>
                       </tr>
-                    )}
-                  </Fragment>
-                );
-              })}
-            </tbody>
-          </table>
+                      {expandedId === item.id && (
+                        <tr className="bg-accent/40">
+                          <td colSpan={8} className="px-5 py-5">
+                            <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
+                              {item.content}
+                            </p>
+                            {item.adminNote && (
+                              <div className="mt-3 rounded-lg border border-border bg-accent/60 px-3 py-2">
+                                <p className="text-xs font-medium text-foreground mb-0.5">Admin note</p>
+                                <p className="text-xs text-muted-foreground">{item.adminNote}</p>
+                              </div>
+                            )}
+                            <AwardPanel item={item} onRewarded={handleRewarded} />
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
