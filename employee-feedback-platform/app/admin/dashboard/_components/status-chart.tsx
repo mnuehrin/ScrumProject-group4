@@ -40,30 +40,30 @@ export function StatusChart({ data }: StatusChartProps) {
                         bottom: 0,
                     }}
                 >
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
                     <XAxis
                         dataKey="name"
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                        tick={{ fontSize: 11, fill: "#94a3b8" }} // slate-400 for dark mode visibility
                         dy={10}
                     />
                     <YAxis
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                        tick={{ fontSize: 12, fill: "#94a3b8" }}
                         allowDecimals={false}
                     />
                     <Tooltip
-                        cursor={{ fill: "hsl(var(--muted))", opacity: 0.4 }}
+                        cursor={{ fill: "var(--muted)", opacity: 0.4 }}
                         contentStyle={{
-                            backgroundColor: "hsl(var(--card))",
-                            borderColor: "hsl(var(--border))",
+                            backgroundColor: "var(--card)",
+                            borderColor: "var(--border)",
                             borderRadius: "0.5rem",
-                            color: "hsl(var(--foreground))",
+                            color: "var(--foreground)",
                             fontSize: "12px",
                         }}
-                        itemStyle={{ color: "hsl(var(--foreground))" }}
+                        itemStyle={{ color: "var(--foreground)" }}
                     />
                     <Bar dataKey="value" name="Count" radius={[6, 6, 0, 0]} barSize={60}>
                         {data.map((entry, index) => (

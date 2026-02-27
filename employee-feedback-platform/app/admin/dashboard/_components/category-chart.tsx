@@ -40,13 +40,13 @@ export function CategoryChart({ data }: CategoryChartProps) {
                     </Pie>
                     <Tooltip
                         contentStyle={{
-                            backgroundColor: "hsl(var(--card))",
-                            borderColor: "hsl(var(--border))",
+                            backgroundColor: "var(--card)",
+                            borderColor: "var(--border)",
                             borderRadius: "0.5rem",
-                            color: "hsl(var(--foreground))",
+                            color: "var(--foreground)",
                             fontSize: "12px",
                         }}
-                        itemStyle={{ color: "hsl(var(--foreground))" }}
+                        itemStyle={{ color: "var(--foreground)" }}
                     />
                 </PieChart>
             </ResponsiveContainer>
