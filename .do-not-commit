@@ -1,5 +1,0 @@
-# Do not commit or push these (they are in .gitignore; never force-add them):
-# - .env, .env.local, any .env*.local (secrets: DATABASE_URL, ADMIN_*, NEXTAUTH_*)
-# - node_modules/, .next/, build/, out/
-# - *.log, debug.log
-# Before push: run "git status" and ensure no .env or secret files are staged.
