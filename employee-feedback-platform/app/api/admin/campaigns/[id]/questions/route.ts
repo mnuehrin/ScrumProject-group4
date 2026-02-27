@@ -45,14 +45,6 @@ export async function POST(
       prompt: prompt.trim(),
       type: type ?? "TEXT",
       order: nextOrder,
-      feedback: {
-        create: {
-          content: prompt.trim(),
-          category: campaign.category,
-          status: statusMap[campaign.status] ?? "PENDING",
-          adminNote: `Post: ${campaign.title}`,
-        },
-      },
     },
   });
 

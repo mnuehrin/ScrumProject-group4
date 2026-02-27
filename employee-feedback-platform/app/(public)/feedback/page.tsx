@@ -6,6 +6,8 @@ import type { FeedbackWithMeta } from "@/types";
 async function getFeedback(): Promise<FeedbackWithMeta[]> {
   const rows = await prisma.feedback.findMany({
     // ✅ FIX: remove feedbackResponses filter (table doesn't exist in DB)
+    // ✅ FIX: hide feedback records that were auto-generated for questions
+    where: { questionId: null },
     orderBy: { createdAt: "desc" },
     include: { _count: { select: { comments: true } } },
   });
@@ -125,7 +127,6 @@ export default async function FeedbackPage() {
             initialFeedback={feedback}
             initialCampaignQuestions={campaignQuestions.map((item) => ({
               id: item.id,
-              campaignId: item.campaignId,
               campaignTitle: item.campaignTitle,
               campaignDescription: item.campaignDescription,
               category: item.campaignCategory,

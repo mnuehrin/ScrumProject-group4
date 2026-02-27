@@ -47,7 +47,7 @@ const ADMIN_ITEMS: NavItem[] = [
 ];
 
 function isActive(pathname: string, href: string) {
-  if (href === "/") return pathname === "/";
+  if (href === "/" || href === "/admin") return pathname === href;
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -274,14 +274,14 @@ function NavLinks() {
                       "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold transition-all",
                       showLabels ? "justify-start" : "justify-center",
                       active
-                        ? "bg-accent/70 text-foreground ring-1 ring-border"
+                        ? "bg-accent/80 text-foreground"
                         : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
                     )}
                   >
                     <span
                       className={cn(
                         "inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors",
-                        active ? "bg-card/80 shadow-sm ring-1 ring-border" : "group-hover:bg-card/70"
+                        active ? "bg-card shadow-sm" : "group-hover:bg-card/70"
                       )}
                     >
                       <SidebarItemIcon icon={item.icon} active={active} />
