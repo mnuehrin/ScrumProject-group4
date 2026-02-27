@@ -58,7 +58,7 @@ export default async function AdminPage() {
   }
 
   const totalPosts = feedback.length;
-  const totalDiscussions = feedback.reduce((sum, item) => sum + item.commentsCount, 0);
+  const totalDiscussions = feedback.reduce((sum, item) => sum + item.commentsCount, 0) + questionResponseCount;
   const totalSubmissions = totalPosts + totalDiscussions;
 
   return (

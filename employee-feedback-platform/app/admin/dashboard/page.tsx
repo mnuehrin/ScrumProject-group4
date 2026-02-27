@@ -79,7 +79,7 @@ export default async function AdminDashboardPage() {
     } as const;
 
     const [
-      fTotal, fcTotal,
+      fTotal, fcTotal, qrTotal,
       fResolved, fPending,
       fUpvotesSum,
       qUpvotesSum,
@@ -89,8 +89,10 @@ export default async function AdminDashboardPage() {
     ] = await Promise.all([
       // Total employee submissions (Submit Feedback + Q&A responses)
       prisma.feedback.count({ where: submissionWhere }),
-      // Discussion comments (unchanged)
+      // Comments on feedback posts
       prisma.feedbackComment.count(),
+      // Comments on Q&A questions
+      prisma.questionResponse.count(),
       prisma.feedback.count({ where: { ...submissionWhere, status: "RESOLVED" } }),
       prisma.feedback.count({ where: { ...submissionWhere, status: "PENDING" } }),
       // Upvotes on Feedback records (Submit Feedback + Q&A response records)
@@ -110,7 +112,7 @@ export default async function AdminDashboardPage() {
     ]);
 
     totalFeedback = fTotal;
-    totalFeedbackComments = fcTotal;
+    totalFeedbackComments = fcTotal + qrTotal;
     totalResolvedFeedback = fResolved;
     totalPendingFeedback = fPending;
 

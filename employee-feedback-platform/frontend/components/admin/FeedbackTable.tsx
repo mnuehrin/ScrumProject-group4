@@ -223,9 +223,6 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
                     Status
                   </th>
                   <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Upvotes
-                  </th>
-                  <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Reward
                   </th>
                   <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -271,7 +268,6 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
                             {STATUS_LABELS[item.status]}
                           </Badge>
                         </td>
-                        <td className="px-5 py-4 text-sm tabular-nums text-muted-foreground">{item.upvotes}</td>
                         <td className="px-5 py-4">
                           {item.reward ? (
                             <Badge>{REWARD_STATUS_LABELS[item.reward.status]}</Badge>
@@ -300,7 +296,7 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
                       </tr>
                       {expandedId === item.id && (
                         <tr className="bg-accent/40">
-                          <td colSpan={8} className="px-5 py-5">
+                          <td colSpan={7} className="px-5 py-5">
                             <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
                               {item.content}
                             </p>
