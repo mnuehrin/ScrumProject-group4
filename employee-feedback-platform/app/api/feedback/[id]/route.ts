@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { revalidatePath } from "next/cache";
 
 export async function DELETE(
   _req: NextRequest,
@@ -59,6 +60,10 @@ export async function DELETE(
       prisma.reward.deleteMany({ where: { feedbackId: params.id } }),
       prisma.feedback.delete({ where: { id: params.id } }),
     ]);
+
+    revalidatePath("/admin");
+    revalidatePath("/admin/dashboard");
+    revalidatePath("/feedback");
 
     return NextResponse.json({ success: true });
   } catch (err: any) {

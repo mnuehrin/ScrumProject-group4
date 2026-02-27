@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/db";
 import { authOptions } from "@/lib/auth";
 import { updateCampaignSchema } from "@/lib/validations";
+import { revalidatePath } from "next/cache";
 
 export async function PATCH(
   req: NextRequest,
@@ -85,6 +86,10 @@ export async function DELETE(
     // Delete the campaign
     prisma.campaign.delete({ where: { id: params.id } }),
   ]);
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/dashboard");
+  revalidatePath("/admin/campaigns");
 
   return NextResponse.json({ success: true });
 }

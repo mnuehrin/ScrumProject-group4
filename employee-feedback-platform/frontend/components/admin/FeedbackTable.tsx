@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, Fragment, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CategoryPills, type CategoryValue } from "@/components/ui/category-pills";
@@ -57,6 +58,7 @@ interface FeedbackTableProps {
 }
 
 export function FeedbackTable({ feedback }: FeedbackTableProps) {
+  const router = useRouter();
   const [rows, setRows] = useState(feedback);
   const [activeCategory, setActiveCategory] = useState<CategoryValue>("ALL");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -140,6 +142,8 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
       if (!res.ok) {
         // Revert the removed item back
         if (removedItem) setRows((prev) => [...prev, removedItem].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+      } else {
+        router.refresh();
       }
     } catch {
       if (removedItem) setRows((prev) => [...prev, removedItem].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
