@@ -30,7 +30,7 @@ const CATEGORY_VARIANTS: Record<FeedbackCategory, "culture" | "tools" | "workloa
 };
 
 const STATUS_LABELS: Record<FeedbackStatus, string> = {
-  PENDING: "Pending",
+  PENDING: "Review Pending",
   REVIEWED: "Reviewed",
   IN_PROGRESS: "In Progress",
   RESOLVED: "Resolved",
@@ -80,29 +80,29 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
     );
   };
 
-  const handleToggleReviewed = useCallback(async (feedbackId: string, currentStatus: FeedbackStatus) => {
-    const newStatus: FeedbackStatus = currentStatus === "REVIEWED" ? "PENDING" : "REVIEWED";
+  const handleToggleReviewed = useCallback(async (feedbackId: string, currentReviewed: boolean) => {
+    const newReviewed = !currentReviewed;
 
     // Optimistic update
     setRows((prev) =>
       prev.map((item) =>
-        item.id === feedbackId ? { ...item, status: newStatus } : item
+        item.id === feedbackId ? { ...item, reviewed: newReviewed } : item
       )
     );
     setUpdatingIds((prev) => new Set(prev).add(feedbackId));
 
     try {
-      const res = await fetch(`/api/feedback/${feedbackId}/status`, {
+      const res = await fetch(`/api/feedback/${feedbackId}/reviewed`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({ reviewed: newReviewed }),
       });
 
       if (!res.ok) {
         // Revert on failure
         setRows((prev) =>
           prev.map((item) =>
-            item.id === feedbackId ? { ...item, status: currentStatus } : item
+            item.id === feedbackId ? { ...item, reviewed: currentReviewed } : item
           )
         );
       }
@@ -110,7 +110,7 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
       // Revert on network error
       setRows((prev) =>
         prev.map((item) =>
-          item.id === feedbackId ? { ...item, status: currentStatus } : item
+          item.id === feedbackId ? { ...item, reviewed: currentReviewed } : item
         )
       );
     } finally {
@@ -160,15 +160,30 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
     <div className="space-y-4">
       {/* Stats row */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {(["PENDING", "REVIEWED", "IN_PROGRESS", "RESOLVED"] as FeedbackStatus[]).map((s) => {
-          const count = rows.filter((f) => f.status === s).length;
-          return (
-            <div key={s} className="rounded-xl border border-border bg-card px-5 py-4">
-              <p className="text-sm text-muted-foreground mb-1">{STATUS_LABELS[s]}</p>
-              <p className="text-3xl font-semibold tabular-nums text-foreground">{count}</p>
-            </div>
-          );
-        })}
+        <div className="rounded-xl border border-border bg-card px-5 py-4">
+          <p className="text-sm text-muted-foreground mb-1">Review Pending</p>
+          <p className="text-3xl font-semibold tabular-nums text-foreground">
+            {rows.filter((f) => !f.reviewed).length}
+          </p>
+        </div>
+        <div className="rounded-xl border border-border bg-card px-5 py-4">
+          <p className="text-sm text-muted-foreground mb-1">Reviewed</p>
+          <p className="text-3xl font-semibold tabular-nums text-foreground">
+            {rows.filter((f) => f.reviewed).length}
+          </p>
+        </div>
+        <div className="rounded-xl border border-border bg-card px-5 py-4">
+          <p className="text-sm text-muted-foreground mb-1">In Progress</p>
+          <p className="text-3xl font-semibold tabular-nums text-foreground">
+            {rows.filter((f) => f.status === "IN_PROGRESS").length}
+          </p>
+        </div>
+        <div className="rounded-xl border border-border bg-card px-5 py-4">
+          <p className="text-sm text-muted-foreground mb-1">Resolved</p>
+          <p className="text-3xl font-semibold tabular-nums text-foreground">
+            {rows.filter((f) => f.status === "RESOLVED").length}
+          </p>
+        </div>
       </div>
 
       <CategoryPills
@@ -223,8 +238,7 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
               </thead>
               <tbody className="divide-y divide-border">
                 {filtered.map((item) => {
-                  const isReviewed = item.status === "REVIEWED";
-                  const isToggleable = item.status === "PENDING" || item.status === "REVIEWED";
+                  const isReviewed = item.reviewed;
                   const isUpdating = updatingIds.has(item.id);
 
                   return (
@@ -237,16 +251,10 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
                           <input
                             type="checkbox"
                             checked={isReviewed}
-                            disabled={!isToggleable || isUpdating}
-                            title={
-                              !isToggleable
-                                ? `Status is "${STATUS_LABELS[item.status]}" — cannot toggle`
-                                : isReviewed
-                                  ? "Unmark as reviewed"
-                                  : "Mark as reviewed"
-                            }
+                            disabled={isUpdating}
+                            title={isReviewed ? "Unmark as reviewed" : "Mark as reviewed"}
                             onClick={(e) => e.stopPropagation()}
-                            onChange={() => handleToggleReviewed(item.id, item.status)}
+                            onChange={() => handleToggleReviewed(item.id, item.reviewed)}
                             className="h-4 w-4 cursor-pointer rounded border-border text-primary accent-primary focus:ring-2 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50"
                           />
                         </td>

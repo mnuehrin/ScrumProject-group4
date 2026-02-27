@@ -117,7 +117,7 @@ export async function POST(
         data: {
           content: content.trim(),
           category: question.campaign.category,
-          status: "PENDING",
+          status: campaignStatusMap[question.campaign.status],
           submitterSessionId: sessionId,
           adminNote: `Q&A response · Campaign: ${question.campaign.title}`,
         },

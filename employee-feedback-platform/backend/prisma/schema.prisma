@@ -64,6 +64,7 @@ model Feedback {
   upvotes         Int              @default(0)
   downvotes       Int              @default(0)
   status          FeedbackStatus   @default(PENDING)
+  reviewed        Boolean          @default(false)
   adminNote       String?          @db.Text @map("admin_note")
   statusUpdatedAt DateTime?        @map("status_updated_at")
   statusUpdatedBy String?          @map("status_updated_by")
