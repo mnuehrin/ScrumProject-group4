@@ -7,6 +7,8 @@ import type { FeedbackWithMeta } from "@/types";
 
 async function getAllFeedback(): Promise<FeedbackWithMeta[]> {
   const rows = await prisma.feedback.findMany({
+    // Only show employee submissions — exclude question-prompt shadow records
+    where: { NOT: { adminNote: { startsWith: "Campaign:" } } },
     orderBy: { createdAt: "desc" },
     include: { reward: true, _count: { select: { comments: true } } },
   });

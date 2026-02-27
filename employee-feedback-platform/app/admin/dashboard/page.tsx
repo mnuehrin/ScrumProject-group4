@@ -63,6 +63,7 @@ export default async function AdminDashboardPage() {
   let totalPendingFeedback: number;
 
   let totalUpvotesObj: { _sum: { upvotes: number | null } };
+  let totalQaUpvotesObj: { _sum: { upvotes: number | null } };
 
   let byCategory: { category: string; _count: { id: number } }[];
   let byStatus: { status: string; _count: { id: number } }[];
@@ -70,23 +71,39 @@ export default async function AdminDashboardPage() {
   let feedbackDates: { createdAt: Date }[];
 
   try {
+    // "Submissions" = direct Submit Feedback entries + Q&A employee responses.
+    // We exclude question-prompt shadow records (adminNote starts with "Campaign:")
+    // since those represent admin-created prompts, not employee submissions.
+    const submissionWhere = {
+      NOT: { adminNote: { startsWith: "Campaign:" } },
+    } as const;
+
     const [
       fTotal, fcTotal,
       fResolved, fPending,
       fUpvotesSum,
+      qUpvotesSum,
       fCategoryRows,
       fStatusRows,
       allFeedback,
     ] = await Promise.all([
-      prisma.feedback.count(),
+      // Total employee submissions (Submit Feedback + Q&A responses)
+      prisma.feedback.count({ where: submissionWhere }),
+      // Discussion comments (unchanged)
       prisma.feedbackComment.count(),
-      prisma.feedback.count({ where: { status: "RESOLVED" } }),
-      prisma.feedback.count({ where: { status: "PENDING" } }),
-      prisma.feedback.aggregate({ _sum: { upvotes: true } }),
-      prisma.feedback.groupBy({ by: ["category"], _count: { id: true } }),
-      prisma.feedback.groupBy({ by: ["status"], _count: { id: true } }),
+      prisma.feedback.count({ where: { ...submissionWhere, status: "RESOLVED" } }),
+      prisma.feedback.count({ where: { ...submissionWhere, status: "PENDING" } }),
+      // Upvotes on Feedback records (Submit Feedback + Q&A response records)
+      prisma.feedback.aggregate({ where: submissionWhere, _sum: { upvotes: true } }),
+      // Upvotes on Question records (the Live Q&A cards themselves in the feed)
+      prisma.question.aggregate({ _sum: { upvotes: true } }),
+      // Category breakdown — all submissions
+      prisma.feedback.groupBy({ by: ["category"], where: submissionWhere, _count: { id: true } }),
+      // Status breakdown — all submissions
+      prisma.feedback.groupBy({ by: ["status"], where: submissionWhere, _count: { id: true } }),
+      // Submissions over time (last 30 days)
       prisma.feedback.findMany({
-        where: { createdAt: { gte: oneMonthAgo } },
+        where: { ...submissionWhere, createdAt: { gte: oneMonthAgo } },
         select: { createdAt: true },
         orderBy: { createdAt: "asc" },
       }),
@@ -98,6 +115,7 @@ export default async function AdminDashboardPage() {
     totalPendingFeedback = fPending;
 
     totalUpvotesObj = fUpvotesSum;
+    totalQaUpvotesObj = qUpvotesSum;
 
     byCategory = fCategoryRows;
     byStatus = fStatusRows;
@@ -145,7 +163,7 @@ export default async function AdminDashboardPage() {
   const totalPending = totalPendingFeedback;
 
   const resolutionRate = totalPosts > 0 ? ((totalResolved / totalPosts) * 100).toFixed(1) : "0";
-  const totalUpvotes = totalUpvotesObj._sum.upvotes || 0;
+  const totalUpvotes = (totalUpvotesObj._sum.upvotes || 0) + (totalQaUpvotesObj._sum.upvotes || 0);
   const avgEngagement = totalPosts > 0 ? (totalUpvotes / totalPosts).toFixed(1) : "0";
 
   const categoryTrends = Object.fromEntries(
@@ -218,7 +236,7 @@ export default async function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalSubmissions}</div>
-            <p className="text-xs text-muted-foreground">{totalPosts} posts · {totalDiscussions} discussions</p>
+            <p className="text-xs text-muted-foreground">{totalPosts} submissions · {totalDiscussions} comments</p>
           </CardContent>
         </Card>
 
@@ -229,7 +247,7 @@ export default async function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{resolutionRate}%</div>
-            <p className="text-xs text-muted-foreground">{totalResolved} resolved out of {totalPosts} posts</p>
+            <p className="text-xs text-muted-foreground">{totalResolved} resolved of {totalPosts} submissions</p>
           </CardContent>
         </Card>
 
@@ -251,7 +269,7 @@ export default async function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{avgEngagement}</div>
-            <p className="text-xs text-muted-foreground">Upvotes per post</p>
+            <p className="text-xs text-muted-foreground">Total upvotes across all feedback</p>
           </CardContent>
         </Card>
       </div>
