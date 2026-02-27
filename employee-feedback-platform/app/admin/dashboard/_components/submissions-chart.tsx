@@ -44,30 +44,30 @@ export function SubmissionsChart({ data }: SubmissionsChartProps) {
                             <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                         </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
                     <XAxis
                         dataKey="label"
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                        tick={{ fontSize: 12, fill: "#94a3b8" }} // slate-400
                         dy={10}
                         minTickGap={30}
                     />
                     <YAxis
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                        tick={{ fontSize: 12, fill: "#94a3b8" }}
                         allowDecimals={false}
                     />
                     <Tooltip
                         contentStyle={{
-                            backgroundColor: "hsl(var(--card))",
-                            borderColor: "hsl(var(--border))",
+                            backgroundColor: "var(--card)",
+                            borderColor: "var(--border)",
                             borderRadius: "0.5rem",
-                            color: "hsl(var(--foreground))",
+                            color: "var(--foreground)",
                             fontSize: "12px",
                         }}
-                        itemStyle={{ color: "hsl(var(--foreground))" }}
+                        itemStyle={{ color: "var(--foreground)" }}
                     />
                     <Area
                         type="monotone"

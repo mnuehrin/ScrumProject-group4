@@ -1,6 +1,6 @@
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { FeedbackWithMeta, FeedbackCategory, FeedbackStatus } from "@/types";
+import type { FeedbackWithMeta, FeedbackCategory } from "@/types";
 
 const CATEGORY_LABELS: Record<FeedbackCategory, string> = {
   CULTURE: "Culture",
@@ -16,20 +16,6 @@ const CATEGORY_VARIANTS: Record<FeedbackCategory, "culture" | "tools" | "workloa
   WORKLOAD: "workload",
   MANAGEMENT: "management",
   OTHER: "other",
-};
-
-const STATUS_LABELS: Record<FeedbackStatus, string> = {
-  PENDING: "Pending",
-  REVIEWED: "Reviewed",
-  IN_PROGRESS: "In Progress",
-  RESOLVED: "Resolved",
-};
-
-const STATUS_VARIANTS: Record<FeedbackStatus, "pending" | "reviewed" | "in_progress" | "resolved"> = {
-  PENDING: "pending",
-  REVIEWED: "reviewed",
-  IN_PROGRESS: "in_progress",
-  RESOLVED: "resolved",
 };
 
 interface FeedbackCardProps {
@@ -52,9 +38,6 @@ export function FeedbackCard({ feedback, upvoteSlot, threadSlot }: FeedbackCardP
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant={CATEGORY_VARIANTS[feedback.category]}>
               {CATEGORY_LABELS[feedback.category]}
-            </Badge>
-            <Badge variant={STATUS_VARIANTS[feedback.status]}>
-              {STATUS_LABELS[feedback.status]}
             </Badge>
           </div>
           <span className="shrink-0 text-xs text-muted-foreground">{formattedDate}</span>

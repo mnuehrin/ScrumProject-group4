@@ -5,10 +5,16 @@ import type { FeedbackWithMeta } from "@/types";
 
 async function getFeedback(): Promise<FeedbackWithMeta[]> {
   const rows = await prisma.feedback.findMany({
-    where: { questionId: null },
+    where: {
+      // Hide linked records for campaign questions
+      questionId: null,
+      // Hide linked records created for individual Q&A responses (admin-only)
+      NOT: { adminNote: { startsWith: "Q&A response ·" } },
+    },
     orderBy: { createdAt: "desc" },
     include: { _count: { select: { comments: true } } },
   });
+
   return rows.map((f) => ({
     ...f,
     downvotes: f.downvotes ?? 0,
@@ -33,6 +39,7 @@ type CampaignQuestionFeedView = {
 
 async function getCampaignFeed(): Promise<CampaignQuestionFeedView[]> {
   const now = new Date();
+
   const campaigns = await prisma.campaign.findMany({
     where: {
       status: "LIVE",
@@ -88,18 +95,23 @@ async function getCampaignFeed(): Promise<CampaignQuestionFeedView[]> {
 export default async function FeedbackPage() {
   const feedback = await getFeedback();
   const campaignQuestions = await getCampaignFeed();
+
   const companyName = process.env.NEXT_PUBLIC_COMPANY_NAME || "Sundevils";
   const companyLogoSrc =
     process.env.NEXT_PUBLIC_COMPANY_LOGO ||
     "/Arizona_State_University_Pitchfork_-_Square_-_EzB.webp";
+
   const liveCampaigns = new Set(campaignQuestions.map((item) => item.campaignId)).size;
+
   const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const weeklyFeedbackCount = feedback.filter(
     (item) => new Date(item.createdAt).getTime() >= oneWeekAgo.getTime()
   ).length;
+
   const weeklyQuestionCount = campaignQuestions.filter(
     (item) => new Date(item.createdAt).getTime() >= oneWeekAgo.getTime()
   ).length;
+
   const weeklyActivity = weeklyFeedbackCount + weeklyQuestionCount;
 
   return (
@@ -111,12 +123,14 @@ export default async function FeedbackPage() {
           resonate with you to help surface the most important issues.
         </p>
       </div>
+
       <div className="grid min-h-0 flex-1 gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-h-0 xl:overflow-y-auto xl:pr-1">
           <FeedbackFeed
             initialFeedback={feedback}
             initialCampaignQuestions={campaignQuestions.map((item) => ({
               id: item.id,
+              campaignId: item.campaignId,
               campaignTitle: item.campaignTitle,
               campaignDescription: item.campaignDescription,
               category: item.campaignCategory,
@@ -128,6 +142,7 @@ export default async function FeedbackPage() {
             }))}
           />
         </div>
+
         <div className="xl:-mt-16 xl:h-full xl:overflow-hidden">
           <FeedbackSidePanel
             companyName={companyName}

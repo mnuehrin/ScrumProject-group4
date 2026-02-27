@@ -153,11 +153,10 @@ export function FeedbackFeed({ initialFeedback, initialCampaignQuestions }: Feed
             <button
               key={s}
               onClick={() => setSort(s)}
-              className={`cursor-pointer whitespace-nowrap rounded-full border px-4 py-1.5 text-[13px] font-semibold transition-all ${
-                sort === s
+              className={`cursor-pointer whitespace-nowrap rounded-full border px-4 py-1.5 text-[13px] font-semibold transition-all ${sort === s
                   ? "border-transparent bg-primary text-primary-foreground shadow-sm"
                   : "border-border bg-card/80 text-muted-foreground hover:bg-accent/60 hover:text-foreground"
-              }`}
+                }`}
             >
               {s === "newest" ? "Newest" : "Most upvoted"}
             </button>
@@ -232,6 +231,7 @@ export function FeedbackFeed({ initialFeedback, initialCampaignQuestions }: Feed
 
 type CampaignQuestionItem = {
   id: string;
+  campaignId: string;
   campaignTitle: string;
   campaignDescription: string | null;
   category: FeedbackCategory;
@@ -269,7 +269,7 @@ function CampaignQuestionCard({
             <Badge variant={CATEGORY_VARIANTS[question.category]}>
               {CATEGORY_LABELS[question.category]}
             </Badge>
-            <Badge variant="pending">Feedback</Badge>
+            <Badge>Live Q&amp;A</Badge>
           </div>
           <span className="shrink-0 text-xs text-muted-foreground">{formattedDate}</span>
         </div>

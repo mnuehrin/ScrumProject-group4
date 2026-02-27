@@ -64,6 +64,7 @@ model Feedback {
   upvotes         Int              @default(0)
   downvotes       Int              @default(0)
   status          FeedbackStatus   @default(PENDING)
+  reviewed        Boolean          @default(false)
   adminNote       String?          @db.Text @map("admin_note")
   statusUpdatedAt DateTime?        @map("status_updated_at")
   statusUpdatedBy String?          @map("status_updated_by")
@@ -75,7 +76,8 @@ model Feedback {
   activityLogs ActivityLog[]
   reward       Reward?
   comments     FeedbackComment[]
-
+  feedbackResponses FeedbackPromptResponse[]
+  
   @@index([submitterSessionId])
   @@map("feedback")
 }
@@ -95,6 +97,22 @@ model FeedbackComment {
   @@index([feedbackId])
   @@index([parentId])
   @@map("feedback_comments")
+}
+
+model FeedbackPromptResponse {
+  id         String   @id @default(uuid()) @db.VarChar(36)
+  feedbackId String   @map("feedback_id")
+  questionId String   @map("question_id")
+  content    String   @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([feedbackId])
+  @@index([questionId])
+  @@unique([feedbackId, questionId])
+  @@map("feedback_prompt_responses")
 }
 
 model Reward {
@@ -173,6 +191,7 @@ model Question {
   feedback   Feedback?
   responses  QuestionResponse[]
   votes      QuestionVote[]
+  feedbackResponses FeedbackPromptResponse[]
 
   @@index([campaignId])
   @@map("questions")

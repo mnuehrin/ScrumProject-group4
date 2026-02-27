@@ -65,7 +65,7 @@ export async function POST(
 
   const feedback = await prisma.feedback.findUnique({
     where: { id: feedbackId },
-    select: { id: true, submitterSessionId: true },
+    select: { id: true, submitterSessionId: true, status: true },
   });
   if (!feedback) {
     return NextResponse.json({ error: "Feedback not found." }, { status: 404 });
@@ -103,6 +103,15 @@ export async function POST(
       createdAt: true,
     },
   });
+
+  // If the feedback was already reviewed, reset to PENDING so admin
+  // knows there is new activity that needs re-review.
+  if (feedback.status === "REVIEWED") {
+    await prisma.feedback.update({
+      where: { id: feedbackId },
+      data: { status: "PENDING", statusUpdatedAt: new Date() },
+    });
+  }
 
   await prisma.activityLog.create({
     data: {
