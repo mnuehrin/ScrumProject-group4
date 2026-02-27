@@ -17,13 +17,6 @@ const CATEGORY_LABELS: Record<string, string> = {
   OTHER: "Other",
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  PENDING: "Pending",
-  REVIEWED: "Reviewed",
-  IN_PROGRESS: "In Progress",
-  RESOLVED: "Resolved",
-};
-
 // Recharts requires raw color values (Hex, RGB, HSL)
 const CATEGORY_COLORS: Record<string, string> = {
   CULTURE: "#f97316", // orange-500
@@ -60,13 +53,14 @@ export default async function AdminDashboardPage() {
   let totalFeedback: number;
   let totalFeedbackComments: number;
   let totalResolvedFeedback: number;
-  let totalPendingFeedback: number;
+  let totalNotReviewedFeedback: number;
+  let totalReviewedFeedback: number;
+  let totalInProgressFeedback: number;
 
   let totalUpvotesObj: { _sum: { upvotes: number | null } };
   let totalQaUpvotesObj: { _sum: { upvotes: number | null } };
 
   let byCategory: { category: string; _count: { id: number } }[];
-  let byStatus: { status: string; _count: { id: number } }[];
 
   let feedbackDates: { createdAt: Date }[];
 
@@ -80,11 +74,10 @@ export default async function AdminDashboardPage() {
 
     const [
       fTotal, fcTotal, qrTotal,
-      fResolved, fPending,
+      fResolved, fNotReviewed, fReviewed, fInProgress,
       fUpvotesSum,
       qUpvotesSum,
       fCategoryRows,
-      fStatusRows,
       allFeedback,
     ] = await Promise.all([
       // Total employee submissions (Submit Feedback + Q&A responses)
@@ -94,15 +87,15 @@ export default async function AdminDashboardPage() {
       // Comments on Q&A questions
       prisma.questionResponse.count(),
       prisma.feedback.count({ where: { ...submissionWhere, status: "RESOLVED" } }),
-      prisma.feedback.count({ where: { ...submissionWhere, status: "PENDING" } }),
+      prisma.feedback.count({ where: { ...submissionWhere, reviewed: false } }),
+      prisma.feedback.count({ where: { ...submissionWhere, reviewed: true } }),
+      prisma.feedback.count({ where: { ...submissionWhere, status: "IN_PROGRESS" } }),
       // Upvotes on Feedback records (Submit Feedback + Q&A response records)
       prisma.feedback.aggregate({ where: submissionWhere, _sum: { upvotes: true } }),
       // Upvotes on Question records (the Live Q&A cards themselves in the feed)
       prisma.question.aggregate({ _sum: { upvotes: true } }),
       // Category breakdown — all submissions
       prisma.feedback.groupBy({ by: ["category"], where: submissionWhere, _count: { id: true } }),
-      // Status breakdown — all submissions
-      prisma.feedback.groupBy({ by: ["status"], where: submissionWhere, _count: { id: true } }),
       // Submissions over time (last 30 days)
       prisma.feedback.findMany({
         where: { ...submissionWhere, createdAt: { gte: oneMonthAgo } },
@@ -114,13 +107,14 @@ export default async function AdminDashboardPage() {
     totalFeedback = fTotal;
     totalFeedbackComments = fcTotal + qrTotal;
     totalResolvedFeedback = fResolved;
-    totalPendingFeedback = fPending;
+    totalNotReviewedFeedback = fNotReviewed;
+    totalReviewedFeedback = fReviewed;
+    totalInProgressFeedback = fInProgress;
 
     totalUpvotesObj = fUpvotesSum;
     totalQaUpvotesObj = qUpvotesSum;
 
     byCategory = fCategoryRows;
-    byStatus = fStatusRows;
     feedbackDates = allFeedback;
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
@@ -162,7 +156,7 @@ export default async function AdminDashboardPage() {
   const totalSubmissions = totalPosts + totalDiscussions;
 
   const totalResolved = totalResolvedFeedback;
-  const totalPending = totalPendingFeedback;
+  const totalPending = totalNotReviewedFeedback;
 
   const resolutionRate = totalPosts > 0 ? ((totalResolved / totalPosts) * 100).toFixed(1) : "0";
   const totalUpvotes = (totalUpvotesObj._sum.upvotes || 0) + (totalQaUpvotesObj._sum.upvotes || 0);
@@ -170,10 +164,6 @@ export default async function AdminDashboardPage() {
 
   const categoryTrends = Object.fromEntries(
     byCategory.map((row) => [row.category, row._count.id])
-  );
-
-  const statusTrends = Object.fromEntries(
-    byStatus.map((row) => [row.status, row._count.id])
   );
 
   // Pad the last 30 days so the chart doesn't have skipping dates
@@ -203,12 +193,12 @@ export default async function AdminDashboardPage() {
     fill: CATEGORY_COLORS[cat] ?? "#475569"
   })).filter(d => d.value > 0);
 
-  const statusOrder = ["PENDING", "REVIEWED", "IN_PROGRESS", "RESOLVED"] as const;
-  const statusChartData = statusOrder.map(status => ({
-    name: STATUS_LABELS[status],
-    value: statusTrends[status] ?? 0,
-    fill: STATUS_COLORS[status] ?? "#475569"
-  }));
+  const statusChartData = [
+    { name: "Review Pending", value: totalNotReviewedFeedback,   fill: STATUS_COLORS.PENDING },
+    { name: "Reviewed",       value: totalReviewedFeedback,      fill: STATUS_COLORS.REVIEWED },
+    { name: "In Progress",    value: totalInProgressFeedback,    fill: STATUS_COLORS.IN_PROGRESS },
+    { name: "Resolved",       value: totalResolvedFeedback,      fill: STATUS_COLORS.RESOLVED },
+  ];
 
   return (
     <section className="space-y-6">
@@ -255,12 +245,12 @@ export default async function AdminDashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <h3 className="text-sm font-medium text-muted-foreground">Pending Action</h3>
+            <h3 className="text-sm font-medium text-muted-foreground">Review Pending</h3>
             <Clock className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalPending}</div>
-            <p className="text-xs text-muted-foreground">Posts awaiting initial review</p>
+            <p className="text-xs text-muted-foreground">Posts not yet marked as reviewed</p>
           </CardContent>
         </Card>
 
