@@ -56,12 +56,12 @@ export default async function HomePage() {
 
   return (
     <section className="space-y-8 pb-8 animate-in fade-in duration-500">
-      
+
       {/* 1. Modern Hero Section */}
       <div className="relative overflow-hidden rounded-2xl border border-border bg-card px-8 py-10 shadow-sm">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
         <div className="relative space-y-4">
-          <Badge variant="secondary" className="bg-accent/50 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          <Badge className="bg-accent/50 text-xs font-medium uppercase tracking-wider text-muted-foreground">
             Employee Hub
           </Badge>
           <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
@@ -130,7 +130,7 @@ export default async function HomePage() {
                     <h3 className="font-semibold leading-none text-foreground group-hover:text-primary transition-colors">
                       {c.title}
                     </h3>
-                    <Badge variant="secondary" className="shrink-0 bg-accent/50 text-[10px]">
+                    <Badge className="shrink-0 bg-accent/50 text-[10px]">
                       {CATEGORY_LABELS[c.category] || c.category}
                     </Badge>
                   </div>

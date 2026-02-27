@@ -5,35 +5,6 @@ import { prisma } from "@/lib/db";
 import { FeedbackTable } from "@/components/admin/FeedbackTable";
 import type { FeedbackWithMeta } from "@/types";
 
-/** Backfill: create Feedback records for any campaign questions that don't have one yet. */
-async function backfillCampaignQuestions() {
-  const orphaned = await prisma.question.findMany({
-    where: { feedback: { is: null } },
-    include: { campaign: { select: { title: true, category: true, status: true } } },
-  });
-
-  if (orphaned.length === 0) return;
-
-  const statusMap = { LIVE: "IN_PROGRESS", ARCHIVED: "RESOLVED", DRAFT: "PENDING" } as const;
-
-  await prisma.$transaction(
-    orphaned.map((q) =>
-      prisma.feedback.create({
-        data: {
-          content: q.prompt,
-          category: q.campaign.category,
-          status: statusMap[q.campaign.status] ?? "PENDING",
-          adminNote: `Post: ${q.campaign.title}`,
-          upvotes: q.upvotes ?? 0,
-          downvotes: q.downvotes ?? 0,
-          createdAt: q.createdAt,
-          questionId: q.id,
-        },
-      })
-    )
-  );
-}
-
 async function getAllFeedback(): Promise<FeedbackWithMeta[]> {
   const rows = await prisma.feedback.findMany({
     orderBy: { createdAt: "desc" },
@@ -61,7 +32,6 @@ export default async function AdminPage() {
   let feedback: FeedbackWithMeta[];
   let questionResponseCount: number;
   try {
-    await backfillCampaignQuestions();
     [feedback, questionResponseCount] = await Promise.all([
       getAllFeedback(),
       prisma.questionResponse.count(),

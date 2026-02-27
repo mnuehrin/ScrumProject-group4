@@ -70,13 +70,13 @@ export async function POST(req: NextRequest) {
       content,
       category,
       submitterSessionId: sessionId || null,
-      promptResponses: promptResponses.length
+      feedbackResponses: promptResponses.length
         ? {
-            create: promptResponses.map((r: any) => ({
-              questionId: r.questionId,
-              content: String(r.content ?? "").trim(),
-            })),
-          }
+          create: promptResponses.map((r: any) => ({
+            questionId: r.questionId,
+            content: String(r.content ?? "").trim(),
+          })),
+        }
         : undefined,
     },
   });

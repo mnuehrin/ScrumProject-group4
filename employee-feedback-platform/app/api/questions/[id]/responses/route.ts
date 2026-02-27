@@ -60,7 +60,7 @@ export async function POST(
 
   const question = await prisma.question.findUnique({
     where: { id: params.id },
-    select: { id: true },
+    include: { campaign: { select: { title: true, category: true } } },
   });
   if (!question) {
     return NextResponse.json({ error: "Question not found" }, { status: 404 });
@@ -91,14 +91,36 @@ export async function POST(
     }
   }
 
-  const response = await prisma.questionResponse.create({
-    data: {
-      questionId: params.id,
-      sessionId,
-      content: content.trim(),
-      parentId: parentId ?? null,
-    },
+  // For root-level responses (not replies), create a linked Feedback record
+  // alongside the QuestionResponse. This mirrors the Submit Feedback flow:
+  // the Feedback carries the employee's sessionId so the admin can reward it
+  // and the employee can see the reward in "My Rewards". Reply threads don't
+  // get a Feedback record since only top-level answers should be rewardable.
+  const response = await prisma.$transaction(async (tx) => {
+    const qr = await tx.questionResponse.create({
+      data: {
+        questionId: params.id,
+        sessionId,
+        content: content.trim(),
+        parentId: parentId ?? null,
+      },
+    });
+
+    if (!parentId) {
+      await tx.feedback.create({
+        data: {
+          content: content.trim(),
+          category: question.campaign.category,
+          status: "PENDING",
+          submitterSessionId: sessionId,  // ← enables "My Rewards" matching
+          adminNote: `Q&A response · Campaign: ${question.campaign.title}`,
+        },
+      });
+    }
+
+    return qr;
   });
 
   return NextResponse.json(response, { status: 201 });
 }
+
